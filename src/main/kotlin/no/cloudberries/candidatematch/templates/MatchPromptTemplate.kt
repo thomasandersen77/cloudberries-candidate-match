@@ -50,6 +50,7 @@ object MatchPromptTemplate {
         }
 
         Ikke inkluder annen tekst utenfor JSON-objektet.
+        Fjern backtickes ```json og avsluttende ```for gyldig json
         
     """.trimIndent()
 }

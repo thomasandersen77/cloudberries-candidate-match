@@ -9,9 +9,10 @@ import java.util.concurrent.TimeUnit
 
 @Service
 class FlowcaseHttpClient(
-    config: FlowcaseConfig
+    val config: FlowcaseConfig
 ) {
-    private val url = "${config.baseUrl}/v2/users/search?page=0&size=10000"
+    private val searchUrl = "${config.baseUrl}/v2/users/search?page=0&size=10000"
+    private val fullCvUrl = "${config.baseUrl}/v2/users/cvs/<user_id>/<cv_id>"
     private val bearerToken = "Bearer ${config.apiKey}"
     private val mapper = jacksonObjectMapper()
     private val client = OkHttpClient.Builder()
@@ -19,23 +20,48 @@ class FlowcaseHttpClient(
         .build()
 
     fun fetchAllCvs(): FlowcaseUserSearchResponse {
-        val request = Request.Builder()
-            .url(url)
+        val searchRequest = Request.Builder()
+            .url(searchUrl)
             .header("Authorization", bearerToken)
             .header("Content-Type", "application/json")
             .build()
 
-        client.newCall(request).execute().use { response ->
+        client.newCall(searchRequest).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RuntimeException("Error from Flowcase API: ${response.code} - ${response.message}")
             }
 
             val responseBodyString = response.body?.string()
 
-            return responseBodyString.let { it ->
+            val flowcaseUserSearchResponseList = responseBodyString.let { it ->
                 val typeRef = object : TypeReference<List<FlowcaseCvDTO>>() {}
                 FlowcaseUserSearchResponse(mapper.readValue(it, typeRef))
             }
+
+            val flowcaseFullCvList = mutableListOf<FlowcaseCvDTO>()
+            flowcaseUserSearchResponseList.flowcaseCvDTOList.forEach {
+                val url = "${config.baseUrl}/v3/users/${it.userId}/cvs/${it.cvId}"
+                println("GET: $url")
+                val fullCvRequest = Request.Builder()
+                    .method("GET", null)
+                    .url(url)
+                    .header("Authorization", bearerToken)
+                    .header("Content-Type", "application/json")
+                    .build()
+                client.newCall(fullCvRequest).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        throw RuntimeException("Error from Flowcase API: ${response.code} - ${response.message}")
+                    }
+                    val responseBodyString = response.body?.string()
+                    println(responseBodyString)
+                   flowcaseFullCvList.add(it.copy(flowcaseCvData = responseBodyString ?: ""))
+                }
+            }
+            return FlowcaseUserSearchResponse(flowcaseFullCvList)
+
         }
+
+
+
     }
 }

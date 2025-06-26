@@ -10,17 +10,22 @@ class GeminiHttpClient(
     val geminiConfig: GeminiConfig
 ) {
 
-    fun test() {
+    fun call(prompt: String): String {
 
-        // The client gets the API key from the environment variable `GOOGLE_API_KEY`.
-        val client: Client = Client()
+        val client: Client = Client.builder().apiKey(geminiConfig.apiKey).build()
 
         val response: GenerateContentResponse? =
             client.models.generateContent(
                 "gemini-2.0-flash",
-                "Explain how AI works in a few words",
+                prompt,
                 null
             )
+
+        val validJson = response?.text()
+            ?.replace("```json", "")
+            ?.replace("```", "")
+        println(validJson)
+        return validJson ?: throw RuntimeException("No response from Gemini")
     }
 }
 

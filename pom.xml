@@ -40,6 +40,11 @@
             <artifactId>google-genai</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.1.3-jre</version>
+        </dependency>
 
 
         <!-- Kotlin stdlib -->

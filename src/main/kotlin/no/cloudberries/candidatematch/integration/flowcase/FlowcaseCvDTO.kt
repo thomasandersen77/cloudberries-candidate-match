@@ -1,5 +1,6 @@
 package no.cloudberries.candidatematch.integration.flowcase
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
@@ -7,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class FlowcaseCvDTO(
     @JsonProperty("user_id")
     val userId: String,
-    @JsonProperty("_id")
+    @JsonProperty("default_cv_id")
     val cvId: String,
     @JsonProperty("born_year")
     val bornYear: Int,
@@ -15,6 +16,10 @@ data class FlowcaseCvDTO(
     val name: String,
     @JsonProperty("email")
     val email: String,
+    // json representasjon av en full cv
+    @JsonIgnore
+    val flowcaseCvData: String? = null,
+
 ) {
 }
 
@@ -22,3 +27,4 @@ data class FlowcaseCvDTO(
 data class FlowcaseUserSearchResponse(
     val flowcaseCvDTOList: List<FlowcaseCvDTO>
 )
+
