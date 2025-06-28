@@ -26,9 +26,11 @@ object MatchPromptTemplate {
         Gjør en grundig vurdering av hvor godt **{{consultantName}}** matcher kravene i forespørselen.
 
         - Hvert enkelt krav skal vurderes med begrunnelse
-        - Score **1.0-10**
-        - Resultatet skal være profesjonelt og kritisk, men konstruktivt
-        - Ignorer krav til sikkerhetsklarering
+        - Score **1.00-10**
+        - Resultatet skal være grundig, profesjonelt og kritisk, men konstruktivt
+        - Resultatet og besvarelsen til kravet skal være over 500 ord
+        . Besvarelsen skal mappes til "comment" i JSON strukturen nedenfor
+        - Hvis det finnes krav om sikkerhetsklarering, ignorer krav til sikkerhetsklarering
 
         ---
 

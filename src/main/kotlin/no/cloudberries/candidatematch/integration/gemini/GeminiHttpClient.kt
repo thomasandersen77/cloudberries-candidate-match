@@ -2,7 +2,6 @@ package no.cloudberries.candidatematch.integration.gemini
 
 import com.google.genai.Client
 import com.google.genai.types.GenerateContentResponse
-import no.cloudberries.candidatematch.integration.openai.OpenAIConfig
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,7 +9,7 @@ class GeminiHttpClient(
     val geminiConfig: GeminiConfig
 ) {
 
-    fun call(prompt: String): String {
+    fun analyze(prompt: String): String {
 
         val client: Client = Client.builder().apiKey(geminiConfig.apiKey).build()
 

@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 class FlowcaseHttpClient(
     val config: FlowcaseConfig
 ) {
-    private val searchUrl = "${config.baseUrl}/v2/users/search?page=0&size=10000"
+    private val searchUrl = "${config.baseUrl}/v2/users/search?page=0&size=200"
     private val fullCvUrl = "${config.baseUrl}/v2/users/cvs/<user_id>/<cv_id>"
     private val bearerToken = "Bearer ${config.apiKey}"
     private val mapper = jacksonObjectMapper()
@@ -32,7 +32,7 @@ class FlowcaseHttpClient(
             }
 
             val responseBodyString = response.body?.string()
-
+            println(responseBodyString)
             val flowcaseUserSearchResponseList = responseBodyString.let { it ->
                 val typeRef = object : TypeReference<List<FlowcaseCvDTO>>() {}
                 FlowcaseUserSearchResponse(mapper.readValue(it, typeRef))
@@ -40,28 +40,37 @@ class FlowcaseHttpClient(
 
             val flowcaseFullCvList = mutableListOf<FlowcaseCvDTO>()
             flowcaseUserSearchResponseList.flowcaseCvDTOList.forEach {
-                val url = "${config.baseUrl}/v3/users/${it.userId}/cvs/${it.cvId}"
-                println("GET: $url")
-                val fullCvRequest = Request.Builder()
-                    .method("GET", null)
-                    .url(url)
-                    .header("Authorization", bearerToken)
-                    .header("Content-Type", "application/json")
-                    .build()
-                client.newCall(fullCvRequest).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw RuntimeException("Error from Flowcase API: ${response.code} - ${response.message}")
-                    }
-                    val responseBodyString = response.body?.string()
-                    println(responseBodyString)
-                   flowcaseFullCvList.add(it.copy(flowcaseCvData = responseBodyString ?: ""))
-                }
+                if (fetchFullCvById()) return FlowcaseUserSearchResponse(flowcaseFullCvList)
             }
             return FlowcaseUserSearchResponse(flowcaseFullCvList)
 
         }
 
 
+
+    }
+
+    fun fetchFullCvById(
+    ): Boolean {
+        val url = "${config.baseUrl}/v3/cvs/682c529a17774f004390031f/682c529acf99685aed6fd592"
+        println("GET: $url")
+        val fullCvRequest = Request.Builder()
+            .method("GET", null)
+            .url(url)
+            .header("Authorization", bearerToken)
+            .header("Content-Type", "application/json")
+            .build()
+        client.newCall(fullCvRequest).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw RuntimeException("Error from Flowcase API: ${response.code} - ${response.message}")
+            }
+            val responseBodyString = response.body?.string()
+
+
+                println(responseBodyString)
+
+        }
+        return true
 
     }
 }

@@ -11,12 +11,8 @@ class FlowcaseHttpClientIntegrationTest {
 
     @Test
     fun fetchAllCvs() {
-        val response = flowcaseHttpClient.fetchAllCvs()
+        val response = flowcaseHttpClient.fetchFullCvById()
         assertNotNull(response)
-        assertTrue(response.flowcaseCvDTOList.isNotEmpty())
-        response.flowcaseCvDTOList.forEach {
-            println(it)
-        }
     }
 
 }

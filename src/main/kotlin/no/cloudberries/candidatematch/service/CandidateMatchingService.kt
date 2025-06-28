@@ -36,8 +36,8 @@ class CandidateMatchingService(
         )
 
         val response = when (aiProvider) {
-            AiProvider.GEMINI -> geminiHttpClient.call(prompt = prompt)
-            AiProvider.OPENAI -> openAIHttpClient.callAssistant(userMessage = prompt)
+            AiProvider.GEMINI -> geminiHttpClient.analyze(prompt = prompt)
+            AiProvider.OPENAI -> openAIHttpClient.analyze(prompt = prompt)
         }
 
         return mapper.readValue<CandidateMatchResponse>(content = response)

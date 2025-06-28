@@ -17,12 +17,12 @@ class OpenAIHttpClient(
         .connectTimeout(15, TimeUnit.SECONDS)
         .build()
 
-    fun callAssistant(userMessage: String): String {
+    fun analyze(prompt: String): String {
         // 1. Opprett en ny thread
         val threadId = createThread()
 
         // 2. Legg til melding i tråden
-        postMessage(threadId, userMessage)
+        postMessage(threadId, prompt)
 
         // 3. Start run
         val runId = startRun(threadId, config.assistantId)

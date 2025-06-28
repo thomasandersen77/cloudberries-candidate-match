@@ -1,7 +1,5 @@
 
 ```mermaid
-
-
 graph TB
     subgraph Frontend["Client Layer"]
         CLI["CLI/Scheduler"]

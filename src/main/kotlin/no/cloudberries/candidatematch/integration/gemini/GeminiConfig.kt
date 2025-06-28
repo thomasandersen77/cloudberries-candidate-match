@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConfigurationProperties(prefix = "google")
+@ConfigurationProperties(prefix = "gemini")
 class GeminiConfig {
     lateinit var apiKey: String
     lateinit var model: String
