@@ -3,7 +3,6 @@ name: Gemini Issue Triage
 on:
   issues:
     types: [opened, reopened]
-
 jobs:
   triage-issue:
     if: github.event_name == 'issues'
