@@ -33,53 +33,40 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
   code-review:
-    # Kjør denne jobben etter at 'build' er vellykket
     needs: build
     runs-on: ubuntu-latest
-    # Sørg for at den kun kjører på pull requests
     if: github.event_name == 'pull_request'
+
+    # LEGG TIL DENNE BLOKKEN:
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Hent hele historikken for å kunne sammenligne branches
+          # Henter hele historikken for å kunne sammenligne commits
           fetch-depth: 0
 
       - name: Get PR diff
         id: diff
         run: |
-          # Hent diff-en mellom head-branchen og base-branchen til PR-en
-          git fetch origin ${{ github.base_ref }}
-          PR_DIFF=$(git diff origin/${{ github.base_ref }} ${{ github.head_ref }})
+          # Bruk base og head commit SHAs fra pull request-eventet for en pålitelig diff
+          PR_DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          
           # For å håndtere flerrlinje-variabel i GitHub Actions
           echo "diff_content<<EOF" >> $GITHUB_OUTPUT
           echo "$PR_DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Call Gemini for review
+        # ... (resten av steget forblir det samme)
         id: review
         run: |
-          PROMPT_TEXT="Du er en ekspert på programvareutvikling med spesialkunnskap innen Domain-Driven Design, SOLID-prinsippene og Clean Code. Gjennomgå følgende kodeendringer fra en pull request. Gi konstruktiv og presis tilbakemelding basert på prinsipper som SRP, Meaningful Naming, små funksjoner, og unngåelse av Anemic Domain Models. Formater svaret i Markdown. Her er kodeendringene:\n\n\`\`\`diff\n${{ steps.diff.outputs.diff_content }}\n\`\`\`"
-          
-          # Bygg JSON-payload for Gemini API
-          JSON_PAYLOAD=$(jq -n --arg content "$PROMPT_TEXT" \
-            '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
-          
-          # Kall Gemini API
-          GEMINI_RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d "$JSON_PAYLOAD")
-          
-          # Hent ut ren tekst fra responsen
-          REVIEW_COMMENT=$(echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
-          
-          # For å håndtere flerrlinje-variabel i GitHub Actions
-          echo "comment<<EOF" >> $GITHUB_OUTPUT
-          echo "$REVIEW_COMMENT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # ...
 
       - name: Post review comment to PR
+        # ... (dette steget forblir det samme)
         uses: actions/github-script@v6
         with:
           script: |
