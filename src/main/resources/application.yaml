@@ -1,10 +1,10 @@
 flowcase:
-  api_key: ${FLOWCASE_API_KEY}
-  base-url: ${FLOWCASE_BASE_URL}
+  apiKey: ${FLOWCASE_API_KEY}
+  baseUrl: ${FLOWCASE_BASE_URL}
 openai:
-  api-key: ${OPENAI_API-KEY}
+  apiKey: ${OPENAI_API_KEY}
   model: gpt-4
-  assistant-id: ${OPENAI_ASSISTANT-ID}
+  assistantId: ${OPENAI_ASSISTANT_ID}
 gemini:
-    api-key: ${GEMINI_API_KEY}
+    apiKey: ${GEMINI_API_KEY}
     model: gemini-2.5-pro-latest
