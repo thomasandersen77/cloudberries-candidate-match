@@ -33,6 +33,8 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
+    # ... (resten av din maven.yml-fil) ...
+
   code-review:
     needs: build
     runs-on: ubuntu-latest
@@ -48,23 +50,19 @@ jobs:
 
       - name: Get PR diff
         id: diff
-        # Send inn SHAs trygt som miljøvariabler
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           PR_DIFF=$(git diff $BASE_SHA $HEAD_SHA)
-          
-          # Bruk den anbefalte, robuste metoden for flerrlinje-output
           {
             echo 'diff_content<<EOF'
             echo "$PR_DIFF"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Call Gemini for review
+      - name: Call Gemini for review and prepare comment
         id: review
-        # Send inn diff og API-nøkkel som miljøvariabler
         env:
           DIFF_CONTENT: ${{ steps.diff.outputs.diff_content }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -72,24 +70,30 @@ jobs:
           echo "--- Diff content sent to Gemini ---"
           echo "$DIFF_CONTENT"
           echo "-------------------------------------"
-          
-          # Bygg prompten ved hjelp av miljøvariabelen
+
           PROMPT_TEXT="Du er en ekspert på programvareutvikling med spesialkunnskap innen Domain-Driven Design, SOLID-prinsippene og Clean Code. Gjennomgå følgende kodeendringer fra en pull request. Gi konstruktiv og presis tilbakemelding. Formater svaret i Markdown. Hvis det ikke er noen endringer, svar med 'Ingen kodeendringer å vurdere.'. Her er kodeendringene:\n\n\`\`\`diff\n$DIFF_CONTENT\n\`\`\`"
 
           JSON_PAYLOAD=$(jq -n --arg content "$PROMPT_TEXT" '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
 
-          # Bruk miljøvariabel for API-nøkkelen i curl-kallet
-          GEMINI_RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
+          # Lagre rå respons til en fil for å unngå problemer med spesialtegn
+          curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "$JSON_PAYLOAD")
-          
+            -d "$JSON_PAYLOAD" > gemini_response.json
+
           echo "--- Raw Gemini Response ---"
-          echo "$GEMINI_RESPONSE"
+          cat gemini_response.json
           echo "---------------------------"
 
-          REVIEW_COMMENT=$(echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+          # Sjekk om responsen er gyldig før parsing
+          if ! jq -e '.candidates[0].content.parts[0].text' gemini_response.json > /dev/null; then
+            echo "Error: Could not parse a valid comment from the Gemini response."
+            jq . gemini_response.json # Print formatted JSON for debugging
+            exit 1
+          fi
 
-          # Bruk den robuste metoden for å sette output
+          REVIEW_COMMENT=$(jq -r '.candidates[0].content.parts[0].text' gemini_response.json)
+
+          # Sett output-variabelen på en sikker måte
           {
             echo 'comment<<EOF'
             echo "$REVIEW_COMMENT"
@@ -97,17 +101,13 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Post review comment to PR
+        if: steps.review.outputs.comment != '' && steps.review.outputs.comment != 'Ingen kodeendringer å vurdere.'
         uses: actions/github-script@v6
         with:
           script: |
-            const comment = `${{ steps.review.outputs.comment }}`;
-            if (comment && comment.trim() && comment.trim() !== "Ingen kodeendringer å vurdere.") {
-              github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: `### 🤖 Gemini Code Review\n\n${comment}`
-              });
-            } else {
-              console.log("Skipping comment post: Gemini response was empty or contained no suggestions.");
-            }
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `### 🤖 Gemini Code Review\n\n${{ steps.review.outputs.comment }}`
+            });
