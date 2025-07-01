@@ -100,14 +100,21 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Post review comment to PR
-        if: steps.review.outputs.comment != '' && steps.review.outputs.comment != 'Ingen kodeendringer å vurdere.'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `### 🤖 Gemini Code Review\n\n${{ steps.review.outputs.comment }}`
-            });
+          - name: Post review comment to PR
+              if: steps.review.outputs.comment != '' && steps.review.outputs.comment != 'Ingen kodeendringer å vurdere.'
+              uses: actions/github-script@v6
+              # Send inn kommentaren som en miljøvariabel for å unngå syntaksfeil
+              env:
+                COMMENT: ${{ steps.review.outputs.comment }}
+              with:
+                script: |
+                  // Hent kommentaren trygt fra miljøvariabelen
+                  const commentBody = process.env.COMMENT;
+                  
+                  github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.issue.number,
+                    // Bygg den endelige kommentaren
+                    body: "### 🤖 Gemini Code Review\n\n" + commentBody
+                  });
