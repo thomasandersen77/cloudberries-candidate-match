@@ -61,60 +61,35 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Call Gemini for review and prepare comment
-        id: review
-        env:
-          DIFF_CONTENT: ${{ steps.diff.outputs.diff_content }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          echo "--- Diff content sent to Gemini ---"
-          echo "$DIFF_CONTENT"
-          echo "-------------------------------------"
-
-          PROMPT_TEXT="Du er en ekspert på programvareutvikling med spesialkunnskap innen Domain-Driven Design, SOLID-prinsippene og Clean Code. Gjennomgå følgende kodeendringer fra en pull request. Gi konstruktiv og presis tilbakemelding. Formater svaret i Markdown. Hvis det ikke er noen endringer, svar med 'Ingen kodeendringer å vurdere.'. Her er kodeendringene:\n\n\`\`\`diff\n$DIFF_CONTENT\n\`\`\`"
-
-          JSON_PAYLOAD=$(jq -n --arg content "$PROMPT_TEXT" '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
-
-          # Lagre rå respons til en fil for å unngå problemer med spesialtegn
-          curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "$JSON_PAYLOAD" > gemini_response.json
-
-          echo "--- Raw Gemini Response ---"
-          cat gemini_response.json
-          echo "---------------------------"
-
-          # Sjekk om responsen er gyldig før parsing
-          if ! jq -e '.candidates[0].content.parts[0].text' gemini_response.json > /dev/null; then
-            echo "Error: Could not parse a valid comment from the Gemini response."
-            jq . gemini_response.json # Print formatted JSON for debugging
-            exit 1
-          fi
-
-          REVIEW_COMMENT=$(jq -r '.candidates[0].content.parts[0].text' gemini_response.json)
-
-          # Sett output-variabelen på en sikker måte
-          {
-            echo 'comment<<EOF'
-            echo "$REVIEW_COMMENT"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-
-          - name: Post review comment to PR
-              if: steps.review.outputs.comment != '' && steps.review.outputs.comment != 'Ingen kodeendringer å vurdere.'
-              uses: actions/github-script@v6
-              # Send inn kommentaren som en miljøvariabel for å unngå syntaksfeil
+          - name: Call Gemini for review and prepare comment
+              id: review
               env:
-                COMMENT: ${{ steps.review.outputs.comment }}
-              with:
-                script: |
-                  // Hent kommentaren trygt fra miljøvariabelen
-                  const commentBody = process.env.COMMENT;
-                  
-                  github.rest.issues.createComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: context.issue.number,
-                    // Bygg den endelige kommentaren
-                    body: "### 🤖 Gemini Code Review\n\n" + commentBody
-                  });
+                DIFF_CONTENT: ${{ steps.diff.outputs.diff_content }}
+                GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+              run: |
+                PROMPT_TEXT="Du er en ekspert på programvareutvikling [...]. Her er kodeendringene:\n\n\`\`\`diff\n$DIFF_CONTENT\n\`\`\`"
+                JSON_PAYLOAD=$(jq -n --arg content "$PROMPT_TEXT" '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
+                
+                curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
+                  -H "Content-Type: application/json" \
+                  -d "$JSON_PAYLOAD" > gemini_response.json
+                
+                echo "--- Raw Gemini Response ---"
+                cat gemini_response.json
+                echo "---------------------------"
+                
+                # Hent ut kommentaren. Hvis den ikke finnes, returner en tom streng ""
+                REVIEW_COMMENT=$(jq -r '.candidates[0].content.parts[0].text // ""' gemini_response.json)
+                
+                # Sjekk om resultatet er tomt
+                if [[ -z "$REVIEW_COMMENT" ]]; then
+                  echo "::error::Klarte ikke å hente ut en gyldig kommentar fra Gemini-responsen."
+                  jq . gemini_response.json
+                  exit 1
+                fi
+                
+                {
+                  echo 'comment<<EOF'
+                  echo "$REVIEW_COMMENT"
+                  echo 'EOF'
+                } >> "$GITHUB_OUTPUT"
