@@ -32,12 +32,11 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
   code-review:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-
-    # LEGG TIL DENNE BLOKKEN:
     permissions:
       pull-requests: write
 
@@ -45,34 +44,61 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Henter hele historikken for å kunne sammenligne commits
           fetch-depth: 0
 
       - name: Get PR diff
         id: diff
         run: |
-          # Bruk base og head commit SHAs fra pull request-eventet for en pålitelig diff
           PR_DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
-          
-          # For å håndtere flerrlinje-variabel i GitHub Actions
           echo "diff_content<<EOF" >> $GITHUB_OUTPUT
           echo "$PR_DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Call Gemini for review
-        # ... (resten av steget forblir det samme)
         id: review
         run: |
-          # ...
+          echo "--- Diff content sent to Gemini ---"
+          echo "${{ steps.diff.outputs.diff_content }}"
+          echo "-------------------------------------"
+          
+          PROMPT_TEXT="Du er en ekspert på programvareutvikling med spesialkunnskap innen Domain-Driven Design, SOLID-prinsippene og Clean Code. Gjennomgå følgende kodeendringer fra en pull request. Gi konstruktiv og presis tilbakemelding basert på prinsipper som SRP, Meaningful Naming, små funksjoner, og unngåelse av Anemic Domain Models. Formater svaret i Markdown. Hvis det ikke er noen endringer, svar med 'Ingen kodeendringer å vurdere.'. Her er kodeendringene:\n\n\`\`\`diff\n${{ steps.diff.outputs.diff_content }}\n\`\`\`"
+          
+          JSON_PAYLOAD=$(jq -n --arg content "$PROMPT_TEXT" \
+            '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
+          
+          GEMINI_RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "$JSON_PAYLOAD")
+          
+          echo "--- Raw Gemini Response ---"
+          echo "$GEMINI_RESPONSE"
+          echo "---------------------------"
+          
+          REVIEW_COMMENT=$(echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+          
+          echo "--- Parsed Review Comment ---"
+          echo "$REVIEW_COMMENT"
+          echo "-----------------------------"
+          
+          echo "comment<<EOF" >> $GITHUB_OUTPUT
+          echo "$REVIEW_COMMENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Post review comment to PR
-        # ... (dette steget forblir det samme)
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `### 🤖 Gemini Code Review\n\n${{ steps.review.outputs.comment }}`
-            });
+            const body = `### 🤖 Gemini Code Review\n\n${{ steps.review.outputs.comment }}`;
+            console.log("--- Comment to be posted ---");
+            console.log(body);
+            console.log("----------------------------");
+            if ("${{ steps.review.outputs.comment }}".trim() !== "Ingen kodeendringer å vurdere." && "${{ steps.review.outputs.comment }}".trim() !== "") {
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            } else {
+              console.log("Skipping comment post because the review comment is empty or contains no suggestions.");
+            }
