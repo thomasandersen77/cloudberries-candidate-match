@@ -11,16 +11,15 @@ jobs:
   build_and_review:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # Nødvendig for å kunne sjekke ut kode
-      pull-requests: write # Nødvendig for å kunne kommentere på en PR
+      contents: read
+      pull-requests: write
 
     steps:
       # --- Steg 1: Kode-oppsett ---
       - name: Checkout code
         uses: actions/checkout@v4
-        # Vi henter hele historikken for å kunne sammenligne branches
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Henter hele historikken for å kunne sammenligne branches
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -30,61 +29,44 @@ jobs:
           cache: maven
 
       # --- Steg 2: Bygg og test ---
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Build and Test with Maven
+        run: mvn -B verify --file pom.xml
 
-      # --- Steg 3: Forbered data for AI-analyse ---
-      - name: Read PR Review Prompt
-        id: prompt_reader
-        run: |
-          # Leser innholdet fra prompt-filen og fjerner linjeskift for sikker håndtering
-          PROMPT_CONTENT=$(tr -s '\n' ' ' < .github/prompts/pr_review_prompt.txt)
-          echo "prompt_content=$PROMPT_CONTENT" >> $GITHUB_OUTPUT
-
-      - name: Get code changes (diff)
-        id: git_diff
-        run: |
-          # Henter endringene (diff) mellom feature-branchen og main-branchen
-          # Dette er essensielt for å gi kontekst til AI-en
-          DIFF_CONTENT=$(git diff origin/main...HEAD)
-          # Vi må "escape" spesialtegn i diff-en for å kunne bruke den i JSON
-          ESCAPED_DIFF=$(echo "$DIFF_CONTENT" | jq -R -s '.')
-          echo "diff_content=$ESCAPED_DIFF" >> $GITHUB_OUTPUT
-
-      # --- Steg 4: Kall Gemini API for kode-review ---
+      # --- Steg 3: Kall Gemini API for kode-review ---
       - name: Perform Code Review with Gemini
         if: ${{ success() }} # Kjør kun hvis bygget var vellykket
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Bruk secret for API-nøkkel
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # Kombinerer prompten med kodeendringene
-          FULL_PROMPT="${{ steps.prompt_reader.outputs.prompt_content }}
+          # Leser prompten og diff-en inn i variabler
+          PROMPT_TEMPLATE=$(cat .github/prompts/pr_review_prompt.txt)
+          CODE_DIFF=$(git diff origin/main...HEAD)
 
-          Her er kodeendringene som skal vurderes:
-          ${{ steps.git_diff.outputs.diff_content }}"
+          # Erstatter placeholder {diff} i prompten med den faktiske diff-en
+          FULL_PROMPT="${PROMPT_TEMPLATE//\{diff\}/$CODE_DIFF}"
 
-          # Bygger JSON-payload for Gemini API-et
-          JSON_PAYLOAD=$(cat <<EOF
-          {
-            "contents": [{
-              "parts": [{
-                "text": "$FULL_PROMPT"
-              }]
-            }]
-          }
-          EOF
-          )
+          # Bygger JSON-payload på en sikker måte med jq for å unngå feil med spesialtegn
+          JSON_PAYLOAD=$(jq -n \
+            --arg text_content "$FULL_PROMPT" \
+            '{contents: [{parts: [{text: $text_content}]}]}')
 
-          # Kaller Gemini API med curl
+          # Kaller Gemini API med den sikre payloaden
           GEMINI_RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
                -H "Content-Type: application/json" \
                -d "$JSON_PAYLOAD")
 
-          # Henter ut teksten fra responsen med jq og lagrer til fil for neste steg
+          # Sjekker for feil i API-responsen før vi fortsetter
+          if echo "$GEMINI_RESPONSE" | jq -e '.error' > /dev/null; then
+            echo "::error::Feil fra Gemini API:"
+            echo "$GEMINI_RESPONSE"
+            exit 1
+          fi
+
+          # Henter ut teksten fra responsen og lagrer til fil for neste steg
           echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review.txt
           echo "Gemini-review lagret i gemini_review.txt"
 
-      # --- Steg 5: Publiser review som en kommentar på Pull Requesten ---
+      # --- Steg 4: Publiser review som en kommentar på Pull Requesten ---
       - name: Comment on Pull Request
         if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v6
