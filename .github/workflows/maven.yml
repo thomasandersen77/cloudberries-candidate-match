@@ -26,6 +26,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
+
       - name: Call Gemini API and Parse Response
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
