@@ -1,10 +1,13 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
 name: Java CI with Maven
 
 on:
   push:
-    branches: [main]
+    branches: [ "**" ]
   pull_request:
-    branches: [main]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -12,11 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -25,68 +26,37 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
-  code-review:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get PR diff
-        id: diff
+      - name: Call Gemini API and Parse Response
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          PR_DIFF=$(git diff $BASE_SHA $HEAD_SHA)
-          {
-            echo 'diff_content<<EOF'
-            echo "$PR_DIFF"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Read PR Review Prompt
-        id: prompt
-        run: |
-          PROMPT_TEXT=$(cat .github/prompts/pr_review_prompt.txt)
-          {
-            echo 'prompt_content<<EOF'
-            echo "$PROMPT_TEXT"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Call Gemini for review and prepare comment
-        id: review
-        env:
-          DIFF_CONTENT: ${{ steps.diff.outputs.diff_content }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PROMPT_CONTENT: ${{ steps.prompt.outputs.prompt_content }}
+          JSON_PAYLOAD: ${{ secrets.JSON_PAYLOAD }}
         run: |
-          # Replace {diff} in the prompt file with the actual PR diff using Perl for robust handling
-          FINAL_PROMPT=$(perl -pe 'BEGIN{undef $/;} s/\{diff\}/```diff\n'"$DIFF_CONTENT"'\n```/gs' <<< "$PROMPT_CONTENT")
-          JSON_PAYLOAD=$(jq -n --arg content "$FINAL_PROMPT" '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
+          # Debug: Print payload before sending
+          echo "JSON payload:"
+          echo "$JSON_PAYLOAD"
+
           curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" \
             -d "$JSON_PAYLOAD" > gemini_response.json
+
+          # Debug: Print response after request
+          echo "Gemini API response:"
+          cat gemini_response.json
+
           if ! jq . gemini_response.json > /dev/null 2>&1; then
             echo "::error::Ugyldig JSON fra Gemini API"
             cat gemini_response.json
             exit 1
           fi
+
           REVIEW_COMMENT=$(jq -r '.candidates[0].content.parts[0].text // ""' gemini_response.json)
           if [[ -z "$REVIEW_COMMENT" ]]; then
             echo "::error::Klarte ikke å hente ut en gyldig kommentar fra Gemini-responsen."
             cat gemini_response.json
             exit 1
           fi
-          {
-            echo 'comment<<EOF'
-            echo "$REVIEW_COMMENT"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
+
+      # Add here any Perl commands needed, but DO NOT use unsupported regex modifiers like /r or /t
+      # Example:
+      # - name: Safe Perl Replacement Example
+      #   run: perl -pe 's/old/new/g' input.txt > output.txt
