@@ -68,8 +68,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PROMPT_CONTENT: ${{ steps.prompt.outputs.prompt_content }}
         run: |
-          # Replace {diff} in the prompt file with the actual PR diff
-          FINAL_PROMPT=$(echo "$PROMPT_CONTENT" | sed "s|{diff}|\\\`\`\`diff\\\n$DIFF_CONTENT\\\n\\\`\`\`|g")
+          # Replace {diff} in the prompt file with the actual PR diff using Perl for robust handling
+          FINAL_PROMPT=$(perl -pe 'BEGIN{undef $/;} s/\{diff\}/```diff\n'"$DIFF_CONTENT"'\n```/gs' <<< "$PROMPT_CONTENT")
           JSON_PAYLOAD=$(jq -n --arg content "$FINAL_PROMPT" '{ "contents": [ { "parts": [ { "text": $content } ] } ] }')
           curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" \
