@@ -50,9 +50,9 @@ class CandidateMatchingServiceIntegrationTest {
     fun matchCandidateGemini() {
         val response = candidateMatchingService.matchCandidate(
             aiProvider = AiProvider.GEMINI,
-            cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/Thomas-Andersen_CV.pdf"))),
-            //request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet/forespørsel_fra_polititet.pdf"))),
-            request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet_arkitektur.pdf"))),
+            cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/martin/martin_cv.pdf"))),
+            request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet/forespørsel_fra_polititet.pdf"))),
+            //request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet_arkitektur.pdf"))),
             consultantName = "Thomas Andersen"
         )
 
