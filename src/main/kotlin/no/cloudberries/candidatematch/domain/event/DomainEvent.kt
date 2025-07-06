@@ -1,10 +1,9 @@
 package no.cloudberries.candidatematch.domain.event
 
 import no.cloudberries.candidatematch.domain.candidate.ConsultantMatchedEvent
-import java.time.Instant
-
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 
 interface DomainEvent {

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: cloudberries-postgres
+    container_name: cloudberries-candidate-match-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: candidatematch
@@ -22,7 +22,7 @@ services:
 
   app:
     build: .
-    container_name: cloudberries-app
+    container_name: candidate-match-app
     restart: unless-stopped
     ports:
       - "8080:8080"

@@ -1,10 +1,5 @@
 package no.cloudberries.candidatematch.service
 
-import no.cloudberries.candidatematch.domain.candidate.ConsultantMatchedEvent
-import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
-import no.cloudberries.candidatematch.repositories.ConsultantRepository
-import org.springframework.stereotype.Service
-import java.time.Instant
 /*
 interface MatchingService {
     fun matchConsultantToProject(
