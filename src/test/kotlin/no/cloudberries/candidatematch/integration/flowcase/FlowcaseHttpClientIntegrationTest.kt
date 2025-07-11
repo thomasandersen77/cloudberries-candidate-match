@@ -11,6 +11,7 @@ import org.springframework.test.context.TestPropertySource
 import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore("Only for manual testing")
 @SpringBootTest(
     properties = [
         "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
@@ -18,7 +19,7 @@ import kotlin.test.Test
     ]
 )
 class FlowcaseHttpClientIntegrationTest {
-    @Autowired 
+    @Autowired
     lateinit var flowcaseHttpClient: FlowcaseHttpClient
     @MockBean
     lateinit var projectRequestRepository: ProjectRequestRepository
