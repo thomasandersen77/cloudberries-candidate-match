@@ -3,17 +3,21 @@ package no.cloudberries.candidatematch.integration.flowcase
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import java.io.IOException
-import kotlin.math.pow
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import okhttp3.Headers
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 import java.time.Instant
+import kotlin.math.pow
+import kotlin.test.Ignore
 
+@Ignore("Only for manual testing")
 class ApiClient(
     private val client: OkHttpClient = OkHttpClient(),
     private val mapper: ObjectMapper = jacksonObjectMapper()

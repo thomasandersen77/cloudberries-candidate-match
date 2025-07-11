@@ -1,8 +1,9 @@
 package no.cloudberries.candidatematch.integration.openai
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit

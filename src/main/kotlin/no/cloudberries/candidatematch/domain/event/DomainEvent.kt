@@ -1,10 +1,9 @@
 package no.cloudberries.candidatematch.domain.event
 
 import no.cloudberries.candidatematch.domain.candidate.ConsultantMatchedEvent
-import java.time.Instant
-
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 
 interface DomainEvent {
@@ -20,11 +19,11 @@ interface DomainEventPublisher {
 class SpringDomainEventPublisher(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : DomainEventPublisher {
-    
+
     override fun publish(event: ConsultantMatchedEvent) {
         applicationEventPublisher.publishEvent(event)
     }
-    
+
     override fun publishAll(events: Collection<DomainEvent>) {
         //events.forEach { publish(it) }
     }

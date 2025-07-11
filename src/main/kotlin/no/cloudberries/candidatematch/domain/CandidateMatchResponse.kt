@@ -6,6 +6,10 @@ data class CandidateMatchResponse(
     val summary: String,
     val matchTimeSeconds: Int = 0,
     val requirements: List<Requirement> = listOf()
-): AIResponse
+) : AIResponse
 
-data class Requirement(val name: String, val comment: String, val score: String)
+data class Requirement(
+    val name: String,
+    val comment: String,
+    val score: String
+)

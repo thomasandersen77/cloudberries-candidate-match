@@ -15,7 +15,7 @@ class GeminiHttpClient(
 
         val response: GenerateContentResponse? =
             client.models.generateContent(
-                "gemini-2.0-flash",
+                geminiConfig.model,
                 prompt,
                 null
             )
