@@ -11,6 +11,7 @@ class DomainEventListener {
     fun handleDomainEvent(event: DomainEvent) {
         when (event) {
             // Add other event types here
+            is ConsultantMatchedEvent -> handleConsultantMatched(event)
         }
     }
     

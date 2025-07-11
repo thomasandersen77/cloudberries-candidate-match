@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.Requirement
+import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
 import no.cloudberries.candidatematch.integration.AiProvider
 import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
 import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
@@ -15,7 +16,12 @@ class CandidateMatchingServiceTest {
 
     private val openAIHttpClient: OpenAIHttpClient = mockk<OpenAIHttpClient>(relaxed = true)
     private val geminiHttpClient: GeminiHttpClient = mockk<GeminiHttpClient>(relaxed = true)
-    private val candidateMatchingService = CandidateMatchingService(openAIHttpClient, geminiHttpClient)
+    private val domainEventPublisher = mockk<DomainEventPublisher>(relaxed = true)
+    private val candidateMatchingService = CandidateMatchingService(
+        openAIHttpClient,
+        geminiHttpClient,
+        domainEventPublisher
+    )
     private val mapper = jacksonObjectMapper()
 
     @Test
@@ -24,9 +30,15 @@ class CandidateMatchingServiceTest {
         val request = "This is a request."
         val consultantName = "John Doe"
         val expectedResponse = CandidateMatchResponse(
-            totalScore = "10",
+            totalScore = "9.5",
             summary = "This is a summary.",
-            requirements = mutableListOf(Requirement("Requirement 1", "This is a comment.", "10"))
+            requirements = mutableListOf(
+                Requirement(
+                    "Requirement 1",
+                    "This is a comment.",
+                    "10"
+                )
+            )
         )
         val responseJson = mapper.writeValueAsString(expectedResponse)
 
@@ -39,7 +51,10 @@ class CandidateMatchingServiceTest {
             consultantName = consultantName
         )
 
-        assertEquals(expectedResponse, result)
+        assertEquals(
+            expectedResponse,
+            result
+        )
     }
 
     @Test
@@ -48,9 +63,15 @@ class CandidateMatchingServiceTest {
         val request = "This is a request."
         val consultantName = "John Doe"
         val expectedResponse = CandidateMatchResponse(
-            totalScore = "10",
+            totalScore = "8.5",
             summary = "This is a summary.",
-            requirements = mutableListOf(Requirement("Requirement 1", "This is a comment.", "10"))
+            requirements = mutableListOf(
+                Requirement(
+                    "Requirement 1",
+                    "This is a comment.",
+                    "10"
+                )
+            )
         )
         val responseJson = mapper.writeValueAsString(expectedResponse)
 
@@ -63,6 +84,9 @@ class CandidateMatchingServiceTest {
             consultantName = consultantName
         )
 
-        assertEquals(expectedResponse, result)
+        assertEquals(
+            expectedResponse,
+            result
+        )
     }
 }

@@ -19,11 +19,11 @@ interface DomainEventPublisher {
 class SpringDomainEventPublisher(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : DomainEventPublisher {
-    
+
     override fun publish(event: ConsultantMatchedEvent) {
         applicationEventPublisher.publishEvent(event)
     }
-    
+
     override fun publishAll(events: Collection<DomainEvent>) {
         //events.forEach { publish(it) }
     }

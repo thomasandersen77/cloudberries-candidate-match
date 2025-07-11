@@ -23,8 +23,15 @@ data class FlowcaseCvDTO(
 ) {
 }
 
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FlowcaseUserSearchResponse(
     val flowcaseCvDTOList: List<FlowcaseCvDTO>
+)
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class FlowcaseResumeResponse(
+    val flowcaseResumeDTOS: List<FlowcaseResumeDTO>
 )
 
