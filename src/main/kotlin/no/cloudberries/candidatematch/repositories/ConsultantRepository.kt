@@ -6,7 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ConsultantRepository: JpaRepository<ProjectRequest, Long> {
-    // You can now add custom query methods here if needed.
-    // For example, to find requests by customer name:
     fun findByConsultantName(consultantName: String): List<ProjectRequest>
 }
