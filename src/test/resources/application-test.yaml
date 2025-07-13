@@ -1,0 +1,25 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/test
+    username: test
+    password: test
+
+flowcase:
+  apiKey: ${FLOWCASE_API_KEY}
+  baseUrl: ${FLOWCASE_BASE_URL}
+openai:
+  apiKey: ${OPENAI_API_KEY}
+  model: gpt-4
+  assistantId: ${OPENAI_ASSISTANT_ID}
+gemini:
+    apiKey: ${GEMINI_API_KEY}
+    model: gemini-1.5-pro-latest
+
+
