@@ -1,3 +1,5 @@
+package no.cloudberries.candidatematch.service
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
