@@ -6,6 +6,4 @@ import java.time.Instant
 class ProjectExistsEvent(
     val id: String,
     override val occurredOn: Instant = Instant.now()
-): DomainEvent {
-
-}
+): DomainEvent

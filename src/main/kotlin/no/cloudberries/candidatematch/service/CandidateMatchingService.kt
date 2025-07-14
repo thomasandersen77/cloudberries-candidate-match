@@ -13,6 +13,7 @@ import no.cloudberries.candidatematch.templates.MatchParams
 import no.cloudberries.candidatematch.templates.MatchPromptTemplate
 import no.cloudberries.candidatematch.templates.renderTemplate
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class CandidateMatchingService(
@@ -63,7 +64,7 @@ class CandidateMatchingService(
         }
     }
 
-    private fun processAiResponse(response: String, consultantName: String): CandidateMatchResponse {
+    fun processAiResponse(response: String, consultantName: String): CandidateMatchResponse {
         val matchResponse = mapper.readValue<CandidateMatchResponse>(content = response)
         logger.info { "$LOG_MATCH_SUCCESS $consultantName with score: ${matchResponse.totalScore}" }
 
@@ -82,7 +83,8 @@ class CandidateMatchingService(
             ConsultantMatchedEvent(
                 consultantName = consultantName,
                 matchScore = matchResponse.totalScore,
-                matchSummary = matchResponse.summary
+                matchSummary = matchResponse.summary,
+                occurredOn = Instant.now()
             )
         )
     }

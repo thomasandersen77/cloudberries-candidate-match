@@ -6,6 +6,6 @@ class Project(
     val customer: Customer,
 ) {
     fun exists(id: String): Boolean {
-        return this.id === id
+        return this.id == id
     }
 }
