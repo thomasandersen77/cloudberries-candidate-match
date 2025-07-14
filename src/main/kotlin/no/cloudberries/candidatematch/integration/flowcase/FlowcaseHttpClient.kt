@@ -25,12 +25,13 @@ class FlowcaseHttpClient(
 
     private val bearerToken = "Bearer ${config.apiKey}"
     private val mapper = jacksonObjectMapper()
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(
-            CONNECT_TIMEOUT_SECONDS,
-            TimeUnit.SECONDS
-        )
-        .build()
+    private val client = OkHttpClient().apply {
+        newBuilder()
+            .connectTimeout(
+                CONNECT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS)
+            .build()
+    }
 
     fun fetchAllCvs(): FlowcaseResumeResponse {
         val searchRequest = createRequest(
@@ -94,6 +95,6 @@ class FlowcaseHttpClient(
         if (!response.isSuccessful) {
             throw RuntimeException("Flowcase API error (${response.code}): ${response.message}")
         }
-        return response.body?.string() ?: throw RuntimeException("Empty response body from Flowcase API")
+        return response.body.string()
     }
 }

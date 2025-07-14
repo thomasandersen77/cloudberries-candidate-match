@@ -1,23 +1,19 @@
 package no.cloudberries.candidatematch.integration.flowcase
 
+import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
-import org.checkerframework.checker.units.qual.mPERs2
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.TestPropertySource
+import org.springframework.context.annotation.Import
 import kotlin.test.Ignore
 import kotlin.test.Test
 
 @Ignore("Only for manual testing")
-@SpringBootTest(
-    properties = [
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
-        "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration"
-    ]
-)
+@Import(LiquibaseTestConfig::class)
+@SpringBootTest
 class FlowcaseHttpClientIntegrationTest {
     @Autowired
     lateinit var flowcaseHttpClient: FlowcaseHttpClient

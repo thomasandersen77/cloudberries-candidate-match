@@ -7,6 +7,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 
 @Service
 class OpenAIHttpClient(
@@ -14,29 +15,44 @@ class OpenAIHttpClient(
 ) {
 
     private val mapper = jacksonObjectMapper()
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .build()
+    private val client = OkHttpClient().apply {
+        OkHttpClient.Builder().connectTimeout(
+            1500,
+            TimeUnit.SECONDS
+        )
+    }
 
     fun analyze(prompt: String): String {
         // 1. Opprett en ny thread
         val threadId = createThread()
 
         // 2. Legg til melding i tråden
-        postMessage(threadId, prompt)
+        postMessage(
+            threadId,
+            prompt
+        )
 
         // 3. Start run
-        val runId = startRun(threadId, config.assistantId)
+        val runId = startRun(
+            threadId,
+            config.assistantId
+        )
 
         // 4. Vent til run er ferdig
-        waitForRun(threadId, runId)
+        waitForRun(
+            threadId,
+            runId
+        )
 
         // 5. Hent svaret
         return getMessages(threadId)
     }
 
     private fun createThread(): String {
-        val response = post("https://api.openai.com/v1/threads", "{}")
+        val response = post(
+            "https://api.openai.com/v1/threads",
+            "{}"
+        )
         return mapper.readTree(response)["id"].asText()
     }
 
@@ -47,12 +63,18 @@ class OpenAIHttpClient(
                 "content" to content
             )
         )
-        post("https://api.openai.com/v1/threads/$threadId/messages", json)
+        post(
+            "https://api.openai.com/v1/threads/$threadId/messages",
+            json
+        )
     }
 
     private fun startRun(threadId: String, assistantId: String): String {
         val json = mapper.writeValueAsString(mapOf("assistant_id" to assistantId))
-        val response = post("https://api.openai.com/v1/threads/$threadId/runs", json)
+        val response = post(
+            "https://api.openai.com/v1/threads/$threadId/runs",
+            json
+        )
         return mapper.readTree(response)["id"].asText()
     }
 
@@ -63,7 +85,7 @@ class OpenAIHttpClient(
             val resp = get("https://api.openai.com/v1/threads/$threadId/runs/$runId")
             status = mapper.readTree(resp)["status"].asText()
             println("Status: $status")
-            if(status == "failed") throw RuntimeException(
+            if (status == "failed") throw RuntimeException(
                 "OpenAI Assistant feilet med melding: ${mapper.readTree(resp)["last_error"]["message"]}"
             )
         } while (status == "in_progress" || status == "queued")
@@ -97,9 +119,18 @@ class OpenAIHttpClient(
     private fun post(url: String, body: String): String {
         val request = Request.Builder()
             .url(url)
-            .header("Authorization", "Bearer ${config.apiKey}")
-            .header("OpenAI-Beta", "assistants=v2")
-            .header("Content-Type", "application/json")
+            .header(
+                "Authorization",
+                "Bearer ${config.apiKey}"
+            )
+            .header(
+                "OpenAI-Beta",
+                "assistants=v2"
+            )
+            .header(
+                "Content-Type",
+                "application/json"
+            )
             .post(body.toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -107,22 +138,28 @@ class OpenAIHttpClient(
             if (!response.isSuccessful) {
                 throw RuntimeException("Feil fra OpenAI API: ${response.code} - ${response.message}")
             }
-            return response.body!!.string()
+            return response.body.string()
         }
     }
 
     private fun get(url: String): String {
         val request = Request.Builder()
             .url(url)
-            .header("Authorization", "Bearer ${config.apiKey}")
-            .header("OpenAI-Beta", "assistants=v2")
+            .header(
+                "Authorization",
+                "Bearer ${config.apiKey}"
+            )
+            .header(
+                "OpenAI-Beta",
+                "assistants=v2"
+            )
             .build()
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RuntimeException("Feil fra OpenAI API: ${response.code} - ${response.message}")
             }
-            return response.body?.string() ?: throw RuntimeException()
+            return response.body.string()
         }
     }
 }

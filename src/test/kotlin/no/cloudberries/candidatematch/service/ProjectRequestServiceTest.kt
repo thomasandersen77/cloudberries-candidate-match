@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.candidate.Skill
+import no.cloudberries.candidatematch.repositories.ProjectRequestEntity
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -27,7 +28,7 @@ class ProjectRequestServiceTest {
         val responseDeadline = LocalDate.of(2024, 8, 15)
         
         // Mock repository save method to return the same object with an ID
-        val savedRequestSlot = slot<ProjectRequest>()
+        val savedRequestSlot = slot<ProjectRequestEntity>()
         every { projectRequestRepository.save(capture(savedRequestSlot)) } answers {
             savedRequestSlot.captured.copy(id = 1L)
         }

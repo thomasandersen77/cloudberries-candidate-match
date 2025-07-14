@@ -3,6 +3,7 @@ package no.cloudberries.candidatematch.service
 import no.cloudberries.candidatematch.domain.AISuggestion
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.candidate.Skill
+import no.cloudberries.candidatematch.repositories.ProjectRequestEntity
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -31,13 +32,13 @@ class ProjectRequestService(
         startDate: LocalDate,
         endDate: LocalDate,
         responseDeadline: LocalDate
-    ): ProjectRequest {
+    ): ProjectRequestEntity {
         // Validering i henhold til akseptansekriterium: frist for svar må være før oppstart
         if (responseDeadline.isAfter(startDate)) {
             throw IllegalArgumentException("Svarfristen kan ikke være etter prosjektets startdato.")
         }
 
-        val projectRequest = ProjectRequest(
+        val projectRequest = ProjectRequestEntity(
             customerName = customerName,
             requiredSkills = requiredSkills,
             startDate = startDate,
@@ -56,25 +57,9 @@ class ProjectRequestService(
     }
 
     // Skissert metode for fremtidig implementering av konsulent-matching
-    private fun findMatchingConsultants(request: ProjectRequest): List<AISuggestion> {
+    fun findMatchingConsultants(request: ProjectRequest): List<AISuggestion> {
         // Her ville logikken for å hente konsulenter og kalle aiService ligget
         return emptyList()
     }
 }
-
-// Oppdatering i domenemodellen for ProjectRequest for å støtte de nye feltene.
-// Fil: src/main/kotlin/no/cloudberries/candidatematch/domain/ProjectRequest.kt
-// package no.cloudberries.candidatematch.domain
-//
-// import no.cloudberries.candidatematch.domain.candidate.Skill
-// import java.time.LocalDate
-//
-data class ProjectRequest(
-    val customerName: String,
-    val requiredSkills: List<Skill>,
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val responseDeadline: LocalDate,
-    var aiSuggestions: List<AISuggestion> = emptyList()
-)
 
