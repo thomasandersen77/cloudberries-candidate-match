@@ -1,5 +1,6 @@
 package no.cloudberries.candidatematch.service
 
+import no.cloudberries.candidatematch.domain.AISuggestion
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
@@ -45,7 +46,6 @@ class ProjectRequestService(
         )
 
         // Lagre forespørselen (Dette ville vanligvis kalt et repository)
-        // val savedRequest = projectRequestRepository.save(projectRequest)
         val savedRequest = projectRequestRepository.save(projectRequest) // Forenklet for eksempelet
 
         // Trigger automatisk forslag av konsulenter (foreløpig skissert)
@@ -56,10 +56,10 @@ class ProjectRequestService(
     }
 
     // Skissert metode for fremtidig implementering av konsulent-matching
-    // private fun findMatchingConsultants(request: ProjectRequest): List<AISuggestion> {
-    //     // Her ville logikken for å hente konsulenter og kalle aiService ligget
-    //     return emptyList()
-    // }
+    private fun findMatchingConsultants(request: ProjectRequest): List<AISuggestion> {
+        // Her ville logikken for å hente konsulenter og kalle aiService ligget
+        return emptyList()
+    }
 }
 
 // Oppdatering i domenemodellen for ProjectRequest for å støtte de nye feltene.
@@ -69,17 +69,12 @@ class ProjectRequestService(
 // import no.cloudberries.candidatematch.domain.candidate.Skill
 // import java.time.LocalDate
 //
-// data class ProjectRequest(
-//     val customerName: String,
-//     val requiredSkills: List<Skill>,
-//     val startDate: LocalDate,
-//     val endDate: LocalDate,
-//     val responseDeadline: LocalDate,
-//     var aiSuggestions: List<AISuggestion> = emptyList()
-// )
-//
-// data class AISuggestion(
-//     val consultantName: String,
-//     val score: Double,
-//     val justification: String
-// )
+data class ProjectRequest(
+    val customerName: String,
+    val requiredSkills: List<Skill>,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+    val responseDeadline: LocalDate,
+    var aiSuggestions: List<AISuggestion> = emptyList()
+)
+

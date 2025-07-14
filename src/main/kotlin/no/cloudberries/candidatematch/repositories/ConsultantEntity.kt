@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.databind.JsonNode
 import io.hypersistence.utils.hibernate.type.json.JsonType
 import jakarta.persistence.*
+import no.cloudberries.candidatematch.domain.candidate.Skill
 import org.hibernate.annotations.Type
 
 @Entity
@@ -11,17 +12,17 @@ class ConsultantEntity(
     val id: Long? = null,
     
     @Column(name = "name", nullable = false)
-    var name: String,
+    val name: String,
     
     @Column(name = "user_id", nullable = false)
-    var userId: String,
+    val userId: String,
     
     @Column(name = "cv_id", nullable = false)
-    var cvId: String,
+    val cvId: String,
     
     @Column(name = "resume_data", columnDefinition = "json", nullable = false)
     @Type(JsonType::class)
-    var resumeData: JsonNode,
+    val resumeData: JsonNode,
     
     @ElementCollection
     @CollectionTable(
@@ -29,5 +30,5 @@ class ConsultantEntity(
         joinColumns = [JoinColumn(name = "consultant_id")]
     )
     @Column(name = "skill")
-    var skills: MutableSet<String> = mutableSetOf()
+    val skills: MutableSet<Skill> = mutableSetOf()
 )

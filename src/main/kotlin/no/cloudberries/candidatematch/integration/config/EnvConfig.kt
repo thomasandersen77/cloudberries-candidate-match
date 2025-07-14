@@ -6,5 +6,9 @@ import org.springframework.context.annotation.PropertySource
 
 @Configuration
 @ConfigurationPropertiesScan
-@PropertySource("classpath:application.yaml", ignoreResourceNotFound = false, encoding = "UTF-8")
+@PropertySource(
+    "classpath:application.yaml",
+    ignoreResourceNotFound = false,
+    encoding = "UTF-8"
+)
 class EnvConfig

@@ -1,6 +1,5 @@
-import com.fasterxml.jackson.databind.JsonNode
 import jakarta.persistence.*
-import org.hibernate.annotations.Type
+import no.cloudberries.candidatematch.repositories.ProjectRequestEntity
 
 @Entity
 @Table(name = "customer")
@@ -10,17 +9,17 @@ class CustomerEntity(
     val id: Long? = null,
     
     @Column(name = "name")
-    var name: String? = null,
+    val name: String? = null,
     
     @Column(name = "email")
-    var email: String? = null,
+    val email: String? = null,
     
     @Column(name = "phone")
-    var phone: String? = null,
+    val phone: String? = null,
     
     @Column(name = "organization")
-    var organization: String? = null,
+    val organization: String? = null,
 
     @OneToMany(mappedBy = "customer", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var projectRequests: MutableSet<ProjectRequestEntity> = mutableSetOf()
+    val projectRequestEntities: MutableSet<ProjectRequestEntity> = mutableSetOf()
 )

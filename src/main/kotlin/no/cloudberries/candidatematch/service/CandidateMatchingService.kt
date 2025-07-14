@@ -9,12 +9,10 @@ import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
 import no.cloudberries.candidatematch.integration.AiProvider
 import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
 import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
-import no.cloudberries.candidatematch.service.AIService
 import no.cloudberries.candidatematch.templates.MatchParams
 import no.cloudberries.candidatematch.templates.MatchPromptTemplate
 import no.cloudberries.candidatematch.templates.renderTemplate
 import org.springframework.stereotype.Service
-import java.time.Instant
 
 @Service
 class CandidateMatchingService(
@@ -84,8 +82,7 @@ class CandidateMatchingService(
             ConsultantMatchedEvent(
                 consultantName = consultantName,
                 matchScore = matchResponse.totalScore,
-                matchSummary = matchResponse.summary,
-                occurredOn = Instant.now()
+                matchSummary = matchResponse.summary
             )
         )
     }

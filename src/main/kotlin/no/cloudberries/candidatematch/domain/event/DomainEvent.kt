@@ -11,20 +11,20 @@ interface DomainEvent {
 }
 
 interface DomainEventPublisher {
-    fun publish(event: ConsultantMatchedEvent)
+    fun publish(event: DomainEvent)
     fun publishAll(events: Collection<DomainEvent>)
 }
 
 @Component
-class SpringDomainEventPublisher(
+class DomainEventPublisherImpl(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : DomainEventPublisher {
 
-    override fun publish(event: ConsultantMatchedEvent) {
+    override fun publish(event: DomainEvent) {
         applicationEventPublisher.publishEvent(event)
     }
 
     override fun publishAll(events: Collection<DomainEvent>) {
-        //events.forEach { publish(it) }
+        events.forEach { publish(it) }
     }
 }

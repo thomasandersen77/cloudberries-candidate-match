@@ -7,5 +7,5 @@ data class ConsultantMatchedEvent(
     val consultantName: String,
     val matchScore: String,
     val matchSummary: String,
-    override val occurredOn: Instant
+    override val occurredOn: Instant = Instant.now()
 ) : DomainEvent

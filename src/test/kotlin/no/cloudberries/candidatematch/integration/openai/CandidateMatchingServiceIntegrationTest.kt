@@ -1,29 +1,25 @@
 package no.cloudberries.candidatematch.integration.openai
 
+import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.integration.AiProvider
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
-import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
 import no.cloudberries.candidatematch.service.CandidateMatchingService
 import no.cloudberries.candidatematch.utils.PdfUtils
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import java.io.File
 import java.io.FileInputStream
 import kotlin.test.Ignore
 
 @Ignore("Only for manual testing")
-@SpringBootTest(
-    properties = [
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
-        "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration"
-    ]
-)
-@MockBean(ProjectRequestRepository::class)
+@SpringBootTest
+@Import(LiquibaseTestConfig::class)
 class CandidateMatchingServiceIntegrationTest {
     @Autowired
     lateinit var candidateMatchingService: CandidateMatchingService

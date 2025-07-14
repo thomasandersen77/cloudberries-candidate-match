@@ -1,15 +1,11 @@
 spring:
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
     hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/test
-    username: test
-    password: test
+      ddl-auto: none
+  liquibase:
+    enabled: true
 
 flowcase:
   apiKey: ${FLOWCASE_API_KEY}
