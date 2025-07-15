@@ -34,38 +34,56 @@ jobs:
 
       # --- Steg 3: Kall Gemini API for kode-review ---
       - name: Perform Code Review with Gemini
-        if: ${{ success() }} # Kjør kun hvis bygget var vellykket
+        if: ${{ success() }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # Leser prompten og diff-en inn i variabler
           PROMPT_TEMPLATE=$(cat .github/prompts/pr_review_prompt.txt)
           CODE_DIFF=$(git diff origin/main...HEAD)
-
-          # Erstatter placeholder {diff} i prompten med den faktiske diff-en
+          
+          # Bygg payload på en sikker måte
           FULL_PROMPT="${PROMPT_TEMPLATE//\{diff\}/$CODE_DIFF}"
-
-          # Bygger JSON-payload på en sikker måte med jq for å unngå feil med spesialtegn
-          JSON_PAYLOAD=$(jq -n \
-            --arg text_content "$FULL_PROMPT" \
+          JSON_PAYLOAD=$(jq -n --arg text_content "$FULL_PROMPT" \
             '{contents: [{parts: [{text: $text_content}]}]}')
 
-          # Kaller Gemini API med den sikre payloaden
-          GEMINI_RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$GEMINI_API_KEY" \
-               -H "Content-Type: application/json" \
-               -d "$JSON_PAYLOAD")
+          # Logikk for å prøve på nytt (retry)
+          MAX_ATTEMPTS=3
+          RETRY_DELAY=5 # Sekunder
+          for ((i=1; i<=MAX_ATTEMPTS; i++)); do
+            echo "::notice::Forsøk $i av $MAX_ATTEMPTS på å kalle Gemini API..."
+          
+            # Bruk -w for å få http-status og body separat
+            HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d "$JSON_PAYLOAD")
+          
+            HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
+            GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
+          
+            if [ "$HTTP_STATUS_CODE" -eq 200 ]; then
+              echo "::notice::Suksess fra Gemini API."
+              break # Gå ut av loopen ved suksess
+            elif [ "$i" -lt "$MAX_ATTEMPTS" ]; then
+              echo "::warning::Mottok HTTP status $HTTP_STATUS_CODE. Prøver igjen om $RETRY_DELAY sekunder..."
+              echo "API-respons: $GEMINI_RESPONSE"
+              sleep $RETRY_DELAY
+            else
+              echo "::error::Feil fra Gemini API etter $MAX_ATTEMPTS forsøk. HTTP status: $HTTP_STATUS_CODE"
+              echo "$GEMINI_RESPONSE"
+              exit 1
+            fi
+          done
 
-          # Sjekker for feil i API-responsen før vi fortsetter
+          # Sjekk for feil i selve JSON-responsen
           if echo "$GEMINI_RESPONSE" | jq -e '.error' > /dev/null; then
-            echo "::error::Feil fra Gemini API:"
+            echo "::error::Gemini API returnerte en feilmelding:"
             echo "$GEMINI_RESPONSE"
             exit 1
           fi
 
-          # Henter ut teksten fra responsen og lagrer til fil for neste steg
           echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review.txt
           echo "Gemini-review lagret i gemini_review.txt"
-
       # --- Steg 4: Publiser review som en kommentar på Pull Requesten ---
       - name: Comment on Pull Request
         if: ${{ success() && github.event_name == 'pull_request' }}
