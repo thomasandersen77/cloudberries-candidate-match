@@ -42,15 +42,13 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
 
-          # --- NYTT STEG ---
       - name: Log in to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # --- OPPDATERT STEG ---
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: '${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}'
+          images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
