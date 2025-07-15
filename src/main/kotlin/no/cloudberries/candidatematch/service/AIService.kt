@@ -1,13 +1,13 @@
 package no.cloudberries.candidatematch.service
 
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.integration.AiProvider
+import no.cloudberries.candidatematch.domain.ai.AIProvider
 
 interface AIService {
 
     //fun suggestResumeImprovements(resume: String, projectRequest: ProjectRequest): AIResponse
     fun matchCandidate(
-        aiProvider: AiProvider,
+        aiProvider: AIProvider,
         cv: String,
         request: String,
         consultantName: String

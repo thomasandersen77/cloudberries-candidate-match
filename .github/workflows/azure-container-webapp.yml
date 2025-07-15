@@ -1,0 +1,56 @@
+# .github/workflows/azure-container-webapp.yml
+
+name: Build and Deploy Container to Azure Web App
+
+env:
+  AZURE_WEBAPP_NAME: 'cloudberries-backend' # Replace with your App Service name
+  DOCKERFILE_PATH: './Dockerfile'              # Path to your Dockerfile
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: 'read'
+  packages: 'write'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase the repo name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}
+          push: true
+          tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
+            
+            # --- NYTT STEG ---
+            - name: Log in to Azure
+              uses: azure/login@v1
+              with:
+                creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            # --- OPPDATERT STEG ---
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@v2
+              with:
+                app-name: ${{ env.AZURE_WEBAPP_NAME }}
+                images: '${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}'

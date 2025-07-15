@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ConsultantRepository: JpaRepository<ProjectRequest, Long>
+interface ConsultantRepository: JpaRepository<ProjectRequestEntity, Long>

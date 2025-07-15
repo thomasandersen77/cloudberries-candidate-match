@@ -1,10 +1,10 @@
 package no.cloudberries.candidatematch.integration.openai
 
+import BaseIntegrationTest
 import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.integration.AiProvider
+import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.service.CandidateMatchingService
 import no.cloudberries.candidatematch.utils.PdfUtils
@@ -20,7 +20,7 @@ import kotlin.test.Ignore
 @Ignore("Only for manual testing")
 @SpringBootTest
 @Import(LiquibaseTestConfig::class)
-class CandidateMatchingServiceIntegrationTest {
+class CandidateMatchingServiceIntegrationTest: BaseIntegrationTest() {
     @Autowired
     lateinit var candidateMatchingService: CandidateMatchingService
     @Autowired
@@ -34,7 +34,7 @@ class CandidateMatchingServiceIntegrationTest {
     @Test
     fun matchCandidateOpenAI() {
         val response = candidateMatchingService.matchCandidate(
-            aiProvider = AiProvider.OPENAI,
+            aiProvider = AIProvider.OPENAI,
             cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/Thomas-Andersen_CV.pdf"))),
             request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet/forespørsel_fra_polititet.pdf"))),
             consultantName = "Thomas Andersen"
@@ -70,7 +70,7 @@ class CandidateMatchingServiceIntegrationTest {
         val resumeAsJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(resumeDTO)
         logger.info { resumeAsJson }
         val response = candidateMatchingService.matchCandidate(
-            aiProvider = AiProvider.GEMINI,
+            aiProvider = AIProvider.GEMINI,
             //cv = resumeAsJson,
             cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/Thomas-Andersen_CV.pdf"))),
             //request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet/forespørsel_fra_polititet.pdf"))),

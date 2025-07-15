@@ -3,12 +3,13 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: cloudberries-candidate-match-postgres
+    container_name: candidate-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: candidatematch
       POSTGRES_USER: candidatematch
       POSTGRES_PASSWORD: candidatematch123
+      POSTGRES_SCHEMA: candidatematch  # Add this line
     ports:
       - "5432:5432"
     volumes:
@@ -33,7 +34,9 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/candidatematch
       - SPRING_DATASOURCE_USERNAME=candidatematch
       - SPRING_DATASOURCE_PASSWORD=candidatematch123
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate  # Change from update to validate since you're using Liquibase
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=candidatematch
+      - SPRING_LIQUIBASE_DEFAULT_SCHEMA=candidatematch
       - FLOWCASE_API_KEY=${FLOWCASE_API_KEY}
       - FLOWCASE_BASE_URL=${FLOWCASE_BASE_URL}
       - OPENAI_API-KEY=${OPENAI_API_KEY}

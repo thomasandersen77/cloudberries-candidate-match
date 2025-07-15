@@ -1,23 +1,11 @@
-FROM openjdk:17-jdk-slim-bullseye
+# Steg 1: Bygg applikasjonen med Maven
+FROM maven:3.8.5-openjdk-17 AS build
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml clean package
 
-WORKDIR /app
-
-# Install Maven
-RUN apt-get update && \
-    apt-get install -y maven
-
-# Copy pom.xml first for better caching
-COPY pom.xml ./
-
-# Download dependencies
-RUN mvn dependency:go-offline -B
-
-# Copy source code
-COPY src ./src
-
-# Build the application
-RUN mvn clean package -DskipTests
-
-# Run the application
+# Steg 2: Bygg det endelige, lettvekts imaget
+FROM openjdk:17-jdk-slim
+COPY --from=build /home/app/target/candidate-match.jar /usr/local/lib/app.jar
 EXPOSE 8080
-CMD ["java", "-jar", "target/candidate-match.jar"]
+ENTRYPOINT ["java","-jar","/usr/local/lib/app.jar"]

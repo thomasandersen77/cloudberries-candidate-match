@@ -3,8 +3,9 @@ package no.cloudberries.candidatematch.service
 import no.cloudberries.candidatematch.domain.AISuggestion
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.candidate.Skill
-import no.cloudberries.candidatematch.repositories.ProjectRequestEntity
+import no.cloudberries.candidatematch.domain.toEntity
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
+import no.cloudberries.candidatematch.repositories.toProjectRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -32,13 +33,13 @@ class ProjectRequestService(
         startDate: LocalDate,
         endDate: LocalDate,
         responseDeadline: LocalDate
-    ): ProjectRequestEntity {
+    ): ProjectRequest {
         // Validering i henhold til akseptansekriterium: frist for svar må være før oppstart
         if (responseDeadline.isAfter(startDate)) {
             throw IllegalArgumentException("Svarfristen kan ikke være etter prosjektets startdato.")
         }
 
-        val projectRequest = ProjectRequestEntity(
+            val projectRequest = ProjectRequest(
             customerName = customerName,
             requiredSkills = requiredSkills,
             startDate = startDate,
@@ -47,13 +48,13 @@ class ProjectRequestService(
         )
 
         // Lagre forespørselen (Dette ville vanligvis kalt et repository)
-        val savedRequest = projectRequestRepository.save(projectRequest) // Forenklet for eksempelet
+        val savedRequest = projectRequestRepository.save(projectRequest.toEntity()) // Forenklet for eksempelet
 
         // Trigger automatisk forslag av konsulenter (foreløpig skissert)
         // val suggestions = findMatchingConsultants(savedRequest)
         // savedRequest.aiSuggestions = suggestions
 
-        return savedRequest
+        return savedRequest.toProjectRequest()
     }
 
     // Skissert metode for fremtidig implementering av konsulent-matching

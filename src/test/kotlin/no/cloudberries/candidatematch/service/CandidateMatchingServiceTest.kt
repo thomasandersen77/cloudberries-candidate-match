@@ -5,21 +5,18 @@ import io.mockk.every
 import io.mockk.mockk
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.Requirement
+import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.candidatematch.domain.ai.AIResponse
 import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
-import no.cloudberries.candidatematch.integration.AiProvider
-import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
-import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class CandidateMatchingServiceTest {
 
-    private val openAIHttpClient: OpenAIHttpClient = mockk<OpenAIHttpClient>(relaxed = true)
-    private val geminiHttpClient: GeminiHttpClient = mockk<GeminiHttpClient>(relaxed = true)
+    private val aiAnalysisService = mockk<AIAnalysisService>(relaxed = true)
     private val domainEventPublisher = mockk<DomainEventPublisher>(relaxed = true)
     private val candidateMatchingService = CandidateMatchingService(
-        openAIHttpClient,
-        geminiHttpClient,
+        aiAnalysisService,
         domainEventPublisher
     )
     private val mapper = jacksonObjectMapper()
@@ -42,10 +39,17 @@ class CandidateMatchingServiceTest {
         )
         val responseJson = mapper.writeValueAsString(expectedResponse)
 
-        every { openAIHttpClient.analyze(any(String::class)) } returns responseJson
-
+        every {
+            aiAnalysisService.analyzeContent(
+                content = any(String::class),
+                AIProvider.OPENAI
+            )
+        } returns AIResponse(
+            responseJson,
+            "openai"
+        )
         val result = candidateMatchingService.matchCandidate(
-            aiProvider = AiProvider.OPENAI,
+            aiProvider = AIProvider.OPENAI,
             cv = cv,
             request = request,
             consultantName = consultantName
@@ -75,10 +79,18 @@ class CandidateMatchingServiceTest {
         )
         val responseJson = mapper.writeValueAsString(expectedResponse)
 
-        every { geminiHttpClient.analyze(prompt = any(String::class)) } returns responseJson
+        every {
+            aiAnalysisService.analyzeContent(
+                content = any(String::class),
+                AIProvider.GEMINI
+            )
+        } returns AIResponse(
+            responseJson,
+            "gemini"
+        )
 
         val result = candidateMatchingService.matchCandidate(
-            aiProvider = AiProvider.GEMINI,
+            aiProvider = AIProvider.GEMINI,
             cv = cv,
             request = request,
             consultantName = consultantName

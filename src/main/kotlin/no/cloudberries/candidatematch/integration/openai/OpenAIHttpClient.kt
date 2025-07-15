@@ -1,6 +1,8 @@
 package no.cloudberries.candidatematch.integration.openai
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
+import no.cloudberries.candidatematch.domain.ai.AIResponse
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,11 +14,11 @@ import kotlin.time.Duration
 @Service
 class OpenAIHttpClient(
     private val config: OpenAIConfig
-) {
+): AIContentGenerator {
 
     private val mapper = jacksonObjectMapper()
     private val client = OkHttpClient().apply {
-        OkHttpClient.Builder().connectTimeout(
+        newBuilder().connectTimeout(
             1500,
             TimeUnit.SECONDS
         )
@@ -160,6 +162,15 @@ class OpenAIHttpClient(
                 throw RuntimeException("Feil fra OpenAI API: ${response.code} - ${response.message}")
             }
             return response.body.string()
+        }
+    }
+
+    override fun generateContent(prompt: String): AIResponse {
+        return analyze(prompt).let {
+            AIResponse(
+                content = it,
+                modelUsed = config.model
+            )
         }
     }
 }

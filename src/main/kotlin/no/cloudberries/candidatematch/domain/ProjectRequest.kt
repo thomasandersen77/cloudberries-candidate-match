@@ -1,6 +1,8 @@
 package no.cloudberries.candidatematch.domain
 
 import no.cloudberries.candidatematch.domain.candidate.Skill
+import no.cloudberries.candidatematch.repositories.ProjectRequestEntity
+import no.cloudberries.candidatematch.repositories.fromDomain
 import java.time.LocalDate
 
 
@@ -11,5 +13,18 @@ data class ProjectRequest(
     val startDate: LocalDate,
     val endDate: LocalDate,
     val responseDeadline: LocalDate,
-    var aiSuggestionEntities: List<AISuggestion> = emptyList()
+    var aISuggestions: List<AISuggestion> = emptyList()
 )
+
+// Extension function to convert DTO to Entity
+fun ProjectRequest.toEntity(): ProjectRequestEntity {
+    return ProjectRequestEntity(
+        id = this.id,
+        customerName = this.customerName,
+        requiredSkills = this.requiredSkills,
+        startDate = this.startDate,
+        endDate = this.endDate,
+        responseDeadline = this.responseDeadline,
+        aiSuggestionEntities = this.aISuggestions.map { it.fromDomain(it)  }
+    )
+}

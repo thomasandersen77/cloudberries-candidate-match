@@ -4,11 +4,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
+import no.cloudberries.candidatematch.domain.ai.AIResponse
 import no.cloudberries.candidatematch.domain.candidate.ConsultantMatchedEvent
 import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
-import no.cloudberries.candidatematch.integration.AiProvider
-import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
-import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
+import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.templates.MatchParams
 import no.cloudberries.candidatematch.templates.MatchPromptTemplate
 import no.cloudberries.candidatematch.templates.renderTemplate
@@ -17,15 +16,14 @@ import java.time.Instant
 
 @Service
 class CandidateMatchingService(
-    private val openAIHttpClient: OpenAIHttpClient,
-    private val geminiHttpClient: GeminiHttpClient,
+    private val aiAnalysisService: AIAnalysisService,
     private val domainEventPublisher: DomainEventPublisher
 ) : AIService {
     private val logger = KotlinLogging.logger {}
     private val mapper = jacksonObjectMapper()
 
     override fun matchCandidate(
-        aiProvider: AiProvider,
+        aiProvider: AIProvider,
         cv: String,
         request: String,
         consultantName: String
@@ -50,22 +48,28 @@ class CandidateMatchingService(
         )
     }
 
-    private fun getAiResponse(aiProvider: AiProvider, prompt: String): String {
+    private fun getAiResponse(aiProvider: AIProvider, prompt: String): AIResponse {
         return when (aiProvider) {
-            AiProvider.GEMINI -> {
+            AIProvider.GEMINI -> {
                 logger.debug { LOG_USING_GEMINI }
-                geminiHttpClient.analyze(prompt = prompt)
+                aiAnalysisService.analyzeContent(
+                    content = prompt,
+                    AIProvider.GEMINI
+                )
             }
 
-            AiProvider.OPENAI -> {
+            AIProvider.OPENAI -> {
                 logger.debug { LOG_USING_OPENAI }
-                openAIHttpClient.analyze(prompt = prompt)
+                aiAnalysisService.analyzeContent(
+                    content = prompt,
+                    AIProvider.OPENAI
+                )
             }
         }
     }
 
-    fun processAiResponse(response: String, consultantName: String): CandidateMatchResponse {
-        val matchResponse = mapper.readValue<CandidateMatchResponse>(content = response)
+    fun processAiResponse(response: AIResponse, consultantName: String): CandidateMatchResponse {
+        val matchResponse = mapper.readValue<CandidateMatchResponse>(content = response.content)
         logger.info { "$LOG_MATCH_SUCCESS $consultantName with score: ${matchResponse.totalScore}" }
 
         publishMatchEvent(

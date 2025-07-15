@@ -1,11 +1,21 @@
+flowcase:
+  apiKey: ${FLOWCASE_API_KEY}
+  baseUrl: ${FLOWCASE_BASE_URL}
+openai:
+  apiKey: ${OPENAI_API_KEY}
+  model: gpt-4
+  assistantId: ${OPENAI_ASSISTANT_ID}
+gemini:
+  apiKey: ${GEMINI_API_KEY}
+  model: gemini-1.5-pro-latest
 
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   datasource:
-    url: jdbc:postgresql://localhost:5432/test
-    username: test_user
-    password: test_password
+    url: jdbc:postgresql://localhost:5432/candidatematch
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -28,16 +38,3 @@ spring:
   sql:
     init:
       schema-locations: candidatematch
-
-flowcase:
-  apiKey: ${FLOWCASE_API_KEY}
-  baseUrl: ${FLOWCASE_BASE_URL}
-openai:
-  apiKey: ${OPENAI_API_KEY}
-  model: gpt-4
-  assistantId: ${OPENAI_ASSISTANT_ID}
-gemini:
-    apiKey: ${GEMINI_API_KEY}
-    model: gemini-1.5-pro-latest
-
-
