@@ -8,7 +8,7 @@
     <changeSet id="0" author="tandersen">
         <sql dbms="postgresql">
             CREATE SCHEMA IF NOT EXISTS candidatematch;
-            CREATE ROLE test_user IF NOT EXISTS;
+            CREATE USER test_user WITH PASSWORD 'test_password';
         </sql>
     </changeSet>
 
