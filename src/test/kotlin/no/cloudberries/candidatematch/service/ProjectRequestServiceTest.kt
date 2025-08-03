@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import no.cloudberries.candidatematch.domain.ProjectRequest
+import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.repositories.ProjectRequestEntity
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
@@ -46,7 +47,10 @@ class ProjectRequestServiceTest {
         assertEquals("Testkunde AS", request.customerName)
         assertEquals(2, request.requiredSkills.size)
         assertEquals(startDate, request.startDate)
-        assertEquals(1L, request.id)
+        assertEquals(ProjectRequestId(1L), ProjectRequestId(request.id?.value))
+        assertEquals(endDate, request.endDate)
+        assertEquals(responseDeadline, request.responseDeadline)
+        assertTrue(request.aISuggestions.isEmpty()) // Ingen AI-forslag i denne testen
     }
 
     @Test
