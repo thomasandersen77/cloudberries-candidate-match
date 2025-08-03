@@ -17,12 +17,11 @@ class OpenAIHttpClient(
 ): AIContentGenerator {
 
     private val mapper = jacksonObjectMapper()
-    private val client = OkHttpClient().apply {
-        newBuilder().connectTimeout(
-            1500,
-            TimeUnit.SECONDS
-        )
-    }
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(90, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
+        .writeTimeout(90, TimeUnit.SECONDS)
+        .build()
 
     fun analyze(prompt: String): String {
         // 1. Opprett en ny thread

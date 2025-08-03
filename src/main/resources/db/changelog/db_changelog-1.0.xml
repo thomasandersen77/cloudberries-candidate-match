@@ -5,14 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-<!--    <changeSet id="0" author="tandersen">
-        <sql dbms="postgresql">
-            CREATE SCHEMA IF NOT EXISTS candidatematch;
-            CREATE USER test_user WITH PASSWORD 'test_password';
-        </sql>
-    </changeSet>-->
-
-    <!-- Your existing changesets follow here -->
+    <!-- ChangeLog for initial database setup -->
     <changeSet id="1" author="liquibase">
         <!-- Customer table -->
         <createTable tableName="customer">
@@ -155,7 +148,7 @@
             <column name="project_request_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="skill" type="smallint">
+            <column name="skill" type="varchar2(100)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

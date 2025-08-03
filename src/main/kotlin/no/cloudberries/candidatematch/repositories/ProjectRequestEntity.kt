@@ -10,8 +10,9 @@ import java.time.LocalDate
 data class ProjectRequestEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
-    val customerId: Long,
+    val id: Long? = null,
+    @Column(name = "customer_id", columnDefinition = "bigint")
+    val customerId: Long? = null,
     val customerName: String? = null,
     @ElementCollection
     @CollectionTable(
@@ -19,8 +20,8 @@ data class ProjectRequestEntity(
         joinColumns = [JoinColumn(name = "project_request_id")]
     )
     @Column(name = "skill")
-    @Enumerated(EnumType.ORDINAL) // Add this line to store enum as number
-    val requiredSkills: List<Skill> = emptyList(),
+    @Enumerated(EnumType.STRING) // Add this line to store enum as a string
+    val requiredSkills: List<Skill> = listOf(),
     val startDate: LocalDate,
     val endDate: LocalDate,
     val responseDeadline: LocalDate,

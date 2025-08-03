@@ -7,8 +7,8 @@ import java.time.LocalDate
 
 
 data class ProjectRequest(
-    var id: Long? = null,
-    val customerId: Long,
+    val id: Long? = null,
+    val customerId: Long? = null,
     val customerName: String? = null,
     val requiredSkills: List<Skill>,
     val startDate: LocalDate,
