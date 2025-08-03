@@ -165,11 +165,9 @@ class OpenAIHttpClient(
     }
 
     override fun generateContent(prompt: String): AIResponse {
-        return analyze(prompt).let {
-            AIResponse(
-                content = it,
-                modelUsed = config.model
-            )
-        }
+        return AIResponse(
+            content = analyze(prompt),
+            modelUsed = config.model
+        )
     }
 }
