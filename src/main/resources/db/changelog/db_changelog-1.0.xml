@@ -66,7 +66,7 @@
             <column name="customer_name" type="varchar2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="required_skills" type="jsonb">
+            <column name="required_skills" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="start_date" type="date">
@@ -148,7 +148,7 @@
             <column name="project_request_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="skill" type="varchar2(100)">
+            <column name="skill" type="varchar2(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

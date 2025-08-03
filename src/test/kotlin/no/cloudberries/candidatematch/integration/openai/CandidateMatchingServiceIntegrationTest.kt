@@ -34,7 +34,7 @@ class CandidateMatchingServiceIntegrationTest: BaseIntegrationTest() {
 
     private val logger = KotlinLogging.logger {}
     @Test
-    fun matchCandidateOpenAI() {
+    fun  matchCandidateOpenAI() {
         val response = candidateMatchingService.matchCandidate(
             aiProvider = AIProvider.OPENAI,
             cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/Thomas-Andersen_CV.pdf"))),
