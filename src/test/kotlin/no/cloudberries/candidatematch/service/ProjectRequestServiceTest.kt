@@ -47,10 +47,10 @@ class ProjectRequestServiceTest {
         assertEquals("Testkunde AS", request.customerName)
         assertEquals(2, request.requiredSkills.size)
         assertEquals(startDate, request.startDate)
-        assertEquals(ProjectRequestId(1L), ProjectRequestId(request.id?.value))
+        assertEquals(ProjectRequestId(1L), request.id)
         assertEquals(endDate, request.endDate)
         assertEquals(responseDeadline, request.responseDeadline)
-        assertTrue(request.aISuggestions.isEmpty()) // Ingen AI-forslag i denne testen
+        assertTrue(request.aISuggestions.isEmpty())
     }
 
     @Test

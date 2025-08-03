@@ -21,8 +21,7 @@ data class ProjectRequestId(val value: Long? = null)
 data class CustomerId(val value: Long? = null)
 
 // Extension function to convert DTO to Entity
-fun ProjectRequest.toEntity(): ProjectRequestEntity {
-    return ProjectRequestEntity(
+fun ProjectRequest.toEntity(): ProjectRequestEntity = ProjectRequestEntity(
         id = id?.value,
         customerId = customerId?.value,
         customerName = customerName,
@@ -32,4 +31,3 @@ fun ProjectRequest.toEntity(): ProjectRequestEntity {
         responseDeadline = responseDeadline,
         aiSuggestionEntities = aISuggestions.map { it.fromDomain(it)  }
     )
-}
