@@ -7,9 +7,9 @@ import java.time.LocalDate
 
 
 data class ProjectRequest(
-    val id: Long? = null,
-    val customerId: Long? = null,
-    val customerName: String? = null,
+    val id: ProjectRequestId? = null,
+    val customerId: CustomerId? = null,
+    val customerName: String,
     val requiredSkills: List<Skill>,
     val startDate: LocalDate,
     val endDate: LocalDate,
@@ -17,11 +17,14 @@ data class ProjectRequest(
     var aISuggestions: List<AISuggestion> = emptyList()
 )
 
+data class ProjectRequestId(val value: Long? = null)
+data class CustomerId(val value: Long? = null)
+
 // Extension function to convert DTO to Entity
 fun ProjectRequest.toEntity(): ProjectRequestEntity {
     return ProjectRequestEntity(
-        id = this.id,
-        customerId = this.customerId,
+        id = this.id?.value,
+        customerId = this.customerId?.value,
         customerName = customerName,
         requiredSkills = this.requiredSkills,
         startDate = this.startDate,

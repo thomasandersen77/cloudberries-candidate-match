@@ -1,7 +1,9 @@
 package no.cloudberries.candidatematch.repositories
 
 import jakarta.persistence.*
+import no.cloudberries.candidatematch.domain.CustomerId
 import no.cloudberries.candidatematch.domain.ProjectRequest
+import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import java.time.LocalDate
 
@@ -13,9 +15,10 @@ data class ProjectRequestEntity(
     val id: Long? = null,
     @Column(name = "customer_id", columnDefinition = "bigint")
     val customerId: Long? = null,
-    val customerName: String? = null,
+    val customerName: String,
     @ElementCollection
     @CollectionTable(
+        schema = "public",
         name = "project_request_required_skills",
         joinColumns = [JoinColumn(name = "project_request_id")]
     )
@@ -32,8 +35,8 @@ data class ProjectRequestEntity(
 // Extension function to convert Entity to DTO
 fun ProjectRequestEntity.toProjectRequest(): ProjectRequest {
     return ProjectRequest(
-        id = this.id,
-        customerId = this.customerId,
+        id = ProjectRequestId(this.id),
+        customerId = CustomerId(this.customerId),
         customerName = this.customerName,
         requiredSkills = this.requiredSkills,
         startDate = this.startDate,
