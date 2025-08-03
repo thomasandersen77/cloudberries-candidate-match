@@ -15,19 +15,23 @@ data class ProjectRequest(
     val endDate: LocalDate,
     val responseDeadline: LocalDate,
     val aISuggestions: List<AISuggestion> = emptyList()
-)
+) {
+    init {
+        require(startDate.isBefore(endDate)) { "Startdato må være før sluttdato" }
+    }
+}
 
 data class ProjectRequestId(val value: Long? = null)
 data class CustomerId(val value: Long? = null)
 
 // Extension function to convert DTO to Entity
 fun ProjectRequest.toEntity(): ProjectRequestEntity = ProjectRequestEntity(
-        id = id?.value,
-        customerId = customerId?.value,
-        customerName = customerName,
-        requiredSkills = requiredSkills,
-        startDate = startDate,
-        endDate = endDate,
-        responseDeadline = responseDeadline,
-        aiSuggestionEntities = aISuggestions.map { it.fromDomain(it)  }
-    )
+    id = id?.value,
+    customerId = customerId?.value,
+    customerName = customerName,
+    requiredSkills = requiredSkills,
+    startDate = startDate,
+    endDate = endDate,
+    responseDeadline = responseDeadline,
+    aiSuggestionEntities = aISuggestions.map { it.fromDomain(it) }
+)
