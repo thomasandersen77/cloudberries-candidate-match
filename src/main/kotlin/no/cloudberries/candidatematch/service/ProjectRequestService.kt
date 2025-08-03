@@ -39,7 +39,9 @@ class ProjectRequestService(
             throw IllegalArgumentException("Svarfristen kan ikke være etter prosjektets startdato.")
         }
 
-            val projectRequest = ProjectRequest(
+        val customerId = System.currentTimeMillis()
+        val projectRequest = ProjectRequest(
+            customerId = customerId, // Generer et unikt
             customerName = customerName,
             requiredSkills = requiredSkills,
             startDate = startDate,

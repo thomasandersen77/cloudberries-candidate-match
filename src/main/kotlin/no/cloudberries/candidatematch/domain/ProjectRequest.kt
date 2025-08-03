@@ -8,7 +8,8 @@ import java.time.LocalDate
 
 data class ProjectRequest(
     var id: Long? = null,
-    val customerName: String,
+    val customerId: Long,
+    val customerName: String? = null,
     val requiredSkills: List<Skill>,
     val startDate: LocalDate,
     val endDate: LocalDate,
@@ -20,7 +21,8 @@ data class ProjectRequest(
 fun ProjectRequest.toEntity(): ProjectRequestEntity {
     return ProjectRequestEntity(
         id = this.id,
-        customerName = this.customerName,
+        customerId = this.customerId,
+        customerName = customerName,
         requiredSkills = this.requiredSkills,
         startDate = this.startDate,
         endDate = this.endDate,

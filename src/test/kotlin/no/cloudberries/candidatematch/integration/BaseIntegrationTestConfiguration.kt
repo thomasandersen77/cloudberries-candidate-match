@@ -11,8 +11,8 @@ abstract class BaseIntegrationTest {
         @DynamicPropertySource
         private fun postgresProperties(registry: DynamicPropertyRegistry) {
             registry.add("spring.datasource.url") { "jdbc:postgresql://localhost:5432/test" }
-            registry.add("spring.datasource.username") { "test_user" }
-            registry.add("spring.datasource.password") { "test_password" }
+            registry.add("spring.datasource.username") { "test" }  // Changed from postgres to test
+            registry.add("spring.datasource.password") { "test" }  // Changed from postgres to test
             registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
             registry.add("spring.jpa.properties.hibernate.dialect") { "org.hibernate.dialect.PostgreSQLDialect" }
         }

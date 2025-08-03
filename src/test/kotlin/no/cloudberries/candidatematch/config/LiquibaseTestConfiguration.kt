@@ -1,3 +1,4 @@
+import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import liquibase.integration.spring.SpringLiquibase
 import no.cloudberries.candidatematch.config.EmbeddedPostgresTestConfig
 import org.springframework.beans.factory.annotation.Qualifier
@@ -19,6 +20,7 @@ class LiquibaseTestConfig {
             this.defaultSchema = "public"
             // Add these lines to explicitly set the user credentials
             this.resourceLoader = DefaultResourceLoader()
+            this.setShouldRun(true)
         }
     }
 }

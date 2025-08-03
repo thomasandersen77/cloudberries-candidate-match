@@ -14,14 +14,15 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   datasource:
     url: jdbc:postgresql://localhost:5432/candidatematch
-    username: test_user
-    password: test_password
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
       minimum-idle: 2
       idle-timeout: 300000 # 5 minxutes
       connection-timeout: 20000 # 20 seconds
+      schema: public
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

@@ -11,8 +11,16 @@ data class ProjectRequestEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-    val customerName: String,
-    val requiredSkills: List<Skill>,
+    val customerId: Long,
+    val customerName: String? = null,
+    @ElementCollection
+    @CollectionTable(
+        name = "project_request_required_skills",
+        joinColumns = [JoinColumn(name = "project_request_id")]
+    )
+    @Column(name = "skill")
+    @Enumerated(EnumType.ORDINAL) // Add this line to store enum as number
+    val requiredSkills: List<Skill> = emptyList(),
     val startDate: LocalDate,
     val endDate: LocalDate,
     val responseDeadline: LocalDate,
@@ -24,6 +32,7 @@ data class ProjectRequestEntity(
 fun ProjectRequestEntity.toProjectRequest(): ProjectRequest {
     return ProjectRequest(
         id = this.id,
+        customerId = this.customerId,
         customerName = this.customerName,
         requiredSkills = this.requiredSkills,
         startDate = this.startDate,

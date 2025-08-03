@@ -12,11 +12,22 @@ class EmbeddedPostgresTestConfig {
     @Primary
     @Bean("zonkyPostgresDatabaseProvider")
     fun postgresDataSource(): DataSource {
-        return EmbeddedPostgres.builder()
+        val postgres = EmbeddedPostgres.builder()
             .start()
-            .getPostgresDatabase(mapOf(
-                "user" to "test_user",
-                "password" to "test_password"
-            ))
+
+        // Create the test database before returning the DataSource
+        postgres.postgresDatabase.connection.use { connection ->
+            connection.createStatement().execute("""
+                SELECT 'CREATE DATABASE test' 
+                WHERE NOT EXISTS (
+                    SELECT FROM pg_database WHERE datname = 'test'
+                )
+            """.trimIndent())
+        }
+
+        return postgres.getPostgresDatabase(mapOf(
+            "user" to "postgres",
+            "password" to "postgres"
+        ))
     }
 }

@@ -4,8 +4,8 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   datasource:
     url: jdbc:postgresql://localhost:5432/test
-    username: test_user
-    password: test_password
+    username: test
+    password: test
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -25,9 +25,6 @@ spring:
           order_inserts: true
           order_updates: true
     open-in-view: false
-  sql:
-    init:
-      schema-locations: candidatematch
 
 flowcase:
   apiKey: ${FLOWCASE_API_KEY}

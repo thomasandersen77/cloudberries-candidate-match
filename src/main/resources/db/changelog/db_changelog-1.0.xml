@@ -5,12 +5,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="0" author="tandersen">
+<!--    <changeSet id="0" author="tandersen">
         <sql dbms="postgresql">
             CREATE SCHEMA IF NOT EXISTS candidatematch;
             CREATE USER test_user WITH PASSWORD 'test_password';
         </sql>
-    </changeSet>
+    </changeSet>-->
 
     <!-- Your existing changesets follow here -->
     <changeSet id="1" author="liquibase">
@@ -70,7 +70,52 @@
             <column name="customer_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
+            <column name="customer_name" type="varchar2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="required_skills" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="response_deadline" type="date">
+                <constraints nullable="false"/>
+            </column>
+
         </createTable>
+
+        <createTable tableName="aisuggestion_entity">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="consultant_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cv_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="match_score" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="justification" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="project_request_id" type="bigint">
+                <constraints nullable="true"
+                             foreignKeyName="fk_aisuggestion_project_request"
+                             referencedTableName="project_request"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+
+
 
         <!-- Foreign Key Constraints -->
         <addForeignKeyConstraint baseTableName="project_request"
@@ -95,6 +140,39 @@
                     tableName="consultant">
             <column name="user_id"/>
         </createIndex>
+
+        <createIndex indexName="idx_aisuggestion_project_request"
+                     tableName="aisuggestion_entity">
+            <column name="project_request_id"/>
+        </createIndex>
+
     </changeSet>
+
+
+    <changeSet id="2" author="system">
+        <!-- Create join table for project required skills -->
+        <createTable tableName="project_request_required_skills">
+            <column name="project_request_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="skill" type="smallint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Add foreign key constraint -->
+        <addForeignKeyConstraint baseTableName="project_request_required_skills"
+                                 baseColumnNames="project_request_id"
+                                 constraintName="fk_project_skills_request"
+                                 referencedTableName="project_request"
+                                 referencedColumnNames="id"/>
+
+        <!-- Add index for better performance -->
+        <createIndex indexName="idx_project_skills"
+                     tableName="project_request_required_skills">
+            <column name="skill"/>
+        </createIndex>
+    </changeSet>
+
 
 </databaseChangeLog>
