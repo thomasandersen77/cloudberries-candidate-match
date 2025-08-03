@@ -18,9 +18,9 @@ class OpenAIHttpClient(
 
     private val mapper = jacksonObjectMapper()
     private val client = OkHttpClient.Builder()
-        .connectTimeout(90, TimeUnit.SECONDS)
-        .readTimeout(90, TimeUnit.SECONDS)
-        .writeTimeout(90, TimeUnit.SECONDS)
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
         .build()
 
     fun analyze(prompt: String): String {

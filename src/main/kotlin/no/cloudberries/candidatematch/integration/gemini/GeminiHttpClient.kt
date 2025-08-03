@@ -52,6 +52,6 @@ class GeminiHttpClient(
     }
 
     private fun String.cleanJsonResponse(): String =
-        replace(Regex("```(json)?"), "").trim() // Remove code block markers and trim whitespace
+        replace(Regex("```(json)?"), "").trim()
 
 }

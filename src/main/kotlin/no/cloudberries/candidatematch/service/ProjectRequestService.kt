@@ -41,7 +41,6 @@ class ProjectRequestService(
             throw IllegalArgumentException("Svarfristen kan ikke være etter prosjektets startdato.")
         }
 
-        // Opprett prosjektforespørselen
         val projectRequest = ProjectRequest(
             customerName = customerName,
             requiredSkills = requiredSkills,

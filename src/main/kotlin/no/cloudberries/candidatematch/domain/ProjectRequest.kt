@@ -14,7 +14,7 @@ data class ProjectRequest(
     val startDate: LocalDate,
     val endDate: LocalDate,
     val responseDeadline: LocalDate,
-    var aISuggestions: List<AISuggestion> = emptyList()
+    val aISuggestions: List<AISuggestion> = emptyList()
 )
 
 data class ProjectRequestId(val value: Long? = null)
