@@ -77,6 +77,7 @@ class HealthServiceTest {
     @Test
     fun `isServiceHealthy returns true when all services are healthy`() {
         // Arrange
+        every { healthService.isDatabaseHealthy() } returns true
         every { flowcaseHttpClient.fetchAllCvs() } returns FlowcaseResumeResponse(emptyList())
         every { openAIConfig.apiKey } returns "valid-openai-key"
         every { geminiConfig.apiKey } returns "valid-gemini-key"
@@ -105,6 +106,7 @@ class HealthServiceTest {
     @Test
     fun `isServiceHealthy returns false when no AI services are configured`() {
         // Arrange
+        every { healthService.isDatabaseHealthy() } returns true
         every { flowcaseHttpClient.fetchAllCvs() } returns FlowcaseResumeResponse(emptyList())
         every { openAIConfig.apiKey } returns "" // Blank key
         every { geminiConfig.apiKey } returns " " // Blank key
@@ -119,6 +121,7 @@ class HealthServiceTest {
     @Test
     fun `isServiceHealthy returns true when only one AI service is configured`() {
         // Arrange
+        every { healthService.isDatabaseHealthy() } returns true
         every { flowcaseHttpClient.fetchAllCvs() } returns FlowcaseResumeResponse(emptyList())
         every { openAIConfig.apiKey } returns "valid-openai-key"
         every { geminiConfig.apiKey } returns "" // Gemini is not configured
