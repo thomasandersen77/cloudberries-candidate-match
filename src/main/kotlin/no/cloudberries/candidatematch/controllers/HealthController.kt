@@ -12,12 +12,16 @@ class HealthController(
 ) {
 
     @GetMapping
-    fun health(): String {
-        val isHealthy = healthService.isServiceHealthy() && healthService.isDatabaseHealthy()
-        return when (isHealthy) {
-            true -> "App is OK"
-            false -> "App is NOT OK. Database is not healthy"
-        }
-    }
+    fun healthCheck(): Map<String, Boolean> {
+        val databaseHealthy = healthService.isDatabaseHealthy()
+        val servicesHealthy = healthService.isServiceHealthy()
+        val isGenAIHealthy = healthService.checkGenAiHealth()
 
+
+        return mapOf(
+            "database" to databaseHealthy,
+            "services" to servicesHealthy,
+            "genAI" to isGenAIHealthy
+        )
+    }
 }

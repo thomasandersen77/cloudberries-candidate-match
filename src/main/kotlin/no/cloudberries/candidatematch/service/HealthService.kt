@@ -29,9 +29,18 @@ class HealthService(
      * @return `true` hvis alle kritiske tjenester er sunne, ellers `false`.
      */
     fun isServiceHealthy(): Boolean {
-        val flowcaseHealthy = checkFlowcaseHealth()
-        val genAiHealthy = checkGenAiHealth()
-        return flowcaseHealthy && genAiHealthy
+        val flowcaseHealthy = checkFlowcaseHealth().also {
+            if (!it) logger.error("Flowcase health check failed.")
+        }
+        val aiHealthy = checkGenAiHealth().also {
+            if (!it) logger.error("AI services health check failed.")
+        }
+
+        val databaseHealthy = isDatabaseHealthy().also {
+            if (!it) logger.error("Database health check failed.")
+        }
+
+        return flowcaseHealthy && aiHealthy && databaseHealthy
     }
 
     /**
@@ -53,7 +62,7 @@ class HealthService(
      * Sjekker helsen til AI-tjenestene (OpenAI/Gemini) ved å verifisere at API-nøkler er konfigurert.
      * Tjenesten anses som sunn hvis minst én av AI-leverandørene er konfigurert.
      */
-    private fun checkGenAiHealth(): Boolean {
+    fun checkGenAiHealth(): Boolean {
         val isOpenAiConfigured = openAIConfig.apiKey.isNotBlank()
         val isGeminiConfigured = geminiConfig.apiKey.isNotBlank()
 
