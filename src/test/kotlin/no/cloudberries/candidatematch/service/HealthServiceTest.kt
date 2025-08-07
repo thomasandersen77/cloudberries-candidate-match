@@ -34,7 +34,7 @@ class HealthServiceTest {
     private lateinit var healthService: HealthService
 
     @MockK
-    private lateinit var entityManager: EntityManager // <-- LEGG TIL DENNE MOCKEN
+    private lateinit var entityManager: EntityManager
 
 
     @Test

@@ -29,16 +29,13 @@ class HealthService(
      * @return `true` hvis alle kritiske tjenester er sunne, ellers `false`.
      */
     fun isServiceHealthy(): Boolean {
-        val flowcaseHealthy = checkFlowcaseHealth().also {
-            if (!it) logger.error("Flowcase health check failed.")
-        }
-        val aiHealthy = checkGenAiHealth().also {
-            if (!it) logger.error("AI services health check failed.")
-        }
+        val flowcaseHealthy = checkFlowcaseHealth()
+        val aiHealthy = checkGenAiHealth()
+        val databaseHealthy = isDatabaseHealthy()
 
-        val databaseHealthy = isDatabaseHealthy().also {
-            if (!it) logger.error("Database health check failed.")
-        }
+        if (!flowcaseHealthy) logger.error("Flowcase health check failed.")
+        if (!aiHealthy) logger.error("AI services health check failed.")
+        if (!databaseHealthy) logger.error("Database health check failed.")
 
         return flowcaseHealthy && aiHealthy && databaseHealthy
     }
