@@ -11,11 +11,11 @@ gemini:
 
 spring:
   liquibase:
-    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    change-log: classpath:/db/changelog/db.changelog-master.xml
   datasource:
-    url: jdbc:postgresql://localhost:5432/candidatematch
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5433/candidatematch
+    username: candidatematch
+    password: candidatematch123
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -26,7 +26,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate # Use 'validate' since you're using Liquibase
+      ddl-auto: update # Use 'validate' since you're using Liquibase
     show-sql: true
     properties:
       hibernate:
@@ -38,4 +38,8 @@ spring:
     open-in-view: false
   sql:
     init:
-      schema-locations: candidatematch
+      schema-locations: classpath:schema.sql
+
+logging:
+  level:
+    no.cloudberries.candidatematch: DEBUG # Setter DEBUG-logging for din kode
