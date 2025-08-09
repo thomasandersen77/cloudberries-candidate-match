@@ -1,6 +1,6 @@
-package no.cloudberries.candidatematch.controllers
+package no.cloudberries.candidatematch.controllers.health
 
-import no.cloudberries.candidatematch.service.HealthService
+import no.cloudberries.candidatematch.health.HealthService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -13,14 +13,14 @@ class HealthController(
 
     @GetMapping
     fun healthCheck(): Map<String, Boolean> {
-        val databaseHealthy = healthService.isDatabaseHealthy()
-        val servicesHealthy = healthService.isServiceHealthy()
-        val isGenAIHealthy = healthService.checkGenAiHealth()
+        val isDatabaseHealthy = healthService.isDatabaseHealthy()
+        val areServicesHealthy = healthService.areServicesHealthy()
+        val isGenAIHealthy = healthService.isGenAiConfigured()
 
 
         return mapOf(
-            "database" to databaseHealthy,
-            "services" to servicesHealthy,
+            "database" to isDatabaseHealthy,
+            "services" to areServicesHealthy,
             "genAI" to isGenAIHealthy
         )
     }

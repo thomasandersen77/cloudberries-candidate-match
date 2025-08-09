@@ -1,0 +1,15 @@
+### Liveness Probe
+# Sjekker kun om applikasjonen kjører (lettvekts-sjekk).
+# Forventet svar er en HTTP 200 med {"status":"UP"}.
+# Denne brukes for å avgjøre om Kubernetes skal restarte poden.
+GET http://localhost:8080/actuator/health/liveness
+Accept: application/json
+
+### Readiness Probe
+# Sjekker om applikasjonen er helt klar til å motta trafikk.
+# Dette inkluderer databasen og andre eksterne avhengigheter.
+# Forventet svar er HTTP 200 {"status":"UP"} hvis alt er ok,
+# eller HTTP 503 {"status":"DOWN"} med detaljer hvis en avhengighet feiler.
+# Denne brukes for å avgjøre om Kubernetes skal sende trafikk til poden.
+GET http://localhost:8080/actuator/health/readiness
+Accept: application/json

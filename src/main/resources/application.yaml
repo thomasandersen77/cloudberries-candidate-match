@@ -9,4 +9,19 @@ gemini:
     apiKey: ${GEMINI_API_KEY}
     model: gemini-1.5-pro-latest
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health" # Eksponerer /actuator/health endepunktet
+  endpoint:
+    health:
+      probes:
+        enabled: true # Aktiverer /liveness og /readiness endepunktene
+      show-details: always
 
+  health:
+    # Definerer readiness-gruppen. Den er "UP" kun hvis appen OG alle avhengigheter er ok.
+    group:
+      readiness:
+        include: "readinessState,dependencies" # Inkluderer vår egendefinerte sjekk

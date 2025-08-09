@@ -1,5 +1,6 @@
 package no.cloudberries.candidatematch.service
 
+import io.mockk.core.ValueClassSupport.boxedValue
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -9,9 +10,9 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.EntityManagerFactory
 import jakarta.persistence.PersistenceException
 import jakarta.persistence.Query
+import no.cloudberries.candidatematch.health.HealthService
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseResumeResponse
-import no.cloudberries.candidatematch.integration.flowcase.FlowcaseUserSearchResponse
 import no.cloudberries.candidatematch.integration.gemini.GeminiConfig
 import no.cloudberries.candidatematch.integration.openai.OpenAIConfig
 import org.junit.jupiter.api.Assertions.*
@@ -78,12 +79,12 @@ class HealthServiceTest {
     fun `isServiceHealthy returns true when all services are healthy`() {
         // Arrange
         every { healthService.isDatabaseHealthy() } returns true
-        every { flowcaseHttpClient.fetchAllCvs() } returns FlowcaseResumeResponse(emptyList())
+        every { flowcaseHttpClient.checkHealth() } returns true
         every { openAIConfig.apiKey } returns "valid-openai-key"
         every { geminiConfig.apiKey } returns "valid-gemini-key"
 
         // Act
-        val isHealthy = healthService.isServiceHealthy()
+        val isHealthy = healthService.areServicesHealthy()
 
         // Assert
         assertTrue(isHealthy)
@@ -92,12 +93,12 @@ class HealthServiceTest {
     @Test
     fun `isServiceHealthy returns false when Flowcase is unhealthy`() {
         // Arrange
-        every { flowcaseHttpClient.fetchAllCvs() } throws RuntimeException("Connection timed out")
+        every { flowcaseHttpClient.checkHealth() } throws RuntimeException("Connection timed out")
         every { openAIConfig.apiKey } returns "valid-openai-key"
         every { geminiConfig.apiKey } returns "valid-gemini-key"
 
         // Act
-        val isHealthy = healthService.isServiceHealthy()
+        val isHealthy = healthService.areServicesHealthy()
 
         // Assert
         assertFalse(isHealthy)
@@ -107,12 +108,12 @@ class HealthServiceTest {
     fun `isServiceHealthy returns false when no AI services are configured`() {
         // Arrange
         every { healthService.isDatabaseHealthy() } returns true
-        every { flowcaseHttpClient.fetchAllCvs() } returns FlowcaseResumeResponse(emptyList())
+        every { flowcaseHttpClient.checkHealth() } returns true
         every { openAIConfig.apiKey } returns "" // Blank key
         every { geminiConfig.apiKey } returns " " // Blank key
 
         // Act
-        val isHealthy = healthService.isServiceHealthy()
+        val isHealthy = healthService.areServicesHealthy()
 
         // Assert
         assertFalse(isHealthy)
@@ -122,12 +123,12 @@ class HealthServiceTest {
     fun `isServiceHealthy returns true when only one AI service is configured`() {
         // Arrange
         every { healthService.isDatabaseHealthy() } returns true
-        every { flowcaseHttpClient.fetchAllCvs() } returns FlowcaseResumeResponse(emptyList())
+        every { flowcaseHttpClient.checkHealth() } returns true
         every { openAIConfig.apiKey } returns "valid-openai-key"
         every { geminiConfig.apiKey } returns "" // Gemini is not configured
 
         // Act
-        val isHealthy = healthService.isServiceHealthy()
+        val isHealthy = healthService.areServicesHealthy()
 
         // Assert
         assertTrue(isHealthy, "Service should be healthy if at least one AI provider is configured")
@@ -136,12 +137,12 @@ class HealthServiceTest {
     @Test
     fun `isServiceHealthy returns false when all services are unhealthy`() {
         // Arrange
-        every { flowcaseHttpClient.fetchAllCvs() } throws RuntimeException("API down")
+        every { flowcaseHttpClient.checkHealth() } returns false
         every { openAIConfig.apiKey } returns ""
         every { geminiConfig.apiKey } returns ""
 
         // Act
-        val isHealthy = healthService.isServiceHealthy()
+        val isHealthy = healthService.areServicesHealthy()
 
         // Assert
         assertFalse(isHealthy)

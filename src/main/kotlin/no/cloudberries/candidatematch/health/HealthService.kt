@@ -1,4 +1,4 @@
-package no.cloudberries.candidatematch.service
+package no.cloudberries.candidatematch.health
 
 import jakarta.persistence.EntityManager
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
@@ -28,9 +28,9 @@ class HealthService(
      * Sjekker den overordnede helsen til applikasjonens eksterne avhengigheter.
      * @return `true` hvis alle kritiske tjenester er sunne, ellers `false`.
      */
-    fun isServiceHealthy(): Boolean {
+    fun areServicesHealthy(): Boolean {
         val flowcaseHealthy = checkFlowcaseHealth()
-        val aiHealthy = checkGenAiHealth()
+        val aiHealthy = isGenAiConfigured()
         val databaseHealthy = isDatabaseHealthy()
 
         if (!flowcaseHealthy) logger.error("Flowcase health check failed.")
@@ -41,14 +41,17 @@ class HealthService(
     }
 
     /**
-     * Sjekker helsen til Flowcase-integrasjonen ved å utføre et test-kall.
+     * Sjekker helsen til Flowcase-integrasjonen ved å kalle et lettvektig endepunkt.
      */
     private fun checkFlowcaseHealth(): Boolean {
         return try {
-            // Vi antar at hvis vi får en respons uten exception, er tjenesten oppe.
-            flowcaseHttpClient.fetchAllCvs()
-            logger.info("Health Check: Flowcase connection is OK.")
-            true
+            val isHealthy = flowcaseHttpClient.checkHealth()
+            if (isHealthy) {
+                logger.info("Health Check: Flowcase connection is OK.")
+            } else {
+                logger.warn("Health Check: Flowcase returned a non-successful status.")
+            }
+            isHealthy
         } catch (e: Exception) {
             logger.error("Health Check FAILED for Flowcase: ${e.message}")
             false
@@ -59,7 +62,7 @@ class HealthService(
      * Sjekker helsen til AI-tjenestene (OpenAI/Gemini) ved å verifisere at API-nøkler er konfigurert.
      * Tjenesten anses som sunn hvis minst én av AI-leverandørene er konfigurert.
      */
-    fun checkGenAiHealth(): Boolean {
+    fun isGenAiConfigured(): Boolean {
         val isOpenAiConfigured = openAIConfig.apiKey.isNotBlank()
         val isGeminiConfigured = geminiConfig.apiKey.isNotBlank()
 
