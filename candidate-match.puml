@@ -1,0 +1,14 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(sales, "Salgsansvarlig/Leder", "Bruker systemet for å matche konsulenter til oppdrag")
+System(candidate_match, "Candidate Match System", "Automatiserer matching av CV-er mot kundeforespørsler ved hjelp av AI")
+
+System_Ext(flowcase, "Flowcase API", "Leverandør av CV-data og konsulentinformasjon")
+System_Ext(gen_ai, "Generative AI APIs", "Leverer intelligensen for analyse og scoring (Google Gemini, OpenAI)")
+
+Rel(sales, candidate_match, "Oppretter forespørsler og ser match-resultater")
+Rel(candidate_match, flowcase, "Henter CV-data", "REST/JSON")
+Rel(candidate_match, gen_ai, "Sender CV og forespørsel for analyse", "REST/JSON")
+
+@enduml

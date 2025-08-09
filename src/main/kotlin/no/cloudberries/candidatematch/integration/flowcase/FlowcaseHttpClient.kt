@@ -33,6 +33,23 @@ class FlowcaseHttpClient(
             .build()
     }
 
+    /**
+     * NY FUNKSJON: Utfører en lettvektig helsesjekk mot Flowcase API-et.
+     * @return true hvis API-et svarer med en suksess-status (2xx).
+     * @throws RuntimeException hvis kallet feiler.
+     */
+    fun checkHealth(): Boolean {
+        val request = Request.Builder()
+            .url("${config.baseUrl}/v1/masterdata/custom_tags/custom_tag_category")
+            .header("Authorization", bearerToken)
+            .get()
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            return response.isSuccessful
+        }
+    }
+
     fun fetchAllCvs(): FlowcaseResumeResponse {
         val searchRequest = createRequest(
             url = "${config.baseUrl}/v2/users/search?page=0&size=$DEFAULT_PAGE_SIZE"

@@ -7,9 +7,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 class Main
 
 fun main(args: Array<String>) {
-    val context = SpringApplication.run(Main::class.java, *args)
-    val beanNames = context.beanDefinitionNames
-    for (beanName in beanNames) {
-        println(beanName)
-    }
+    SpringApplication.run(Main::class.java, *args)
 }

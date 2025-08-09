@@ -23,6 +23,20 @@ class OpenAIHttpClient(
         .writeTimeout(10, TimeUnit.SECONDS)
         .build()
 
+    fun testConnection() {
+        val request = Request.Builder()
+            .url("https://api.openai.com/v1/models")
+            .header("Authorization", "Bearer ${config.apiKey}")
+            .get()
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw RuntimeException("OpenAI connection test failed: ${response.code} ${response.message}")
+            }
+        }
+    }
+
     fun analyze(prompt: String): String {
         // 1. Opprett en ny thread
         val threadId = createThread()
