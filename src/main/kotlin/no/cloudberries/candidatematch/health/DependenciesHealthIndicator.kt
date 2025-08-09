@@ -4,7 +4,7 @@ import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.HealthIndicator
 import org.springframework.stereotype.Component
 
-@Component("dependencies") // Navnet "dependencies" brukes i konfigurasjonen under
+@Component("dependencies") // Navnet "dependencies" brukes i spring konfigurasjonen
 class DependenciesHealthIndicator(
     private val healthService: HealthService
 ) : HealthIndicator {
@@ -16,7 +16,7 @@ class DependenciesHealthIndicator(
     override fun health(): Health {
         return try {
             val databaseHealthy = healthService.isDatabaseHealthy()
-            val servicesHealthy = healthService.areServicesHealthy() // Antar denne sjekker Flowcase/AI
+            val servicesHealthy = healthService.areServicesHealthy() // denne sjekker Flowcase/AI
 
             if (databaseHealthy && servicesHealthy) {
                 Health.up().withDetail("message", "All dependencies are healthy").build()

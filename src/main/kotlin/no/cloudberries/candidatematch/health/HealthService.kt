@@ -22,7 +22,10 @@ class HealthService(
             .createEntityManager()
             .createNativeQuery("SELECT 1")
             .singleResult != null
-    }.getOrElse { false }
+    }.getOrElse {
+        logger.error("Database health check failed.")
+        false
+    }
 
     /**
      * Sjekker den overordnede helsen til applikasjonens eksterne avhengigheter.
@@ -31,13 +34,11 @@ class HealthService(
     fun areServicesHealthy(): Boolean {
         val flowcaseHealthy = checkFlowcaseHealth()
         val aiHealthy = isGenAiConfigured()
-        val databaseHealthy = isDatabaseHealthy()
 
         if (!flowcaseHealthy) logger.error("Flowcase health check failed.")
         if (!aiHealthy) logger.error("AI services health check failed.")
-        if (!databaseHealthy) logger.error("Database health check failed.")
 
-        return flowcaseHealthy && aiHealthy && databaseHealthy
+        return flowcaseHealthy && aiHealthy
     }
 
     /**
