@@ -35,6 +35,7 @@ class GeminiHttpClient(
             )
             ?.text()?.lowercase()
             ?.contains("yes")
+
         if (isUpResponse != true) throw AIGenerationException(
             "Gemini connection test failed: isUpResponse=$isUpResponse"
         )
