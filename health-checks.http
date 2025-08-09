@@ -13,3 +13,6 @@ Accept: application/json
 # Denne brukes for å avgjøre om Kubernetes skal sende trafikk til poden.
 GET http://localhost:8080/actuator/health/readiness
 Accept: application/json
+
+###
+GET http://localhost:8080/api/health

@@ -3,7 +3,9 @@ package no.cloudberries.candidatematch.health
 import jakarta.persistence.EntityManager
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.integration.gemini.GeminiConfig
+import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
 import no.cloudberries.candidatematch.integration.openai.OpenAIConfig
+import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -12,6 +14,8 @@ class HealthService(
     private val flowcaseHttpClient: FlowcaseHttpClient,
     private val openAIConfig: OpenAIConfig,
     private val geminiConfig: GeminiConfig,
+    private val openAIHttpClient: OpenAIHttpClient,
+    private val geminiHttpClient: GeminiHttpClient,
     private val entityManager: EntityManager
 ) {
 
@@ -33,12 +37,14 @@ class HealthService(
      */
     fun areServicesHealthy(): Boolean {
         val flowcaseHealthy = checkFlowcaseHealth()
-        val aiHealthy = isGenAiConfigured()
+        val isAIConfigured  = isGenAiConfigured()
+        val isGenAiHealthy = checkGenAiHealth()
 
+        if (!isGenAiHealthy) logger.error("GenAI health check failed.")
         if (!flowcaseHealthy) logger.error("Flowcase health check failed.")
-        if (!aiHealthy) logger.error("AI services health check failed.")
+        if (!isAIConfigured) logger.error("AI services configuration check failed.")
 
-        return flowcaseHealthy && aiHealthy
+        return flowcaseHealthy && isAIConfigured && isGenAiHealthy
     }
 
     /**
@@ -76,5 +82,36 @@ class HealthService(
             logger.error("Health Check FAILED for GenAI: Neither OpenAI nor Gemini API key is configured.")
         }
         return isHealthy
+    }
+
+    private fun checkGenAiHealth(): Boolean {
+        // Prøver å koble til OpenAI
+        val isOpenAiHealthy = try {
+            openAIHttpClient.testConnection()
+            logger.info("Health Check: OpenAI connection is OK.")
+            true
+        } catch (e: Exception) {
+            logger.warn("Health Check for OpenAI failed: ${e.message}")
+            false
+        }
+
+        // Prøver å koble til Gemini
+        val isGeminiHealthy = try {
+            geminiHttpClient.testConnection()
+            logger.info("Health Check: Gemini connection is OK.")
+            true
+        } catch (e: Exception) {
+            logger.warn("Health Check for Gemini failed: ${e.message}")
+            false
+        }
+
+        // Tjenesten anses som sunn hvis minst én av AI-leverandørene fungerer
+        val isOverallHealthy = isOpenAiHealthy || isGeminiHealthy
+
+        if (!isOverallHealthy) {
+            logger.error("Health Check FAILED for GenAI: Could not connect to any AI service.")
+        }
+
+        return isOverallHealthy
     }
 }

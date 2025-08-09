@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
 import no.cloudberries.candidatematch.domain.ai.AIGenerationException
 import no.cloudberries.candidatematch.domain.ai.AIResponse
+import okhttp3.Request
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,6 +17,28 @@ class GeminiHttpClient(
         Client.builder()
             .apiKey(geminiConfig.apiKey)
             .build()
+    }
+
+    fun testConnection() {
+        val url = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1"
+        val request = Request.Builder()
+            .url(url)
+            .header("x-goog-api-key", geminiConfig.apiKey)
+            .get()
+            .build()
+
+        val isUpResponse = client.models
+            .generateContent(
+                geminiConfig.model,
+                "are you up? answer yes or no",
+                null
+            )
+            ?.text()?.lowercase()
+            ?.contains("yes")
+        if (isUpResponse != true) throw AIGenerationException(
+            "Gemini connection test failed: isUpResponse=$isUpResponse"
+        )
+
     }
 
     override fun generateContent(prompt: String): AIResponse {
