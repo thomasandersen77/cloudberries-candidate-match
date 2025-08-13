@@ -28,7 +28,7 @@ class HealthService(
     /**
      * Sjekker helsen til Flowcase-integrasjonen ved å kalle et lettvektig endepunkt.
      */
-    private fun checkFlowcaseHealth(): Boolean =
+    fun checkFlowcaseHealth(): Boolean =
         try {
             flowcaseHttpClient.checkHealth()
         } catch (e: Exception) {
@@ -36,8 +36,8 @@ class HealthService(
             false
         }
 
-    private fun isAIHealthy(): Boolean = aiHealthCheckers.any { it.isHealthy() }
-    private fun areAIConfigured(): Boolean = aiHealthCheckers.any { it.isConfigured() }
+    fun isAIHealthy(): Boolean = aiHealthCheckers.any { it.isHealthy() }
+    fun areAIConfigured(): Boolean = aiHealthCheckers.any { it.isConfigured() }
 
 
     fun getHealthDetails(): Map<String, Any> {
