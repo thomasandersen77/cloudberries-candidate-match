@@ -37,7 +37,7 @@ class HealthService(
         val isAIOperational = isAIHealthy()
         val isDatabaseHealthy = isDatabaseHealthy()
 
-        if (isDatabaseHealthy){
+        if (isDatabaseHealthy) {
             logger.info("Database health check passed.")
         } else {
             logger.error("Database health check failed.")
@@ -67,7 +67,7 @@ class HealthService(
     /**
      * Sjekker helsen til Flowcase-integrasjonen ved å kalle et lettvektig endepunkt.
      */
-    private fun checkFlowcaseHealth(): Boolean =
+    fun checkFlowcaseHealth(): Boolean =
         try {
             flowcaseHttpClient.checkHealth()
         } catch (e: Exception) {

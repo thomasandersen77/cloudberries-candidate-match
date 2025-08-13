@@ -17,15 +17,17 @@ class HealthController(
     @GetMapping
     fun healthCheck(): Health {
         val databaseHealthy = healthService.isDatabaseHealthy()
-        val servicesHealthy = healthService.checkOverallHealth()
+        val flowcaseHealthy = healthService.checkFlowcaseHealth()
         val genAIHealthy = healthService.isAIHealthy()
+        val areAIConfigured = healthService.areAIConfigured()
 
-        val status = if (databaseHealthy && servicesHealthy && genAIHealthy) Status.UP else Status.DOWN
+        val status = if (databaseHealthy && flowcaseHealthy && genAIHealthy) Status.UP else Status.DOWN
 
         return Health.status(status)
             .withDetail("database", databaseHealthy)
-            .withDetail("services", servicesHealthy)
+            .withDetail("flowcase", flowcaseHealthy)
             .withDetail("genAI", genAIHealthy)
+            .withDetail("areAIConfigured", areAIConfigured)
             .build()
     }
 }
