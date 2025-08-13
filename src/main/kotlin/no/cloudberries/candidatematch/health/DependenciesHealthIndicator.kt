@@ -16,7 +16,7 @@ class DependenciesHealthIndicator(
     override fun health(): Health {
         return try {
             val databaseHealthy = healthService.isDatabaseHealthy()
-            val servicesHealthy = healthService.areServicesHealthy() // denne sjekker Flowcase/AI
+            val servicesHealthy = healthService.checkOverallHealth() // denne sjekker Flowcase/AI
 
             if (databaseHealthy && servicesHealthy) {
                 Health.up().withDetail("message", "All dependencies are healthy").build()

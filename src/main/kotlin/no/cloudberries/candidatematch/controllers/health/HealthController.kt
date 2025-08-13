@@ -17,8 +17,8 @@ class HealthController(
     @GetMapping
     fun healthCheck(): Health {
         val databaseHealthy = healthService.isDatabaseHealthy()
-        val servicesHealthy = healthService.areServicesHealthy()
-        val genAIHealthy = healthService.isGenAiConfigured()
+        val servicesHealthy = healthService.checkOverallHealth()
+        val genAIHealthy = healthService.isAIHealthy()
 
         val status = if (databaseHealthy && servicesHealthy && genAIHealthy) Status.UP else Status.DOWN
 

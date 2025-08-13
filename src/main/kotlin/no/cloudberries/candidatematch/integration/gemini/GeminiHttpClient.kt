@@ -19,14 +19,7 @@ class GeminiHttpClient(
             .build()
     }
 
-    fun testConnection() {
-        val url = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1"
-        val request = Request.Builder()
-            .url(url)
-            .header("x-goog-api-key", geminiConfig.apiKey)
-            .get()
-            .build()
-
+    fun testConnection(): Boolean {
         val isUpResponse = client.models
             .generateContent(
                 geminiConfig.model,
@@ -36,10 +29,10 @@ class GeminiHttpClient(
             ?.text()?.lowercase()
             ?.contains("yes")
 
-        if (isUpResponse != true) throw AIGenerationException(
-            "Gemini connection test failed: isUpResponse=$isUpResponse"
-        )
-
+        if (isUpResponse != true) {
+            logger.error { "Gemini connection test failed: isUpResponse=$isUpResponse" }
+            return false
+        } else return false
     }
 
     override fun generateContent(prompt: String): AIResponse {
@@ -56,10 +49,16 @@ class GeminiHttpClient(
                 logger.error(e) { errorMessage }
                 // Avoid re-wrapping our specific exception.
                 if (e is AIGenerationException) throw e
-                throw AIGenerationException(errorMessage, e)
+                throw AIGenerationException(
+                    errorMessage,
+                    e
+                )
             }
-        }.getOrElse { e->
-            throw AIGenerationException("Failed to generate content with Gemini", e)
+        }.getOrElse { e ->
+            throw AIGenerationException(
+                "Failed to generate content with Gemini",
+                e
+            )
         }
     }
 
@@ -76,6 +75,9 @@ class GeminiHttpClient(
     }
 
     private fun String.cleanJsonResponse(): String =
-        replace(Regex("```(json)?"), "").trim()
+        replace(
+            Regex("```(json)?"),
+            ""
+        ).trim()
 
 }

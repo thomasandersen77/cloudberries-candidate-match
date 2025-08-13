@@ -23,7 +23,7 @@ class OpenAIHttpClient(
         .writeTimeout(10, TimeUnit.SECONDS)
         .build()
 
-    fun testConnection() {
+    fun testConnection(): Boolean {
         val request = Request.Builder()
             .url("https://api.openai.com/v1/models")
             .header("Authorization", "Bearer ${config.apiKey}")
@@ -32,7 +32,9 @@ class OpenAIHttpClient(
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                throw RuntimeException("OpenAI connection test failed: ${response.code} ${response.message}")
+                return false
+            } else {
+                return true
             }
         }
     }
