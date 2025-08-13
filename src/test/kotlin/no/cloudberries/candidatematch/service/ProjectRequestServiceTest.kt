@@ -81,4 +81,106 @@ class ProjectRequestServiceTest {
         // Og exception-meldingen skal være korrekt
         assertEquals("Svarfristen kan ikke være etter prosjektets startdato.", exception.message)
     }
+
+    @Test
+    fun `skal lukke prosjektforespørsel`() {
+        // Given
+        val startDate = LocalDateTime.of(
+            2024,
+            9,
+            1,
+            12,
+            0
+        )
+        val endDate = LocalDateTime.of(
+            2024,
+            12,
+            31,
+            12,
+            0
+        )
+        val responseDeadline = LocalDateTime.of(
+            2024,
+            8,
+            15,
+            12,
+            0
+        )
+
+        val savedRequestSlot = slot<ProjectRequestEntity>()
+        every { projectRequestRepository.save(capture(savedRequestSlot)) } answers {
+            savedRequestSlot.captured.copy(id = 1L)
+        }
+
+        val request = projectRequestService.createProjectRequest(
+            customerName = "Testkunde AS",
+            requiredSkills = listOf(Skill.KOTLIN),
+            startDate = startDate,
+            endDate = endDate,
+            responseDeadline = responseDeadline,
+            status = RequestStatus.OPEN,
+            requestDescription = "Test request",
+            responsibleSalespersonEmail = "pc@cloudberries.no"
+        )
+
+        // When
+        request.closeRequest()
+
+        // Then
+        assertEquals(
+            RequestStatus.CLOSED,
+            request.status
+        )
+    }
+
+    @Test
+    fun `skal kaste exception når lukker allerede lukket forespørsel`() {
+        // Given
+        val startDate = LocalDateTime.of(
+            2024,
+            9,
+            1,
+            12,
+            0
+        )
+        val endDate = LocalDateTime.of(
+            2024,
+            12,
+            31,
+            12,
+            0
+        )
+        val responseDeadline = LocalDateTime.of(
+            2024,
+            8,
+            15,
+            12,
+            0
+        )
+
+        val savedRequestSlot = slot<ProjectRequestEntity>()
+        every { projectRequestRepository.save(capture(savedRequestSlot)) } answers {
+            savedRequestSlot.captured.copy(id = 1L)
+        }
+
+        val request = projectRequestService.createProjectRequest(
+            customerName = "Testkunde AS",
+            requiredSkills = listOf(Skill.KOTLIN),
+            startDate = startDate,
+            endDate = endDate,
+            responseDeadline = responseDeadline,
+            status = RequestStatus.CLOSED,
+            requestDescription = "Test request",
+            responsibleSalespersonEmail = "pc@cloudberries.no"
+        )
+
+        // When/Then
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            request.closeRequest()
+        }
+        assertEquals(
+            "Request is already closed",
+            exception.message
+        )
+    }
 }
