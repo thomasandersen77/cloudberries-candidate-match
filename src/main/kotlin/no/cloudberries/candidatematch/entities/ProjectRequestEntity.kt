@@ -1,11 +1,14 @@
-package no.cloudberries.candidatematch.repositories
+package no.cloudberries.candidatematch.entities
 
 import jakarta.persistence.*
 import no.cloudberries.candidatematch.domain.CustomerId
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
+import no.cloudberries.candidatematch.repositories.AISuggestionEntity
+import no.cloudberries.candidatematch.repositories.toDomain
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "project_request")
@@ -25,12 +28,26 @@ data class ProjectRequestEntity(
     @Column(name = "skill")
     @Enumerated(EnumType.STRING) // Add this line to store enum as a string
     val requiredSkills: List<Skill> = listOf(),
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val responseDeadline: LocalDate,
+    val startDate: LocalDateTime,
+    val endDate: LocalDateTime,
+    // Endret til LocalDateTime for å matche timestamp
+    val responseDeadline: LocalDateTime,
     @OneToMany(mappedBy = "projectRequest", targetEntity = AISuggestionEntity::class)
-    var aiSuggestionEntities: List<AISuggestionEntity> = emptyList()
+    var aiSuggestionEntities: List<AISuggestionEntity> = emptyList(),
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: RequestStatus = RequestStatus.OPEN,
+
+    val requestDescription: String,
+    val responsibleSalespersonEmail: String,
 )
+
+enum class RequestStatus {
+    OPEN,
+    IN_PROGRESS,
+    CLOSED
+}
 
 // Extension function to convert Entity to DTO
 fun ProjectRequestEntity.toProjectRequest(): ProjectRequest {
@@ -42,6 +59,9 @@ fun ProjectRequestEntity.toProjectRequest(): ProjectRequest {
         startDate = this.startDate,
         endDate = this.endDate,
         responseDeadline = this.responseDeadline,
-        aISuggestions = this.aiSuggestionEntities.map { it.toDomain(it) }
+        aISuggestions = this.aiSuggestionEntities.map { it.toDomain(it) },
+        status = this.status,
+        requestDescription = this.requestDescription,
+        responsibleSalespersonEmail = this.responsibleSalespersonEmail,
     )
 }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet author="tandersen" id="20250813-add-notification-fields-to-project-request">
+
+        <addColumn tableName="project_request">
+            <column name="status" type="varchar(50)" defaultValue="OPEN">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="project_request">
+            <column name="request_description" type="varchar(2000)"/>
+        </addColumn>
+
+        <addColumn tableName="project_request">
+            <column name="responsible_salesperson_email" type="varchar(255)"/>
+        </addColumn>
+
+        <modifyDataType
+                tableName="project_request"
+                columnName="response_deadline"
+                newDataType="timestamp"/>
+        <modifyDataType
+                tableName="project_request"
+                columnName="end_date"
+                newDataType="timestamp"/>
+        <modifyDataType
+                tableName="project_request"
+                columnName="start_date"
+                newDataType="timestamp"/>
+
+    </changeSet>
+
+</databaseChangeLog>
