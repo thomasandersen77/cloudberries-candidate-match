@@ -7,7 +7,7 @@ import no.cloudberries.candidatematch.repositories.fromDomain
 import java.time.LocalDateTime
 
 
-data class  ProjectRequest(
+data class ProjectRequest(
     val id: ProjectRequestId? = null,
     val customerId: CustomerId? = null,
     val customerName: String,
@@ -24,10 +24,8 @@ data class  ProjectRequest(
         validateRequestDates()
     }
 
-    fun validateRequestDates(){
-        require(
-            startDate.isBefore(endDate)
-                    || startDate.isEqual(endDate))
+    fun validateRequestDates() {
+        require(startDate.isBefore(endDate))
         { "Startdato må være tidligere eller lik sluttdato" }
     }
 

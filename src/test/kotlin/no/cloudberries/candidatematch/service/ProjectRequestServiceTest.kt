@@ -179,7 +179,7 @@ class ProjectRequestServiceTest {
             request.closeRequest()
         }
         assertEquals(
-            "Request is already closed",
+            "Forespørselen er allerede lukket",
             exception.message
         )
     }
