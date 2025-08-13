@@ -1,11 +1,9 @@
 package no.cloudberries.candidatematch.domain
 
-import kotlinx.coroutines.newSingleThreadContext
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.entities.ProjectRequestEntity
 import no.cloudberries.candidatematch.entities.RequestStatus
 import no.cloudberries.candidatematch.repositories.fromDomain
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -23,11 +21,18 @@ data class  ProjectRequest(
     val responsibleSalespersonEmail: String
 ) {
     init {
-        require(startDate.isBefore(endDate)) { "Startdato må være før sluttdato" }
+        validateRequestDates()
+    }
+
+    fun validateRequestDates(){
+        require(
+            startDate.isBefore(endDate)
+                    || startDate.isEqual(endDate))
+        { "Startdato må være tidligere eller lik sluttdato" }
     }
 
     fun closeRequest() {
-        require(status != RequestStatus.CLOSED) { "Request is already closed" }
+        require(status != RequestStatus.CLOSED) { "Forespørselen er allerede lukket" }
         status = RequestStatus.CLOSED
     }
 }
