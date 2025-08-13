@@ -38,7 +38,7 @@ spring:
     open-in-view: false
   sql:
     init:
-      schema-locations: classpath:schema.sql
+      schema-locations: classpath:/db/changelog/schema.sql
 
 logging:
   level:

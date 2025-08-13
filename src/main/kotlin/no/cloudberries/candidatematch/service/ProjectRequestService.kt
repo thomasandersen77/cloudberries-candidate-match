@@ -18,6 +18,13 @@ class ProjectRequestService(
 ) {
 
     /**
+     * Henter åpne prosjektforespørsler som har frist innenfor det gitte tidsrommet.
+     */
+    fun findOpenRequestsDueWithin(from: LocalDateTime, to: LocalDateTime): List<ProjectRequest> {
+        return projectRequestRepository.findOpenRequestsWithDeadlineBetween(from, to).map { it.toProjectRequest() }
+    }
+
+    /**
      * Oppretter en ny prosjektforespørsel, validerer den og trigger en automatisk
      * matching av konsulenter.
      *

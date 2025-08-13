@@ -3,6 +3,8 @@ package no.cloudberries.candidatematch.service
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
+import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.entities.ProjectRequestEntity
@@ -182,5 +184,35 @@ class ProjectRequestServiceTest {
             "Forespørselen er allerede lukket",
             exception.message
         )
+    }
+
+    @Test
+    fun `skal finne åpne forespørsler som nærmer seg fristen`() {
+        // Gitt
+        val now = LocalDateTime.now()
+        val deadlineIn47Hours = now.plusHours(47)
+        val expectedRequest = ProjectRequestEntity(
+            id = 1L,
+            customerName = "Kunde AS",
+            requestDescription = "Trenger en utvikler",
+            status = RequestStatus.OPEN,
+            responsibleSalespersonEmail = "selger@cloudberries.no",
+            requiredSkills = listOf(Skill.KOTLIN, Skill.BACKEND),
+            startDate = LocalDate.now().atStartOfDay(),
+            endDate = LocalDate.now().plusDays(10).atStartOfDay(),
+            responseDeadline = deadlineIn47Hours,
+            aiSuggestionEntities = emptyList()
+
+        )
+
+        every { projectRequestRepository.findOpenRequestsWithDeadlineBetween(any(), any()) } returns listOf(expectedRequest)
+
+        // Når
+        val result = projectRequestService.findOpenRequestsDueWithin(now, now.plusHours(48))
+
+        // Så
+        assertEquals(1, result.size)
+        assertEquals("Kunde AS", result.first().customerName)
+        verify(exactly = 1) { projectRequestRepository.findOpenRequestsWithDeadlineBetween(now, now.plusHours(48)) }
     }
 }
