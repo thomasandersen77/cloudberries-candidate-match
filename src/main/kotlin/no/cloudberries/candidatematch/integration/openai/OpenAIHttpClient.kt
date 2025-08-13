@@ -15,7 +15,7 @@ import kotlin.time.Duration
 class OpenAIHttpClient(
     private val config: OpenAIConfig
 ): AIContentGenerator {
-
+    private val logger = mu.KotlinLogging.logger {}
     private val mapper = jacksonObjectMapper()
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -24,6 +24,10 @@ class OpenAIHttpClient(
         .build()
 
     fun testConnection(): Boolean {
+        if(config.apiKey.isBlank()){
+            logger.error { "OpenAI API key not configured" }
+            return false
+        }
         val request = Request.Builder()
             .url("https://api.openai.com/v1/models")
             .header("Authorization", "Bearer ${config.apiKey}")

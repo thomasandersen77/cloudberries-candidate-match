@@ -20,20 +20,20 @@ class GeminiHttpClient(
     }
 
     fun testConnection(): Boolean {
-        val isUpResponse = client.models
-            .generateContent(
-                geminiConfig.model,
-                "are you up? answer yes or no",
-                null
-            )
-            ?.text()?.lowercase()
-            ?.contains("yes")
+        if(geminiConfig.apiKey.isBlank()){
+            logger.error { "Gemini API key not configured" }
+            return false // Returner false hvis ikke konfigurert
+        }
 
-        if (isUpResponse != true) {
-            logger.error { "Gemini connection test failed: isUpResponse=$isUpResponse" }
-            return false
-        } else return false
+        return runCatching { // Bruk runCatching for å håndtere exceptions
+            val response = client.models.generateContent(geminiConfig.model, "are you up? answer yes or no", null)
+            response?.text()?.lowercase()?.contains("yes") ?: false // Håndterer null-respons
+        }.getOrElse {
+            logger.error(it) { "Gemini connection test failed" }
+            false
+        }
     }
+
 
     override fun generateContent(prompt: String): AIResponse {
         runCatching {

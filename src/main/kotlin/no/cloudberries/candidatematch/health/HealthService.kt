@@ -24,9 +24,30 @@ class HealthService(
         false
     }
 
-    fun isAIHealthy(): Boolean = aiHealthCheckers.any { it.isHealthy() }
-    fun areAIConfigured(): Boolean = aiHealthCheckers.any { it.isConfigured() }
 
+    /**
+     * Sjekker helsen til Flowcase-integrasjonen ved å kalle et lettvektig endepunkt.
+     */
+    private fun checkFlowcaseHealth(): Boolean =
+        try {
+            flowcaseHttpClient.checkHealth()
+        } catch (e: Exception) {
+            logger.error("Health Check FAILED for Flowcase: ${e.message}")
+            false
+        }
+
+    private fun isAIHealthy(): Boolean = aiHealthCheckers.any { it.isHealthy() }
+    private fun areAIConfigured(): Boolean = aiHealthCheckers.any { it.isConfigured() }
+
+
+    fun getHealthDetails(): Map<String, Any> {
+        return mapOf(
+            "database" to isDatabaseHealthy(),
+            "flowcase" to checkFlowcaseHealth(),
+            "genAI_operational" to isAIHealthy(), // Mer beskrivende navn
+            "genAI_configured" to areAIConfigured()
+        )
+    }
     /**
      * Sjekker den overordnede helsen til applikasjonens eksterne avhengigheter.
      * @return `true` hvis alle kritiske tjenester er sunne, ellers `false`.
@@ -34,7 +55,7 @@ class HealthService(
     fun checkOverallHealth(): Boolean {
         val isFlowcaseHealthy = checkFlowcaseHealth()
         val areAIConfigured = areAIConfigured()
-        val isAIOperational = isAIHealthy()
+        val isAIOperational = isAIHealthy() && areAIConfigured
         val isDatabaseHealthy = isDatabaseHealthy()
 
         if (isDatabaseHealthy) {
@@ -61,19 +82,7 @@ class HealthService(
             logger.info("Flowcase health check passed.")
         }
 
-        return isFlowcaseHealthy && areAIConfigured && isAIOperational && isDatabaseHealthy
+        return isFlowcaseHealthy && isAIOperational && isDatabaseHealthy
     }
-
-    /**
-     * Sjekker helsen til Flowcase-integrasjonen ved å kalle et lettvektig endepunkt.
-     */
-    fun checkFlowcaseHealth(): Boolean =
-        try {
-            flowcaseHttpClient.checkHealth()
-        } catch (e: Exception) {
-            logger.error("Health Check FAILED for Flowcase: ${e.message}")
-            false
-        }
-
 
 }
