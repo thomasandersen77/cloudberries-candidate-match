@@ -18,7 +18,6 @@ class HealthServiceTest {
     private lateinit var aiHealthChecker1: AIHealthChecker
     private lateinit var aiHealthChecker2: AIHealthChecker
     private lateinit var entityManager: EntityManager
-    private lateinit var entityManagerFactory: EntityManagerFactory
     private lateinit var query: Query
 
     // Instans av klassen som testes
@@ -31,12 +30,9 @@ class HealthServiceTest {
         aiHealthChecker1 = mockk()
         aiHealthChecker2 = mockk()
         entityManager = mockk()
-        entityManagerFactory = mockk()
         query = mockk()
 
         // Setter opp mock-hierarkiet for databasetesten
-        every { entityManager.entityManagerFactory } returns entityManagerFactory
-        every { entityManagerFactory.createEntityManager() } returns entityManager
         every { entityManager.createNativeQuery(any()) } returns query
 
         // Oppretter en ny instans av HealthService med de mockede avhengighetene
@@ -50,7 +46,7 @@ class HealthServiceTest {
     @Test
     fun `isDatabaseHealthy returnerer true når database er tilgjengelig`() {
         // Arrange: Simulerer at databasekallet lykkes
-        every { query.singleResult } returns 1
+        every { query.setHint("jakarta.persistence.query.timeout", 5000).singleResult } returns 1
 
         // Act: Kaller metoden
         val isHealthy = healthService.isDatabaseHealthy()
@@ -62,7 +58,7 @@ class HealthServiceTest {
     @Test
     fun `isDatabaseHealthy returnerer false når databasekall feiler`() {
         // Arrange: Simulerer at databasekallet kaster en exception
-        every { query.singleResult } throws RuntimeException("Database connection error")
+        every { query.setHint("jakarta.persistence.query.timeout", 5000 ).singleResult } throws RuntimeException("Database connection error")
 
         // Act: Kaller metoden
         val isHealthy = healthService.isDatabaseHealthy()
@@ -115,7 +111,7 @@ class HealthServiceTest {
     fun `checkOverallHealth returnerer true når alle avhengigheter er sunne`() {
         // Arrange: Alle systemer er "go"
         every { flowcaseHttpClient.checkHealth() } returns true
-        every { query.singleResult } returns 1
+        every { query.setHint("jakarta.persistence.query.timeout", 5000).singleResult } returns 1
         every { aiHealthChecker1.isConfigured() } returns true
         every { aiHealthChecker1.isHealthy() } returns true
 
