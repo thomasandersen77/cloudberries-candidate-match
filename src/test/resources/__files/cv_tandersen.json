@@ -1,0 +1,1945 @@
+{
+  "_id": "682c529acf99685aed6fd592",
+  "user_id": "682c529a17774f004390031f",
+  "name": "Thomas Andersen",
+  "email": "thomas.andersen@cloudberries.no",
+  "telefon": "47979324",
+  "born_year": 1977,
+  "title": {
+    "no": "Senior Utvikler",
+    "int": "Senior Developer"
+  },
+  "nationality": {
+    "no ": "Norway",
+    "int": "Norway"
+  },
+  "place_of_residence": {
+    "no": "Hokksund",
+    "int": "Hokksund"
+  },
+  "technologies": [
+    {
+      "category": null,
+      "technology_skills": [
+        {
+          "tags": "GCP",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Qudana",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "SonarQube",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Google AI Studio",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Engelsk skriftlig og muntlig",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Docker Compose",
+          "total_duration_in_years": 12
+        },
+        {
+          "tags": "Material UI",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Google Gemini API",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Flowcase API",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "OpenAI API",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Vite",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Grafana",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Github Actions",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Presentasjonsteknikk",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Kompetansedeling",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Flyway",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Maskinporten",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Zero Trust",
+          "total_duration_in_years": 3
+        }
+      ]
+    },
+    {
+      "category": "Pogrammerings Prinsipper",
+      "technology_skills": [
+        {
+          "tags": "Domain Driven Design (DDD)",
+          "total_duration_in_years": 10
+        },
+        {
+          "tags": "Clean Code",
+          "total_duration_in_years": 6
+        },
+        {
+          "tags": "Clean Architecture",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "SOLID",
+          "total_duration_in_years": 8
+        }
+      ]
+    },
+    {
+      "category": "Rammeverk",
+      "technology_skills": [
+        {
+          "tags": "Spring Batch",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Spring Boot",
+          "total_duration_in_years": 9
+        },
+        {
+          "tags": "Spring",
+          "total_duration_in_years": 20
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 11
+        },
+        {
+          "tags": "JMS",
+          "total_duration_in_years": 9
+        },
+        {
+          "tags": "Wiremock",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "JAX-RS",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Wildfly",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "JPA",
+          "total_duration_in_years": 13
+        },
+        {
+          "tags": "Angular",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Node.js",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Spring Security",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jersey",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOLR",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Play Framework",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JAXB",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "JAX-WS",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "JDBC",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "JSP",
+          "total_duration_in_years": 6
+        },
+        {
+          "tags": "Spring Core",
+          "total_duration_in_years": 21
+        },
+        {
+          "tags": "EJB",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Spring Remoting",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Spring Transactions",
+          "total_duration_in_years": 15
+        },
+        {
+          "tags": "Logback",
+          "total_duration_in_years": 15
+        },
+        {
+          "tags": "ELK",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Http4k",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Weld/CDI",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "ExtJs",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Sencha ExtJs",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "New Relic",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "MediaWiki",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Metro",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Freemaker",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "AspectJ",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Struts",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "WebWork",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "ActiveMQ",
+          "total_duration_in_years": 7
+        },
+        {
+          "tags": "GraphQL",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Figma",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Liquibase",
+          "total_duration_in_years": 15
+        },
+        {
+          "tags": "Javax Mail",
+          "total_duration_in_years": 8
+        }
+      ]
+    },
+    {
+      "category": "Tjenestearkitektur",
+      "technology_skills": [
+        {
+          "tags": "REST API",
+          "total_duration_in_years": 7
+        },
+        {
+          "tags": "SOAP",
+          "total_duration_in_years": 12
+        },
+        {
+          "tags": "Web services",
+          "total_duration_in_years": 6
+        },
+        {
+          "tags": "Mikrotjenester",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Domain Driven",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "WSDL",
+          "total_duration_in_years": 6
+        },
+        {
+          "tags": "RestEasy",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "REST / JSON",
+          "total_duration_in_years": 11
+        }
+      ]
+    },
+    {
+      "category": "Verktøy",
+      "technology_skills": [
+        {
+          "tags": "Kibana",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Confluence",
+          "total_duration_in_years": 7
+        },
+        {
+          "tags": "Slack",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Git",
+          "total_duration_in_years": 12
+        },
+        {
+          "tags": "Jira",
+          "total_duration_in_years": 10
+        },
+        {
+          "tags": "Atlassian Bitbucket",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "IntelliJ",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Linux",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "WebLogic",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Enterprise Architect",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Tomcat",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Subversion",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Eclipse",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Artifactory",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Apache",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Apache CXF",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Bamboo",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "SourceSafe",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "IMB Websphere",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Clearcase",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Dynamo application server",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Miro",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "GitHub Actions",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "Qodana",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "category": "Programmeringsspråk",
+      "technology_skills": [
+        {
+          "tags": "Kotlin",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Java",
+          "total_duration_in_years": 20
+        },
+        {
+          "tags": "Bash",
+          "total_duration_in_years": 16
+        },
+        {
+          "tags": "Javascript",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "HTML",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "CSS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SQL",
+          "total_duration_in_years": 21
+        },
+        {
+          "tags": "JSON",
+          "total_duration_in_years": 15
+        },
+        {
+          "tags": "XML",
+          "total_duration_in_years": 20
+        },
+        {
+          "tags": "React",
+          "total_duration_in_years": 1
+        }
+      ]
+    },
+    {
+      "category": "Databaser",
+      "technology_skills": [
+        {
+          "tags": "SQL Server",
+          "total_duration_in_years": 8
+        },
+        {
+          "tags": "HSQL",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "MongoDB",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "LiguiBase",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "MySQL",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Sybase",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "H2",
+          "total_duration_in_years": 3
+        },
+        {
+          "tags": "PostgreSQL",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Redshift",
+          "total_duration_in_years": 2
+        }
+      ]
+    },
+    {
+      "category": "Metodikk",
+      "technology_skills": [
+        {
+          "tags": "Scrum",
+          "total_duration_in_years": 7
+        },
+        {
+          "tags": "Kanban",
+          "total_duration_in_years": 6
+        },
+        {
+          "tags": "SAFe",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "intervjuer (dybde-felt-)",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Datamodellering",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Agile",
+          "total_duration_in_years": 2
+        }
+      ]
+    },
+    {
+      "category": "DevOps",
+      "technology_skills": [
+        {
+          "tags": "Jenkins",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Docker",
+          "total_duration_in_years": 4
+        },
+        {
+          "tags": "Nexus",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Docker Swarm",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Azure",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kubernetes",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "category": "Test og Kvalitetsikring",
+      "technology_skills": [
+        {
+          "tags": "Maven",
+          "total_duration_in_years": 5
+        },
+        {
+          "tags": "Test Driven Development (TDD)",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "JUnit",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "integrasjonstesting",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "category": "Modellering",
+      "technology_skills": [
+        {
+          "tags": "Prosessmodellering",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "UML",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Sekvensdiagram",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "category": "Skyplattformer",
+      "technology_skills": [
+        {
+          "tags": "AWS",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "AWS RDS",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "AWS S3",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Snowflake Datalake",
+          "total_duration_in_years": 2
+        },
+        {
+          "tags": "Azure (Container Apps, Container Registry)",
+          "total_duration_in_years": 1
+        },
+        {
+          "tags": "Google Cloud Platform (GCP)",
+          "total_duration_in_years": 1
+        }
+      ]
+    }
+  ],
+  "key_qualifications": [
+    {
+      "label": "Kompetansebakgrunn - Husbanken",
+      "long_description": "Thomas Andersen er en erfaren systemutvikler og arkitekt med en dyp lidenskap for teknisk håndverk og kodekvalitet. Selv i roller som tech-lead og arkitekt har han alltid beholdt en aktiv, praktisk rolle i utviklingen – overbevist om at de beste arkitekturelle beslutningene tas i tett kontakt med koden.\n\nMed mer enn 20 års erfaring bygger Thomas robuste og vedlikeholdbare løsninger i Kotlin og Java (opptil versjon 21) med Spring Boot. Han har en spesiell styrke i å bygge bro mellom moderne plattformer og etablerte legacy-systemer, og trives i komplekse teknologilandskap der målet er gradvis modernisering. Han anvender prinsipper fra Domain-Driven Design (DDD) og SOLID som pragmatiske verktøy for å redusere teknisk gjeld og sikre at nye og gamle systemdeler fungerer sømløst sammen.\n\nHan har levert forretningskritiske løsninger for en rekke offentlige virksomheter, inkludert et tidligere treårig engasjement for Husbanken. Hans vellykkede arbeid hos SPK, hvor han erstattet en sentral legacy-komponent med en ny Java-løsning, beviser hans evne til å sette seg inn i ukjent teknologi og lede krevende moderniseringsløp. Thomas er selvgående i hele utviklingsløpet, fra design og implementering til etablering av automatiserte bygg- og leveransepakker med verktøy som GitHub Actions og Docker. Han er en pragmatisk utvikler med sterk formidlingsevne og et brennende engasjement for å løfte kvaliteten i team og prosjekter."
+    },
+    {
+      "label": "Sammendrag",
+      "long_description": "Thomas Andersen er en erfaren systemutvikler og arkitekt med en dyp lidenskap for teknisk\nhåndverk og kodekvalitet. Selv i roller som tech-lead og arkitekt har han alltid beholdt en aktiv\nrolle i utviklingen – fordi de beste arkitekturelle beslutningene tas i tett kontakt med koden.\nMed mer enn 20 års erfaring bygger Thomas robuste, skalerbare og vedlikeholdbare løsninger i\nKotlin og Java med Spring Boot. Han jobber etter prinsippene i Domain-Driven Design (DDD),\nSOLID og Clean Code – ikke som idealer, men som konkrete verktøy for å redusere kompleksitet\nog skape langsiktig verdi.\nHan har levert forretningskritiske løsninger for offentlige og private virksomheter, med særlig\nstyrke innen mikrotjenestearkitektur og sikre integrasjoner. Thomas er selvgående i hele\nutviklingsløpet, fra design og implementering til etablering av automatiserte bygg- og\nleveransepakker med verktøy som GitHub Actions og Docker. Han er en pragmatisk utvikler med\nsterk formidlingsevne og et brennende engasjement for å løfte kvaliteten i team og prosjekter."
+    },
+    {
+      "label": "Spisset Strawberries - Integrasjon",
+      "long_description": "Thomas Andersen er en svært erfaren seniorarkitekt med en spisskompetanse på å designe og utvikle forretningskritiske integrasjonsløsninger. Med over 20 års erfaring bygger han bro mellom komplekse systemer og skaper robuste, datadrevne løsninger for både offentlige og private virksomheter.\n\nHans portefølje demonstrerer en betydelig dybde i faget. For Statens Pensjonskasse var han sentral i å utvikle en sikker system-til-system-integrasjon mot NAV via Maskinporten, og var den første leverandøren som tok løsningen i produksjon. For Husbanken designet og utviklet han ryggraden av integrasjonstjenester (REST APIer) mot sentrale nasjonale registre som Altinn og Folkeregisteret. Han har også ledet arbeidet med å bygge integrasjonslag mot Enterprise Service Bus (ESB) for NSB og har nylig jobbet med moderne API-integrasjoner mot AI-plattformer som Google Gemini og OpenAI.\n\nSelv i rollen som arkitekt beholder Thomas en praktisk tilnærming og bygger løsningene selv, primært i Kotlin og Java med Spring Boot. Han anvender prinsipper som Domain-Driven Design (DDD) og Clean Code for å sikre at integrasjonene ikke bare fungerer, men også er skalerbare, vedlikeholdbare og trygge. Thomas er en selvgående ekspert som mestrer hele livssyklusen til en integrasjon – fra arkitektur og design til implementering og automatisert deployment med verktøy som GitHub Actions og Docker."
+    }
+  ],
+  "work_experiences": [
+    {
+      "employer": "KnowIT",
+      "month_from": "01",
+      "month_to": "08",
+      "year_from": "2018",
+      "year_to": "2021"
+    },
+    {
+      "employer": "Dfind Direction",
+      "month_from": "09",
+      "month_to": "05",
+      "year_from": "2021",
+      "year_to": "2025"
+    },
+    {
+      "employer": "Evry",
+      "month_from": "08",
+      "month_to": "08",
+      "year_from": "2011",
+      "year_to": "2013"
+    },
+    {
+      "employer": "Tripletex",
+      "month_from": "01",
+      "month_to": "07",
+      "year_from": "2011",
+      "year_to": "2011"
+    },
+    {
+      "employer": "Storebrand",
+      "month_from": "11",
+      "month_to": "11",
+      "year_from": "2006",
+      "year_to": "2010"
+    },
+    {
+      "employer": "Accenture",
+      "month_from": "08",
+      "month_to": "11",
+      "year_from": "2005",
+      "year_to": "2006"
+    },
+    {
+      "employer": "TINE",
+      "month_from": "08",
+      "month_to": "06",
+      "year_from": "2003",
+      "year_to": "2005"
+    },
+    {
+      "employer": "Bouvet",
+      "month_from": "09",
+      "month_to": "01",
+      "year_from": "2013",
+      "year_to": "2018"
+    },
+    {
+      "employer": "Cloudberries Fusion",
+      "month_from": "05",
+      "month_to": null,
+      "year_from": "2025",
+      "year_to": null
+    }
+  ],
+  "project_experiences": [
+    {
+      "customer": "Safetel AS",
+      "description": "Safetel Online",
+      "long_description": "Prosjektet var ansvarlig for å designe og utvikle backend-delen av løsningen i Safetel Online –\nen digital plattform for å betjene Safetels eksterne kunder og brukergrupper. Dette\ninnebærer etablering av et API for å gjøre tilgjengelig informasjon fra Safetels\nbackendsystemer på en sikker og konsistent måte.",
+      "month_from": "07",
+      "month_to": "11",
+      "year_from": "2014",
+      "year_to": "2014",
+      "roles": [
+        {
+          "name": "Arkitekt og utvikler",
+          "long_description": "Etter å ha utarbeidet forprosjekt-rapporten for etablering av\nSafetel Online, ble Thomas hentet inn igjen for å etablere arkitektur og utvikle REST-baserte\ntjenester for å betjene en mobilapplikasjon. \n\nREST-tjenesten ble spesifisert i RAML etter\n«contract-first»-prinsippet. Arkitekturen besto av et sett med selvstendige mikrotjenester for\nå understøtte de funksjonelle og ikke-funksjonelle kravene definert i forprosjektet. Domene-\ndrevet design ble benyttet for å utarbeide en domenemodell som skalerte og reflekterte\nvirksomheten. Det ble også utformet diagrammer og modeller for å kommunisere\narkitektur og programflyt til tekniske ressurser i Safetel."
+        }
+      ],
+      "project_experience_skills": []
+    },
+    {
+      "customer": "Dfind Consulting",
+      "description": "",
+      "long_description": "Thomas Andersen har nylig startet i Cloudberries og tar med seg verdifull erfaring som sjefskonsulent fra Dfind Consulting, hvor han ledet et omfattende internt prosjekt med fokus på kompetansebygging, systemforbedringer og strategisk teknologiledelse. \n\nProsjektets formål var todelt: å heve kodekvaliteten og effektivisere interne løsninger, samtidig som Thomas fungerte som en drivkraft for faglig utvikling blant kollegene. I rollen som teknisk lead og arkitekt tok Thomas et helhetlig ansvar som strakk seg fra strategisk planlegging til praktisk gjennomføring – alt med et salgsorientert blikk på å skape merverdi for organisasjonen.\n\nGjennom dette helhetlige prosjektet kombinerte Thomas strategisk teknisk lederskap med hands-on løsningsdesign, AI-integrasjoner og aktiv kompetansebygging. Arbeidet resulterte i både økt operativ effektivitet og et styrket fagmiljø internt i Dfind. Thomas trer dermed frem som en faglig sterk og formidlingsdyktig konsulent med en unik evne til å levere verdi i komplekse oppdrag. Hans erfaring med å forbedre kodekvalitet, modernisere systemer, ta i bruk AI-teknologi og løfte teamkompetanse gjør ham spesielt godt egnet for større virksomheter – ikke minst for offentlige aktører som Statens Pensjonskasse og Statens vegvesen – der slike egenskaper verdsettes høyt.",
+      "month_from": "01",
+      "month_to": "05",
+      "year_from": "2024",
+      "year_to": "2025",
+      "roles": [
+        {
+          "name": "Arkitekt / Konsulent",
+          "long_description": "Fagartikkel om DDD, SOLID og Clean Code\n\nEn av Thomas’ nøkkelbidrag i Dfind var utviklingen av en fagartikkel som demonstrerte hvordan Domain-Driven Design (DDD), SOLID-prinsippene og Clean Code-praksiser kan integreres for å bygge robuste og skalerbare systemer. Gjennom konkrete eksempler og innsikter belyste artikkelen bestepraksis for høy kodekvalitet og vedlikeholdbar arkitektur. Denne artikkelen ble tatt i bruk som internt opplæringsmateriale og aktivt delt i kompetansehevingsinitiativ internt, noe som viser Thomas’ evne til å omsette avansert teknisk kunnskap til praktisk læring for andre. Resultatet var økt bevissthet rundt god systemdesign hos utviklingsteamet, som igjen bidro til bedre leveranser til kundene."
+        },
+        {
+          "name": "Arkitekt / Konsulent",
+          "long_description": "Teknisk sammenligning: Kotlin vs. Java\n\nI tillegg til det teoretiske rammeverket tok Thomas initiativ til å utvikle et praktisk verktøy for kunnskapsdeling i form av et komparativt “cheatsheet” for Kotlin vs. Java. Dette oversiktsdokumentet ga en side-ved-side sammenligning av sentrale språkfunksjoner i Kotlin og Java (med dekning av alle Java-versjoner frem til 2025). Dokumentet gjorde det enklere for teamet å raskt forstå Kotlins moderne egenskaper – som en mer konsis syntaks og innebygd null-sikkerhet – opp mot tilsvarende funksjonalitet i Java. \n\nDette tiltaket understreket Thomas’ brede teknologikompetanse og hans evne til å heve teamets samlede kunnskapsnivå. Ved å dele slike oppdaterte innsikter internt, bidro han til at Dfinds utviklere kunne ta i bruk nye språk og teknologier mer effektivt og med større selvsikkerhet."
+        },
+        {
+          "name": "Arkitekt / Konsulent",
+          "long_description": "“MinSide” og kompetanseprogrammet DC Skolen\n\nParallelt med kompetansehevingen tok Thomas ansvar for arkitektur og videreutvikling av Dfinds interne selvbetjeningsportal for konsulenter, “MinSide”. Her ledet han implementeringen av nye moduler, blant annet for registrering og oppfølging av sykefravær/ferie og et dashbord for konsulentenes teknologibudsjetter. Disse forbedringene gav en betydelig bedre brukeropplevelse og en mer vedlikeholdbar kodebase for løsningen.\n\nApplikasjonen ble versjonsstyrt og driftet gjennom GitHub, med automatisert bygg og deploy via GitHub Actions. Dette sikret en effektiv utviklingsflyt med kontinuerlig integrasjon og rask feedback ved endringer.\n\nSamtidig spilte Thomas en sentral rolle i utformingen av Dfinds interne kompetanseprogram “DC Skolen”. Som del av dette utarbeidet og dokumenterte han en strukturert utviklingsplan for arkitekter. Planen inkluderte tydelig kompetansekartlegging, definerte læringsmål og anbefalte karriereløyper for seniorkonsulenter med ambisjon om å gå inn i arkitektroller. Dette initiativet sikret at erfarne konsulenter fikk en klar sti for å utvikle de ferdighetene som kreves i avanserte tekniske roller, noe som styrket firmaets evne til å levere på krevende prosjekter."
+        },
+        {
+          "name": "Arkitekt / Konsulent",
+          "long_description": "Kunstig intelligens og integrasjoner\n\nThomas hadde ansvar for å sette opp en in-house instans av DeepSeek AI på Ubuntu-maskiner on-site, kjørende i et Kubernetes-cluster. \n\nSystemet skulle integreres med både Slack og HR-systemet for å automatisere og forbedre intern kunnskapsflyt. Funksjonaliteten inkluderte:\n\t•\tNøytral matching mellom innkommende konsulentforespørsler og konsulentdatabase (CV-er), for å \n              identifisere best egnet profil.\n\t•\tBrukt som analyseverktøy for å avdekke fagområder hvor Dfind manglet kompetanse.\n\t•\tSlack-baserte kommandoer for konsulenter for å registrere fravær, ferie og bruk av techbudsjett, \n              direkte integrert med HR-systemet.\n\nDette prosjektet demonstrerte Thomas’ evne til å jobbe med AI-verktøy, Kubernetes, systemintegrasjoner og brukernære løsninger på en måte som gir både teknisk og operasjonell verdi."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Spring Boot",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Liquibase",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "REST / JSON",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Domain Driven Design (DDD)",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Clean Architecture",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Clean Code",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOLID prinsippene",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kompetansedeling",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Presentasjonsteknikk",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "GCP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "GitHub Actions",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "SPK Statens Pensjonskasse",
+      "description": "Proakt",
+      "long_description": "SPKs systemportefølje består av egenutviklede og innkjøpte systemer. SPK har en økende grad av integrasjoner mellom systemene, samt mot systemløsninger hos SPKs samarbeidsparter (NAV, KLP, AltInn, Difi med flere). SPK har som mål å holde systemene oppdatert med tanke på arkitektur- og teknologiutvikling, med fokus på kontinuerlig forbedring og best mulig forretningsnytte. For å få en moderne teknologisk plattform som er tilpasningsdyktig til endringer, settes SPKs systemportefølje sammen av enkle, løst koblede, tjenesteorienterte systemer.\n\nDa nye regler for samordning med folketrygden trer i kraft i 2021, må SPK hente nye data fra NAV og bruke disse dataene i beregningene av pensjon. Dette er nødvendig for å kunne saksbehandle og gi riktig pensjon til medlemmer født mellom 54-62. Dette involverer flere systemer og krever koordinasjon på tvers av interne team og NAV. \n\nI forbindelse med innføringen av nye samordningsregler utviklet Thomas en løsning for å hente samordningsdata fra NAV. Dette innebar å etablere en sikker system-til-system-integrasjon via Maskinporten, basert på OAuth 2.0 og JWT. Løsningen implementerte sentrale prinsipper fra Zero Trust-arkitektur, herunder eksplisitt autentisering, begrenset tilgang basert på scopes og logging av tjenestetilgang. SPK var første pensjonsleverandør som tok dette API-et i bruk i produksjon. Kildekoden ble tilgjengeliggjort i NAVs GitHub-repository, noe som muliggjorde tett samarbeid og forbedringer gjennom pull requests.",
+      "month_from": "06",
+      "month_to": "09",
+      "year_from": "2018",
+      "year_to": "2021",
+      "roles": [
+        {
+          "name": "Utvikler",
+          "long_description": "Senior utvikler. Spesifisering av krav til eksisterende applikasjoner og nye applikasjoner. Da mange systemer er involvert stiller det krav til en robust teknisk arkitektur, her jobbet Thomas med arkitekter fra SPK for å komme frem til best mulig løsning. I tillegg jobbet han som utvikler i prosjektet. I de to siste årene av engasjementet var han også systemansvarlig for samhandlings-domene. Dette området hadde ansvar for kommunikasjon med blant annet NAV og KLP, med ansvar for ca. 15 applikasjoner som var alt fra batcher og motorer, til web applikasjoner. Han bidro samtidig til felles kode og rammeverk som ble benyttet av andre team i SPK.\n\nNye applikasjoner ble utviklet på Spring Boot og skrevet enten i Java eller Kotlin . Noen eksisterende applikasjoner og batcher ble oppgradert fra Dropwizard til Spring Boot. "
+        },
+        {
+          "name": "Integrasjonsansvarlig",
+          "long_description": null
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Spring Boot",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Batch",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Remoting",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "REST API",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Transactions",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Logback",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kibana",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "ELK",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "ActiveMQ",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SQL Server",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "H2",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "HSQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOAP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "WSDL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Web services",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JMS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kotlin",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Http4k",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Wiremock",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Scrum",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kanban",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Confluence",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Slack",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Git",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jira",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Grafana",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Flyway",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Liquibase",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Maskinporten",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Zero Trust",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SonarQube",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "SPK Statens Pensjonskasse",
+      "description": "Forvaltning og utvikling av SPKs løsninger",
+      "long_description": "SPKs systemportefølje består av egenutviklede og innkjøpte systemer. SPK har en økende grad av integrasjoner mellom systemene, samt mot systemløsninger hos SPKs samarbeidsparter (NAV, KLP, AltInn, Difi med flere). SPK har som mål å holde systemene oppdatert med tanke på arkitektur- og teknologiutvikling, med fokus på kontinuerlig forbedring og best mulig forretningsnytte. For å få en moderne teknologisk plattform som er tilpasningsdyktig til endringer, settes SPKs systemportefølje sammen av enkle, løst koblede, tjenesteorienterte systemer.\n\nProsjekt \"Skifte rammeverk for pensjonsberegningen\" skulle konvertere pensjonsberegningen i Statens Pensjonskasse fra å kjøre på IBM/iLog Jrules til å kjøre på Java. Totalt ~1200 regler skal oversettes til Java og ta i bruk ny funksjonalitet i Java8. Eksisterende grensesnitt ut mot andre interne systemer skulle ikke forandres og man skal sikre at alle ~700.000 forespørsler mot systemet returnerer identisk svar som før.",
+      "month_from": "03",
+      "month_to": "06",
+      "year_from": "2017",
+      "year_to": "2018",
+      "roles": [
+        {
+          "name": "Løsningsarkitekt",
+          "long_description": "I dette prosjektet har Thomas rollen som scrummaster, løsningsarkitekt og utvikler for et team bestående av syv personer med ulike ferdigheter. For å dele domenekunnskap og teknisk kompetanse innførte Thomas par-programmering. I tillegg ble det kjørt små workshops for å bygge forretningsforståelse. I sum bidro dette til at teammedlemmene kunne kommunisere løsninger og utfordringer med hverandre og forretningssiden og prosjektet leverte på tid, kost og kvalitet."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Atlassian Bitbucket",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jenkins",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Maven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Boot",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "IntelliJ",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Git",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Bash",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Docker",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Docker Swarm",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "ELK",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Batch",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "REST API",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jira",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JMS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SQL Server",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOAP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Remoting",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Scrum",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kanban",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Husbanken",
+      "description": "e-Søknad Startlån",
+      "long_description": "Husbanken igangsatte et omfattende prosjekt for å heldigitalisere søknadsprosessen for startlån, fra borger til ferdigbehandlet sak. Prosjektet besto av en ny, landsdekkende elektronisk søknadsportal for innbyggere og et moderne, internt saksbehandlingssystem for kommunene.\n\nLøsningen ble en stor suksess som overgikk målene i pilotfasen, frigjorde betydelig med tid for saksbehandlerne, og ble tildelt Difis (nå Digitaliseringsdirektoratet) digitale fagpris som en anerkjennelse for den høye brukervennligheten og samfunnsnytten.",
+      "month_from": "11",
+      "month_to": "03",
+      "year_from": "2014",
+      "year_to": "2017",
+      "roles": [
+        {
+          "name": " Fullstack utvikler",
+          "long_description": "Thomas spilte en sentral rolle som fullstack-utvikler gjennom hele prosjektløpet, fra utviklingen av den eksterne søknadsportalen til etableringen av det nye saksbehandlingssystemet basert på en mikrotjenestearkitektur. Han hadde hovedansvaret for design og utvikling av flere forretningskritiske mikrotjenester:\n\nIntegrasjonstjenester: Han utviklet REST-tjenestene som utgjorde ryggraden i løsningen, og håndterte komplekse integrasjoner mot sentrale offentlige registre som Altinn, Folkeregisteret og Kontakt- og reservasjonsregisteret.\nKommunikasjonstjeneste: For å forbedre dialogen mellom søker og saksbehandler, utviklet Thomas en moderne kommunikasjonstjeneste. Denne ga saksbehandlingssystemet en tidslinjebasert meldingsutveksling, lik funksjonaliteten i dagens meldingsapper. For å sikre rask og effektiv saksgang, implementerte han e-postvarsling til saksbehandlerne ved nye henvendelser fra søker, ved bruk av Javax.mail.\nJournal- og Oppslagstjenester: Han hadde også ansvaret for tjenester for journalføring og for oppslag mot kommunale data, som var essensielt for en korrekt og effektiv saksflyt.\nAlle tjenestene ble utviklet med Java EE 7 på en Wildfly applikasjonsserver, og ble containerisert med Docker for å sikre en fleksibel og skalerbar driftsplattform."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Git",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Atlassian Bitbucket",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Maven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Linux",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Docker",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "REST API",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JAX-RS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SQL Server",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Wildfly",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "MongoDB",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JMS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Weld/CDI",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "LiguiBase",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JPA",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOAP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jenkins",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "WSDL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Web services",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Angular",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Node.js",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Mikrotjenester",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Javax Mail",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Safetel AS",
+      "description": "Safetel Online",
+      "long_description": "Prosjektet var ansvarlig for å designe og utvikle backend-delen av løsningen i Safetel Online – en digital plattform for å betjene Safetels eksterne kunder og brukergrupper. Dette innebærer etablering av et API for å gjøre tilgjengelig informasjon fra Safetels backendsystemer på en sikker og konsistent måte.",
+      "month_from": "07",
+      "month_to": "11",
+      "year_from": "2014",
+      "year_to": "2014",
+      "roles": [
+        {
+          "name": "Arkitekt",
+          "long_description": "Etter å ha utarbeidet forprosjekt-rapporten for etablering av Safetel Online, ble Thomas hentet inn igjen for å etablere arkitektur og utvikle REST-baserte tjenester for å betjene en mobilapplikasjon. REST-tjenesten ble spesifisert i RAML etter «contract-first»-prinsippet. Arkitekturen besto av et sett med selvstendige mikrotjenester for å understøtte de funksjonelle og ikke-funksjonelle kravene definert i forprosjektet. Domene-drevet design ble benyttet for å utarbeide en domenemodell som skalerte og reflekterte virksomheten. Det ble også utformet diagrammer og modeller for å kommunisere arkitektur og programflyt til tekniske ressurser i Safetel."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "MySQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "MongoDB",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Linux",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Git",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "LiguiBase",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Maven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Boot",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Transactions",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Security",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "RestEasy",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Scrum",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Domain Driven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Test Driven Development (TDD)",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Mikrotjenester",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jersey",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Statens Vegvesen",
+      "description": "System for kontroll av kjøretøy",
+      "long_description": "En løsning som primært skal støtte opp prosessene knyttet til utekontroller. Hovedfunksjonaliteten ligger i å støtte kontrollørenes oppgaver ved gjennomføring av utekontroll. Kontrollørene er utstyrt med en håndholdt enhet (gjerne festet på armen) som benyttes for å gjennomføre kontrollen.\n\nLøsningen utvikles som en HTML5-basert webapplikasjon for å hindre behov for utrulling av nye versjoner ved oppgraderinger, samt for å sørge for at applikasjonen ikke er utviklet for en spesifikk enhet som etter hvert kan gå ut av produksjon. Dette betyr også at man forutsetter at man har nett-tilgang ved bruk av applikasjonen og aksepterer at den ikke fungerer dersom forbindelsen er brutt. I tillegg til funksjonaliteten som er knyttet til utførelse av kontroller, utvikles en mer administrativ løsning der bl.a. saksbehandling og uttak av rapporter og statistikker vil være i fokus. Det er et viktig mål for Statens vegvesen å øke kvaliteten på kontrolldataene slik at disse kan tas ut i statistikker og rapporter og fungere som et godt styringsverktøy. Utføring av disse oppgavene vil skje på kontoret med vanlige PC-er. Fra et teknisk perspektiv er applikasjonene bygget som en javascript-basert RIAklient som konsumerer REST-tjenester bygget på en Java EE-stack. RIA-klientene er realisert gjennom bruk av rammeverket Sencha Touch og ExtJs. ",
+      "month_from": "05",
+      "month_to": "08",
+      "year_from": "2014",
+      "year_to": "2014",
+      "roles": [
+        {
+          "name": "Arkitekt",
+          "long_description": "Teknisk arkitekt. Hentet inn for å bistå rundt teknisk arkitektur. Prosjektet hadde en kompleks arkitektur, noe som medførte at feilsøking var problematisk i enkelte tilfeller. I samarbeid med arkitekt ble enkelte komponenter fjernet for å redusere kompleksitet i systemet.\n\nThomas ble i tillegg benyttet som utvikler for å implementere utestående funksjonalitet."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Spring",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Javascript",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JUnit",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Maven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "integrasjonstesting",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOLR",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "WebLogic",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Scrum",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JAX-RS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Domain Driven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Nexus",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "ExtJs",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Sencha ExtJs",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Mattilsynet",
+      "description": "Kostholdsplanleggeren",
+      "long_description": "Mattilsynet (Statens tilsyn for planter, fisk, dyr og næringsmidler) er den norske tilsynsmyndighet for planter, fisk, dyr og næringsmidler. Mattilsynet ble etablert i 2004 etter en sammenslåing av Statens næringsmiddeltilsyn, Statens dyrehelsetilsyn, Statens landbrukstilsyn samt Fiskeridirektoratets sjømatkontroll og 89 kommunale næringsmiddeltilsyn, og er dermed en stor tilsynsmyndighet med svært vidtfavnende ansvarsområder\n\nMattilsynet ønsket å lage en moderne løsning basert på ”Mat på data”, og dataene i Matvaretabellen. Kostholdsplanleggeren, som verktøyet blir kalt, er en webløsning, hvor brukerne kan se hva de spiser opp i mot anbefalingene til helsemyndighetene og for å følge opp og planlegge eget kosthold. Brukerne kan sammenligne forskjellig mat, samt dele ukesmenyer med hverandre, m.",
+      "month_from": "06",
+      "month_to": "07",
+      "year_from": "2014",
+      "year_to": "2014",
+      "roles": [
+        {
+          "name": "Arkitekt",
+          "long_description": "Teknisk rådgiver. Thomas ble hentet inn for å analysere minnelekkasje i en Java applikasjon utviklet med Play2-rammeverket"
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "New Relic",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Play Framework",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Safetel AS",
+      "description": "Safetel Online Forprosjekt",
+      "long_description": "I forbindelse med en online-satsning ønsket Safetel å få utarbeidet en forprosjektrapport med alternative løsninger for design og arkitektur, samt et prisoverslag for utvikling av valgt løsning.",
+      "month_from": "04",
+      "month_to": "06",
+      "year_from": "2014",
+      "year_to": "2014",
+      "roles": [
+        {
+          "name": "Rådgiver",
+          "long_description": "Teknisk rådgiver. Thomas innleid for å analysere Safetel’s systemer og prosesser. Arbeidet besto i å innhente informasjon fra Safetel-ansatte gjennom møter og workshops. Han var ansvarlig for å levere en forprosjekt-rapport med anbefaling av teknologier og arkitektur-design for fremtidige nettsider og RESTtjenester for mobil-applikasjoner. Rapporten omfattet blant annet å avdekke funksjonelle og ikke-funksjonelle krav, sikkerhet, redundans, gjenbruk, integrasjon og ytelse."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Domain Driven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Datamodellering",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Prosessmodellering",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Enterprise Architect",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "MediaWiki",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "NSB",
+      "description": "Innføring av Enonic CMS",
+      "long_description": "Norges Statsbaner (NSB), også omtalt som Statsbanene, var fra 1883 til 1996 en norsk forvaltningsbedrift som bygget og drev jernbaner i Norge. 1. desember 1996 ble trafikkdelen av selskapet videreført i særlovselskapet NSB BA, mens infrastrukturdelen ble videreført i forvaltningsorganet Jernbaneverket.\n\nNSB skulle innføre Enonic som nytt CMS system for nsb.no. Dette medførte nytutvikling av et integrasjonlag mellom tjenestelaget, ESBEN (NSB's enterprise service bus) og Enonic.\n\nAnsvarlig for design og implementasjon av Web Service integrasjonen og orkestrering med NSB’s Enterprise Service Bus (ESBEN). Systemet integrerte med Enonic’s Plugin API for å gjøre data tilgjengelig for CMS frontenden.",
+      "month_from": "04",
+      "month_to": "03",
+      "year_from": "2013",
+      "year_to": "2014",
+      "roles": [
+        {
+          "name": "Arkitekt",
+          "long_description": "Teknisk arkitekt. Ansvarlig for design og implementasjon av integrasjonen og orkestrering med NSB’s Enterprise Service Bus (ESBEN). Systemet integrerte med Enonic CMS for å gjøre data tilgjengelig for CMS frontenden."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Tomcat",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JUnit",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jenkins",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Test Driven Development (TDD)",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jira",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kanban",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Maven",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOAP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JAXB",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JAX-WS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Metro",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Egmont",
+      "description": "Produkt Test System",
+      "long_description": "Egmont er et dansk mediekonsern og en av Skandinavias store mediegrupper og har hovedkvarter i København. Egmont produserer og publiserer blant annet ukeblader, magasiner, tegneserier, bøker, film, TV-programmer, lærebøker, spill, elektronisk underholdning og mobiltjenester. \n\nEgmont ønsket å utvikle et system for journalister som testet forskjellige produkter og deretter publiserte artikler på deres nettsider. Systemet skulle være fleksibelt nok til å håndtere produkter av alle kategorier og integrere med Enonic CMS. ",
+      "month_from": "02",
+      "month_to": "04",
+      "year_from": "2012",
+      "year_to": "2013",
+      "roles": [
+        {
+          "name": "Utvikler",
+          "long_description": "Thomas kom inn tidlig i design fasen, og bisto tech-lead i Egmont med valg av rammeverk og teknologi. Han fikk ansvar for å modellere og utvikle systemet fra bunnen og opp i samarbeid med tech-lead. Det ble benyttet velprøvde design-patterns for å sørge for en solid og skalerbar datamodell. "
+        }
+      ],
+      "project_experience_skills": []
+    },
+    {
+      "customer": "Agder Energi Nett",
+      "description": "Strøm bestilling",
+      "long_description": "LOS ønsket en enklere prosess rundt salg av strøm over telefon ved å integrere med Statnett. Mye av prosessen var manuell og det var problemer med datakvaliteten som ble lagt inn systemene.",
+      "month_from": "09",
+      "month_to": "01",
+      "year_from": "2011",
+      "year_to": "2012",
+      "roles": [
+        {
+          "name": "Utvikler",
+          "long_description": "Thomas var ansvarlig for å designe og utvikle en Java basert løsning for salg av strøm online som ble tilpasset for web og mobil. Det ble samtidig utviklet et REST API så interne salgsverktøy kunne integrere med løsningen. Systemet integrerte med Statnett's Nubix-tjeneste og orkestrerte dataene. Dette gjorde at oppslag mot kunder ble mer effektiv og ga vesentlig høyere datakvalitet enn hva LOS hadde fra før"
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "MySQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "REST",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Tomcat",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Freemaker",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JDBC",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JAX-RS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Test Driven Development (TDD)",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Subversion",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Tripletex",
+      "description": "Produktutvikling",
+      "long_description": "Tripletex er en Web-basert regnskapssystem. Det inneholder moduler for regnskap, lønn, prosjektplanlegging, timeføring og fakturering.",
+      "month_from": "01",
+      "month_to": "07",
+      "year_from": "2011",
+      "year_to": "2011",
+      "roles": [
+        {
+          "name": "Utvikler",
+          "long_description": "Thomas jobbet med følgende moduler:\nProduktimport fra Excel og CSV-filer \nKontrollskjemaer for elektrobransjen (iJobman) \nModul for lager-funksjonalitet\nModul for kredittvurdering via integrasjon med Lindorff"
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "AspectJ",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Struts",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JSP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Tomcat",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring Core",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "MySQL",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Storebrand",
+      "description": null,
+      "long_description": "Storebrand startet utvikling av online løsning for skadeforsikring i en satsning for å nå privatpersoner. Dette ble Storebrands eneste salgskanal for skadeforsikring for privatpersoner. Systemet ble videreutviklet til å støtte salg til bedriftskunder",
+      "month_from": "11",
+      "month_to": "10",
+      "year_from": "2006",
+      "year_to": "2010",
+      "roles": [
+        {
+          "name": "Systemansvarlig",
+          "long_description": "Som systemansvarlig jobbet Thomas tett med produkteier på forretningssiden og var ansvarlig for vedlikehold og videreutvikling. Ved siden av rollen som systemansvarlig for skadeforsikring, vedlikeholdt og videreutviklet han nettløsninger for salg av fond"
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Struts",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "IMB Websphere",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Subversion",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Eclipse",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "WebWork",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Spring",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Artifactory",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Apache",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Apache CXF",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SOAP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JSP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Bamboo",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Clearcase",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Confluence",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Jira",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Postbanken",
+      "description": "Postens eAgent",
+      "long_description": "På denne tiden var han ansatt i Accenture og var utleid som Javautvikler i prosjektet E-agent for DnB NOR/Postbanken.",
+      "month_from": "08",
+      "month_to": "11",
+      "year_from": "2005",
+      "year_to": "2006",
+      "roles": [
+        {
+          "name": "Utvikler",
+          "long_description": "Thomas jobbet med utvikling og vedlikehold av Java EE applikasjonen - eAgent. Opparbeidet seg kompetanse på Sybase, Unix og Dynamo applikasjon serve"
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Java",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JSP",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SourceSafe",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JMS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "EJB",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "JDBC",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SQL Server",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Sybase",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Dynamo application server",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "TechnipFMC",
+      "description": "Arvio",
+      "long_description": "Arvio er TechnipFMC sitt system for å beregne pris for service-oppdrag på ulike installasjoner for kundene sine. Et omfattende system som forholder seg til store kontrakter, og skal erstatte bruken av kompliserte Excel-ark for de som skriver service-tilbud for TechnipFMC.  Teknologi brukt i denne løsningen var blant annet: React, Typescript, GraphQL, Kotlin, Spring Boot, Hibernate, og PostgreSQL.\n \nTeamet varierte litt i størrelse i perioden, men det var i hovedsak 3-4 utviklere (på det minste 2, på det meste 5), med blandede roller innen frontend- og backend-utvikling, i tillegg til 1-2 designere som jobbet fast med teamet. Teamet og selskapet benyttet seg av SAFe-metodikken til å strukturere arbeidet og for å planlegge på større tidsskala og på tvers av forskjellige team.",
+      "month_from": "01",
+      "month_to": "09",
+      "year_from": "2022",
+      "year_to": "2023",
+      "roles": [
+        {
+          "name": "Fagansvarlig Backend",
+          "long_description": "Thomas ledet JVM- og backend-communityet, hvor han hadde ansvar for å fremme en kultur for kunnskapsdeling på tvers av landegrenser og kontinenter. Som fagansvarlig for både JVM og backend, var det hans oppgave å være en ressurs for teamene og sørge for at de var oppdatert på de nyeste teknologiene og beste praksisene.\n\nDet ble gjennomført en rekke mangfoldige diskusjoner som omhandlet alt fra Kotlin og Java til alternative AI-løsninger og beste praksis for testing. Han var involvert i å organisere og legge til rette for disse diskusjonene, og det var en berikende opplevelse for alle som var involvert.\n\nAlt i alt var det en utfordrende og givende rolle å ha, og han var stolt av arbeidet som ble gjort som et team. Han var overbevist om at den kulturen for kunnskapsdeling som ble bygget opp, ville fortsette å være en viktig del av kundens suksess i fremtiden."
+        },
+        {
+          "name": "Arkitekt",
+          "long_description": "Thomas hadde rollen som backend-utvikler i TechnipFMC og var sentral i utviklingen av Arvio – en webapplikasjon for å generere og sende tilbud til TechnipFMCs kunder. Han utviklet løsninger i Kotlin og jobbet med moderne teknologier som AWS, PostgreSQL, Spring Boot og GraphQL.\n\nHan var ansvarlig for utvikling og implementasjon av funksjonalitet med fokus på brukervennlighet og stabilitet, i tett samarbeid med frontend-utviklere og designere. Han bidro også aktivt i testing og feilsøking for å sikre optimal ytelse og funksjonalitet i produksjon. Grafane ble brukt for å samle metrikker og monitorere applikasjonen i produksjon.\n\nThomas likte spesielt å jobbe med Kotlin som programmeringsspråk, da det er et moderne og effektivt språk som gjør det enkelt å skrive kvalitetskode. I tillegg var det spennende å jobbe med teknologier som AWS, Postgres, Spring Boot og GraphQL, da disse teknologiene er svært relevante i dagens teknologiske landskap.\n\nAlle applikasjonene knyttet til Arvio ble versjonskontrollert i GitHub,. Til å begynne med ble bygg og deploy håndtert av CircleCI. Undervis i prosjektet ble migrert til GitHub Actions. Thomas bidro til oppsett og vedlikehold av CI/CD-pipelines, og sørget for smidige og pålitelige leveranser til skybaserte miljøer.\n\nSom en del av ansvaret for å sikre en stabil og vedlikeholdbar løsning, ble SonarQube implementert som en automatisert kvalitetskontroll i prosjektets CI/CD-pipeline. Ved å benytte en standardisert Quality Gate, sørget teamet for at all kode ble kontinuerlig analysert, noe som forhindret at feil og teknisk gjeld ble introdusert i produksjonskoden.\n\nHan trivdes godt i et kompetent og tverrfaglig utviklingsteam og var stolt av å være med på å utvikle en forretningskritisk løsning som skapte verdi for både selskapet og dets kunder. Rollen i TechnipFMC var en verdifull erfaring, både faglig og personlig."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "AWS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "AWS RDS",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "AWS S3",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "GraphQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Kotlin",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Agile",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Miro",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SAFe",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Scrum",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Figma",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "PostgreSQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "intervjuer (dybde-felt-)",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Snowflake Datalake",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Redshift",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Engelsk skriftlig og muntlig",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Github Actions",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Grafana",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "SonarQube",
+          "total_duration_in_years": 0
+        }
+      ]
+    },
+    {
+      "customer": "Cloudberries",
+      "description": "AI i systemutvikling",
+      "long_description": "For å effektivisere og forbedre matchingsprosessen mellom konsulentprofiler og kundeoppdrag, har Cloudberries initiert et internt prosjekt for å utvikle et skreddersydd system. Systemet skal automatisere og optimalisere utvelgelsen av konsulenter basert på kompetanse, erfaring og tilgjengelighet, og sikre at kundene raskt får tilbud om de best egnede kandidatene.",
+      "month_from": "05",
+      "month_to": null,
+      "year_from": "2025",
+      "year_to": null,
+      "roles": [
+        {
+          "name": "Arkitekt og fullstack hovedutvikler",
+          "long_description": "I dette prosjektet inntar Thomas en sentral og drivende rolle som arkitekt og fullstack-utvikler for et av Cloudberries' mest ambisiøse og innovative initiativer. Han leder ansvaret for å designe og implementere en banebrytende, intelligent matching-plattform som skal revolusjonere måten selskapet kobler konsulenter med kundeoppdrag.\n\nLøsningen er bygget på en moderne og robust teknologistack, hvor backenden drives av Kotlin, Spring Boot og Postgres, mens et responsivt og dynamisk brukergrensesnitt er utviklet med React, Material-UI og Vite. Hele arkitekturen er fundamentert på prinsipper som Domain-Driven Design (DDD), SOLID og Clean Code. Det som virkelig skiller ut prosjektet er den avanserte bruken av kunstig intelligens. Systemet er dypt integrert mot ledende AI-plattformer som Google Gemini og OpenAI, i tillegg til Flowcase API. Denne unike kombinasjonen automatiserer ikke bare innhentingen av CV-data, men muliggjør også en svært grundig, nøyaktig og fullstendig nøytral analyse av hver konsulents kompetanse opp mot kundenes komplekse krav.\n\nPlattformen genererer en detaljert match-score med begrunnelser, noe som gir et objektivt og datadrevet beslutningsgrunnlag. Thomas' arbeid sikrer dermed en svært skalerbar og fremtidsrettet løsning som posisjonerer Cloudberries i forkant av den teknologiske utviklingen innen konsulentbransjen.\n\nFor å sikre høy og konsistent kodekvalitet er det etablert en to-lags automatisert kvalitetssikring i prosjektet:\n\n• Statisk analyse med Qodana: JetBrains’ Qodana er integrert i CI/CD-pipelinen som en streng kvalitetsport. Den kjører automatisk ved hver commit og avdekker potensielle feil, sårbarheter og “code smells” før kode merges til produksjon.\n\n• AI-basert kodevurdering med Gemini: En egenutviklet GitHub Action benytter Google Gemini til å gi kontekstuelle og AI-drevne tilbakemeldinger direkte i pull requests. Dette fungerer som en “virtuell arkitekt” som styrker logikk, struktur og lesbarhet – i sanntid. Verktøyet er spesifikt instruert til å evaluere koden i tråd med prinsippene i Domain-Driven Design (DDD), SOLID og Clean Code.\n\nFor å sikre en robust og skalerbar drift, er det implementert en fullautomatisert CI/CD-pipeline med GitHub Actions. Ved hver endring blir applikasjonen bygget og containerisert med Docker, før den publiseres til Azure Container Registry. Deretter blir den automatisk deployert til et skalerbart og sikkert miljø i Azure Container Apps. Hele denne prosessen, fra kode til sky, sikrer raske og forutsigbare leveranser og demonstrerer en helhetlig tilnærming til moderne systemutvikling."
+        }
+      ],
+      "project_experience_skills": [
+        {
+          "tags": "Spring Boot",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "PostgreSQL",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "React",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Material UI",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Github Actions",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Docker",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Docker Compose",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Google Gemini API",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "OpenAI API",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Flowcase API",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Qodana",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Google AI Studio",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Hibernate",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Azure",
+          "total_duration_in_years": 0
+        },
+        {
+          "tags": "Vite",
+          "total_duration_in_years": 0
+        }
+      ]
+    }
+  ],
+  "educations": [
+    {
+      "degree": "Bachelor",
+      "school": "Norges Informasjonsteknologiske Høgskole (NITH)",
+      "year_from": "2002",
+      "year_to": "2005"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Oracle Certified Associate, Java SE 7 Programmer",
+      "year": "2012"
+    },
+    {
+      "name": "Java SE 7 Programmer I",
+      "year": "2014"
+    }
+  ],
+  "courses": [
+    {
+      "name": "Practical DevOps and Continuous delivery",
+      "program": "Programutvikling",
+      "year": "2013"
+    },
+    {
+      "name": "Scrum master kurs",
+      "program": "ScrumMaster.dk",
+      "year": "2016"
+    },
+    {
+      "name": "Maven og subversion",
+      "program": "Programutvikling",
+      "year": "2008"
+    },
+    {
+      "name": "Spring Webservice",
+      "program": "Programutvikling",
+      "year": "2007"
+    },
+    {
+      "name": "Spring Core",
+      "program": "Programutvikling",
+      "year": "2007"
+    }
+  ],
+  "languages": [
+    {
+      "name": " Engelsk",
+      "level": "Flytende muntlig og skriftlig"
+    },
+    {
+      "name": null,
+      "level": null
+    },
+    {
+      "name": "Norsk skriftlig og muntlig",
+      "level": "Flytende muntlig og skriftlig"
+    }
+  ]
+}

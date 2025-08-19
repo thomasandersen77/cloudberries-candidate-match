@@ -1,6 +1,5 @@
 package no.cloudberries.candidatematch.integration.openai
 
-import BaseIntegrationTest
 import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
@@ -20,9 +19,9 @@ import kotlin.test.Ignore
 
 @Ignore("Only for manual testing")
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("integration")
 @Import(LiquibaseTestConfig::class)
-class CandidateMatchingServiceIntegrationTest: BaseIntegrationTest() {
+class CandidateMatchingServiceIntegrationTest {
     @Autowired
     lateinit var candidateMatchingService: CandidateMatchingService
     @Autowired

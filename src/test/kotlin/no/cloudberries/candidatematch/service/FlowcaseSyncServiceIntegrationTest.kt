@@ -2,6 +2,7 @@ package no.cloudberries.candidatematch.service
 
 import LiquibaseTestConfig
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import org.junit.Ignore
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -21,10 +22,28 @@ class FlowcaseSyncServiceIntegrationTest {
     private lateinit var flowcaseSyncService: FlowcaseSyncService
 
     @Test
-    fun `fetchCvForUser skal hente og parse en komplett CV`() {
+    fun `fetchCvForUser skal hente og parse en delvis CV`() {
         // Gitt (Arrange)
         val userId = "user123"
         val cvId = "cv456"
+
+        // Når (Act)
+        val cvDto = flowcaseSyncService.fetchCvForUser(userId, cvId)
+
+        // Da (Assert)
+        assertNotNull(cvDto)
+        assertEquals("Ola Nordmann", cvDto.name)
+        assertEquals("Senior Utvikler", cvDto.title?.text)
+        assertEquals(1, cvDto.projectExperiences.size)
+        assertEquals(2, cvDto.projectExperiences.first().projectExperienceSkills.size)
+        assertEquals("Java", cvDto.projectExperiences.first().projectExperienceSkills.first().tags?.text)
+    }
+
+
+    fun `fetchCvForUser skal hente og parse en komplett CV`() {
+        // Gitt (Arrange)
+        val userId = "thomas"
+        val cvId = "andersen"
 
         // Når (Act)
         val cvDto = flowcaseSyncService.fetchCvForUser(userId, cvId)

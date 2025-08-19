@@ -1,6 +1,5 @@
 package no.cloudberries.candidatematch.integration.flowcase
 
-import BaseIntegrationTest
 import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
@@ -17,7 +16,7 @@ import kotlin.test.Test
 @Import(LiquibaseTestConfig::class)
 @ActiveProfiles("test")
 @SpringBootTest
-class FlowcaseHttpClientIntegrationTest: BaseIntegrationTest() {
+class FlowcaseHttpClientIntegrationTest {
     @Autowired
     lateinit var flowcaseHttpClient: FlowcaseHttpClient
     @MockBean

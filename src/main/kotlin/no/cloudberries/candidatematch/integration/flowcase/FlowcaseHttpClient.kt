@@ -68,9 +68,6 @@ class FlowcaseHttpClient(
         }
     }
 
-    /**
-     * Henter en komplett CV, inkludert en liste av custom_tag_ids.
-     */
     fun fetchCompleteCv(userId: String, cvId: String): FlowcaseCvDto {
         val url = "${config.baseUrl}/v3/cvs/$userId/$cvId"
         val request = buildGetRequest(url)
