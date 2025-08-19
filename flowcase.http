@@ -1,0 +1,146 @@
+# Flowcase – Cloudberries tenant
+# Save as: flowcase-cv-sync.http
+# Docs references:
+# - Getting started + Users search (v2): https://docs.flowcase.com/getting-started-with-api :contentReference[oaicite:0]{index=0}
+# - Users: https://docs.flowcase.com/users :contentReference[oaicite:1]{index=1}
+# - CVs (Résumé), Reference Projects, Custom Tags, Masterdata sections in left nav: https://docs.flowcase.com/ :contentReference[oaicite:2]{index=2}
+# - Reference Projects page: https://docs.flowcase.com/reference-projects :contentReference[oaicite:3]{index=3}
+# - Custom Tags page: https://docs.flowcase.com/custom-tags :contentReference[oaicite:4]{index=4}
+
+@baseUrl = https://cloudberries.flowcase.com
+@token = 209dc5eb53a4115dea1bb7d1a9eacbd3
+@v2 = v2
+@v1 = v1
+@offset = 100
+@limit = 110
+
+# Handy placeholders (fill these as you discover IDs)
+@userId = 682c529a17774f004390031f
+@cvId = 682c529acf99685aed6fd592
+@projectId = REPLACE_PROJECT_ID
+
+###
+# 0) Who am I / simple auth sanity (many tenants allow this)
+GET {{baseUrl}}/api/{{v2}}/users/search
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "",
+  "offset": 0,
+  "limit": 1
+}
+
+> ./out/00_auth.json
+
+###
+# 1) Find users (discover people & get IDs, e-mail, dept, etc.)
+# Tip: adjust "query" or add filters supported by your tenant.
+POST {{baseUrl}}/api/{{v2}}/users/search
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "email=thomas.andersen@cloudberries.no",
+  "offset": {{offset}},
+  "limit": {{limit}}
+}
+
+> ./out/10_users_search.json
+
+###
+# 1b) Get one user by ID (details that may not be in CV JSON)
+GET {{baseUrl}}/api/v3/cvs/{{userId}}/{{cvId}}
+Authorization: Bearer {{token}}
+
+> ./out/11_user_by_id_{{userId}}.json
+
+###
+# 2) Find CVs (résumés) for one or more users
+# Note: on most tenants this is a POST /search with body filters.
+POST {{baseUrl}}/api/{{v2}}/cvs/search
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_ids": ["{{userId}}"],
+  "offset": {{offset}},
+  "limit": {{limit}}
+}
+
+> ./out/20_cvs_for_user_{{userId}}.json
+
+###
+# 2b) Fetch one CV (master or tailored) – full JSON payload
+GET {{baseUrl}}/api/{{v2}}/cvs/{{cvId}}
+Authorization: Bearer {{token}}
+
+> ./out/21_cv_by_id_{{cvId}}.json
+
+###
+# 3) Find Reference Projects linked to a user (or later to a CV)
+# You can search by user, customer, tags, etc., then hydrate details.
+POST {{baseUrl}}/api/{{v2}}/reference-projects/search
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_ids": ["{{userId}}"],
+  "offset": {{offset}},
+  "limit": {{limit}}
+}
+
+> ./out/30_refproj_for_user_{{userId}}.json
+
+###
+# 3b) Fetch one Reference Project by ID
+GET {{baseUrl}}/api/{{v2}}/reference-projects/{{projectId}}
+Authorization: Bearer {{token}}
+
+> ./out/31_refproj_by_id_{{projectId}}.json
+
+###
+# 4) Custom Tags (taxonomy used for skills/competencies)
+# Newer tenants: v2/custom-tags. Older: v1/custom_tags (underscore).
+# Try v2 first:
+GET {{baseUrl}}/api/{{v2}}/custom-tags
+Authorization: Bearer {{token}}
+
+> ./out/40_custom_tags_v2.json
+
+###
+# 4b) Fallback (if your tenant still uses v1 path)
+GET {{baseUrl}}/api/{{v1}}/custom_tags
+Authorization: Bearer {{token}}
+
+> ./out/41_custom_tags_v1.json
+
+###
+# 5) Masterdata – Technologies (tag list) with paging
+GET {{baseUrl}}/api/{{v1}}/masterdata/technologies/tags?offset={{offset}}&limit={{limit}}
+Authorization: Bearer {{token}}
+
+> ./out/50_masterdata_technologies_tags.json
+
+###
+# 5b) Masterdata – A single technology tag (with categories)
+# Replace the example ID with one you found in the previous call.
+GET {{baseUrl}}/api/{{v1}}/masterdata/technologies/tags/{{projectId}}?include_categories=true
+Authorization: Bearer {{token}}
+
+> ./out/51_masterdata_technology_tag_{{projectId}}.json
+
+###
+# 5c) Masterdata – CV roles (names)
+GET {{baseUrl}}/api/{{v1}}/masterdata/cv_roles/name?offset={{offset}}&limit={{limit}}
+Authorization: Bearer {{token}}
+
+> ./out/52_masterdata_cv_roles.json
+
+###
+# 6) Profile picture (if you need avatars for your CV pages)
+# Some tenants return a JSON envelope with a URL; others stream the image.
+GET {{baseUrl}}/api/{{v2}}/users/{{userId}}/profile-picture
+Authorization: Bearer {{token}}
+
+> ./out/60_profile_picture_{{userId}}

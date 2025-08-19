@@ -159,7 +159,7 @@ class OpenAIHttpClient(
             if (!response.isSuccessful) {
                 throw RuntimeException("Feil fra OpenAI API: ${response.code} - ${response.message}")
             }
-            return response.body.string()
+            return response.body?.string() ?: ""
         }
     }
 
@@ -180,7 +180,7 @@ class OpenAIHttpClient(
             if (!response.isSuccessful) {
                 throw RuntimeException("Feil fra OpenAI API: ${response.code} - ${response.message}")
             }
-            return response.body.string()
+            return response.body?.string() ?: ""
         }
     }
 

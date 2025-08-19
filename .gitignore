@@ -23,3 +23,6 @@ buildNumber.properties
 **.DS_Store
 .DS_Store
 .env
+
+ngrok_recovery_codes.txt
+
