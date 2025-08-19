@@ -45,7 +45,7 @@ class FlowcaseHttpClient(
      * Henter en liste med basis-informasjon for alle brukere/CV-er.
      * Denne gir oss `userId` og `cvId` som vi trenger for videre kall.
      */
-    fun fetchAllCvOverviews(): FlowcaseUserSearchResponse {
+    fun fetchAllUsers(): FlowcaseUserSearchResponse {
         val url = "${config.baseUrl}/v2/users/search?page=0&size=10000"
         val request = buildGetRequest(url)
 
@@ -54,11 +54,14 @@ class FlowcaseHttpClient(
                 throw RuntimeException("Error from Flowcase API (fetchAllCvOverviews): ${response.code} - ${response.message}")
             }
             val responseBodyString = response.body.string()
+
             return responseBodyString.let {
+                val typeRef = object : TypeReference<List<FlowcaseUserDTO>>() {}
+
                 FlowcaseUserSearchResponse(
                     mapper.readValue(
                         it,
-                        FlowcaseUserDTO::class.java
+                        typeRef
                     )
                 )
             }
@@ -68,13 +71,13 @@ class FlowcaseHttpClient(
     /**
      * Henter en komplett CV, inkludert en liste av custom_tag_ids.
      */
-    fun fetchCompleteCv(userId: String, cvId: String): FlowcaseCvDto? {
+    fun fetchCompleteCv(userId: String, cvId: String): FlowcaseCvDto {
         val url = "${config.baseUrl}/v3/cvs/$userId/$cvId"
         val request = buildGetRequest(url)
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                println("Warning: Could not fetch full resume for userId $userId / cvId $cvId. Status: ${response.code}")
-                return null
+                logger.warn { "Warning: Could not fetch full resume for userId $userId / cvId $cvId. Status: ${response.code}" }
+
             }
             return response.body.string().let {
                 mapper.readValue(

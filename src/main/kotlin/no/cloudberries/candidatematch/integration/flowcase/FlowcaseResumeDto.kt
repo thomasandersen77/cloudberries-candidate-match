@@ -42,9 +42,7 @@ data class FlowcaseUserDTO(
 )
 
 data class FlowcaseUserSearchResponse(
-    val flowcaseUserDTO: FlowcaseUserDTO,
-    val customTags: List<CustomTagDTO> = emptyList(),
-    val tags: List<MasterDataEntryDTO> = emptyList()
+    val flowcaseUserDTOList: List<FlowcaseUserDTO>,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

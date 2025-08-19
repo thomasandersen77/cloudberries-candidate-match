@@ -25,10 +25,13 @@ spring:
           order_inserts: true
           order_updates: true
     open-in-view: false
+  task:
+    scheduling:
+      enabled: false
 
 flowcase:
-  apiKey: ${FLOWCASE_API_KEY}
-  baseUrl: ${FLOWCASE_BASE_URL}
+  base-url: http://localhost:${wiremock.server.port}
+  api_key: "test-api-key"
 openai:
   apiKey: ${OPENAI_API_KEY}
   model: gpt-4

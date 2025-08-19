@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v2/users/search.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "[{\"user_id\":\"user123\",\"default_cv_id\":\"cv456\",\"name\":\"Ola Nordmann\",\"email\":\"ola@nordmann.no\",\"born_year\":1990}]"
+  }
+}
