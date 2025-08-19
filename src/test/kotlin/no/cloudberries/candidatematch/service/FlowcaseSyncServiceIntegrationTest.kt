@@ -2,9 +2,12 @@ package no.cloudberries.candidatematch.service
 
 import LiquibaseTestConfig
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import org.junit.Ignore
+import no.cloudberries.candidatematch.integration.flowcase.MultiLangText
+import no.cloudberries.candidatematch.integration.flowcase.TechnologySkillDto
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -39,7 +42,7 @@ class FlowcaseSyncServiceIntegrationTest {
         assertEquals("Java", cvDto.projectExperiences.first().projectExperienceSkills.first().tags?.text)
     }
 
-
+    @Test
     fun `fetchCvForUser skal hente og parse en komplett CV`() {
         // Gitt (Arrange)
         val userId = "thomas"
@@ -50,11 +53,11 @@ class FlowcaseSyncServiceIntegrationTest {
 
         // Da (Assert)
         assertNotNull(cvDto)
-        assertEquals("Ola Nordmann", cvDto.name)
-        assertEquals("Senior Utvikler", cvDto.title?.text)
-        assertEquals(1, cvDto.projectExperiences.size)
-        assertEquals(2, cvDto.projectExperiences.first().projectExperienceSkills.size)
-        assertEquals("Java", cvDto.projectExperiences.first().projectExperienceSkills.first().tags?.text)
+        assertEquals("thomas andersen",cvDto.name.lowercase())
+        assertEquals("Senior konsulent", cvDto.title?.text)
+        assertEquals(17, cvDto.projectExperiences.size)
+        assertEquals(0, cvDto.projectExperiences.first().projectExperienceSkills.size)
+            assertTrue {  cvDto.projectExperiences.flatMap { it.projectExperienceSkills }.contains(TechnologySkillDto(MultiLangText("Java", "Java"), 0)) }
     }
 
     @Test
