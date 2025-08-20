@@ -58,7 +58,9 @@ class HealthServiceTest {
     @Test
     fun `isDatabaseHealthy returnerer false når databasekall feiler`() {
         // Arrange: Simulerer at databasekallet kaster en exception
+
         every { query.setHint("jakarta.persistence.query.timeout", 5000 ).singleResult } throws RuntimeException("Database connection error")
+
 
         // Act: Kaller metoden
         val isHealthy = healthService.isDatabaseHealthy()

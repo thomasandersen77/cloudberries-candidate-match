@@ -17,6 +17,7 @@ import java.time.Instant
 import kotlin.math.pow
 import kotlin.test.Ignore
 
+// TODO: denne klassen bør slettes. Opprettet tidlig for å undersøke flowcase api
 @Ignore("Only for manual testing")
 class ApiClient(
     private val client: OkHttpClient = OkHttpClient(),
@@ -66,7 +67,7 @@ class ApiClient(
                         }
 
                         in 200..299 -> {
-                            val json = response.body?.string()
+                            val json = response.body.string()
                             // Create a TypeReference to describe the list of users
                             val typeRef = object : TypeReference<List<FlowcaseUser>>() {}
                             return mapper.readValue(json, typeRef)
@@ -102,9 +103,9 @@ fun main() {
             apiKey = apiKey
         )
         users.forEach { user ->
-            if (user.name == "Thomas Andersen") {
+            //if (user.name == "Thomas Andersen") {
                 println(message = "${user.userId}, ${user.defaultCvId}")
-            }
+            //}
         }
     } catch (e: Exception) {
         println("Request failed: $e")

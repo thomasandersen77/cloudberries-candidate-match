@@ -1,0 +1,20 @@
+VWEN4U2MWY
+G89ZSD3WXZ
+5BMN2KCYCM
+WS696MWTGB
+Z79B4BSDG9
+TEWB73CZRP
+76BKSW4F4J
+G4E66P4EWM
+98P84PXNFT
+34XZ8Q946N
+
+#
+https://dashboard.ngrok.com/get-started/setup/macos
+https://dashboard.ngrok.com/get-started/your-authtoken
+Free domain name
+ https://bulldog-sweeping-osprey.ngrok-free.app
+
+
+brew install ngrok
+ngrok http --url=bulldog-sweeping-osprey.ngrok-free.app 8080

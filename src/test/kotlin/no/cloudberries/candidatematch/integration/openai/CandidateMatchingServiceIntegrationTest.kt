@@ -67,14 +67,16 @@ class CandidateMatchingServiceIntegrationTest: BaseIntegrationTest() {
     fun matchCandidateGemini() {
         val userid = "682c529a17774f004390031f"
         val cvId = "682c529acf99685aed6fd592"
-        val resumeDTO = flowcaseHttpClient.fetchFullCvById(userid, cvId)
+
+        val resumeDTO = flowcaseHttpClient.fetchCompleteCv(userid, cvId)
+
         assertNotNull(resumeDTO)
         val resumeAsJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(resumeDTO)
         logger.info { resumeAsJson }
         val response = candidateMatchingService.matchCandidate(
             aiProvider = AIProvider.GEMINI,
-            //cv = resumeAsJson,
-            cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/Thomas-Andersen_CV.pdf"))),
+            cv = resumeAsJson,
+            //cv = PdfUtils.extractText(FileInputStream(File("src/test/resources/Thomas-Andersen_CV.pdf"))),
             //request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet/forespørsel_fra_polititet.pdf"))),
             request = PdfUtils.extractText(FileInputStream(File("src/test/resources/politiet_arkitektur.pdf"))),
             consultantName = "Thomas Andersen"

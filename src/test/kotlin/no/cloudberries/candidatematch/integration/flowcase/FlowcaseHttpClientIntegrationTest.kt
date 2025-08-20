@@ -27,11 +27,13 @@ class FlowcaseHttpClientIntegrationTest: BaseIntegrationTest() {
     }
 
     @Test
-    fun fetchAllCvs() {
+    fun fetchCompleteCv() {
         val userid = "682c529a17774f004390031f"
         val cvId = "682c529acf99685aed6fd592"
-        val response = flowcaseHttpClient.fetchFullCvById(userid, cvId)
+        val response = flowcaseHttpClient.fetchCompleteCv(userid, cvId)
+
         assertNotNull(response)
+
         println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response))
     }
 }

@@ -1,204 +1,201 @@
 package no.cloudberries.candidatematch.integration.flowcase
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 
-/**
- * A private helper class to cleanly deserialize multi-language text fields.
- * It captures both Norwegian ("no") and international/English ("int") values.
- * The public 'text' property implements the fallback logic, preferring Norwegian
- * but using English if the Norwegian value is null. This centralizes the
- * core requirement of the anti-corruption layer.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSerialize(using = MultiLangTextSerializer::class)
 data class MultiLangText(
     val no: String? = null,
     val int: String? = null
 ) {
-    /**
-     * Returns the Norwegian text if available, otherwise falls back to the English text.
-     */
-    val text: String?
-        get() = no ?: int
+    val text: String? get() = no ?: int
 }
 
-/**
- * Main DTO representing a full, processed CV (Resume) from the Flowcase API.
- *
- * This class acts as the Aggregate Root for the CV data, containing lists of
- * value-object-like DTOs for each section. It is designed with DDD principles
- * to provide a rich, domain-specific model that is clean and easy to use,
- * abstracting away the complexities of the external API.
- */
+class MultiLangTextSerializer : JsonSerializer<MultiLangText>() {
+    override fun serialize(value: MultiLangText?, gen: JsonGenerator?, serializers: SerializerProvider?) {
+        // Write the value of the 'text' getter as a string, or null if the object is null.
+        gen?.writeString(value?.text)
+    }
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class FlowcaseResumeDTO(
+data class FlowcaseUserDTO(
+    @JsonProperty("user_id")
+    val userId: String,
+    @JsonProperty("default_cv_id")
+    val cvId: String,
+    @JsonProperty("born_year")
+    val bornYear: Int,
+    @JsonProperty("name")
+    val name: String,
+    @JsonProperty("email")
+    val email: String,
+    // json representasjon av en full cv
+    @JsonIgnore
+    val flowcaseCvData: String? = null,
+)
+
+data class FlowcaseUserSearchResponse(
+    val flowcaseUserDTOList: List<FlowcaseUserDTO>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class FlowcaseCvDto(
+    @JsonProperty("_id")
+    val id: String,
+    @JsonProperty("user_id")
+    val userId: String,
+    val name: String,
+    val email: String,
+    val telefon: String?,
+    @JsonProperty("born_year")
+    val bornYear: Int?,
+    val title: MultiLangText?,
+    val nationality: MultiLangText?,
+    @JsonProperty("place_of_residence")
+    val placeOfResidence: MultiLangText?,
+    val technologies: List<TechnologyDto> = emptyList(),
+    @JsonProperty("key_qualifications")
+    val keyQualifications: List<KeyQualificationDto> = emptyList(),
+    @JsonProperty("work_experiences")
+    val workExperiences: List<WorkExperienceDto> = emptyList(),
+    @JsonProperty("project_experiences")
+    val projectExperiences: List<ProjectExperienceDto> = emptyList(),
+    val educations: List<EducationDto> = emptyList(),
+    val certifications: List<CertificationDto> = emptyList(),
+    val courses: List<CourseDto> = emptyList(),
+    val languages: List<LanguageDto> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TechnologyDto(
+    val category: MultiLangText?,
+    @JsonProperty("technology_skills")
+    val technologySkills: List<TechnologySkillDto> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TechnologySkillDto(
+    val tags: MultiLangText?,
+    @JsonProperty("total_duration_in_years")
+    val totalDurationInYears: Int?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class KeyQualificationDto(
+    val label: MultiLangText?,
+    @JsonProperty("long_description")
+    val longDescription: MultiLangText?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class WorkExperienceDto(
+    val employer: MultiLangText?,
+    @JsonProperty("month_from")
+    val monthFrom: String?,
+    @JsonProperty("month_to")
+    val monthTo: String?,
+    @JsonProperty("year_from")
+    val yearFrom: String?,
+    @JsonProperty("year_to")
+    val yearTo: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ProjectExperienceDto(
+    val customer: MultiLangText?,
+    val description: MultiLangText?,
+    @JsonProperty("long_description")
+    val longDescription: MultiLangText?,
+    @JsonProperty("month_from")
+    val monthFrom: String?,
+    @JsonProperty("month_to")
+    val monthTo: String?,
+    @JsonProperty("year_from")
+    val yearFrom: String?,
+    @JsonProperty("year_to")
+    val yearTo: String?,
+    val roles: List<RoleDto> = emptyList(),
+    @JsonProperty("project_experience_skills")
+    val projectExperienceSkills: List<TechnologySkillDto> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class RoleDto(
+    val name: MultiLangText?,
+    @JsonProperty("long_description")
+    val longDescription: MultiLangText?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EducationDto(
+    val degree: MultiLangText?,
+    val school: MultiLangText?,
+    @JsonProperty("year_from")
+    val yearFrom: String?,
+    @JsonProperty("year_to")
+    val yearTo: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CertificationDto(
+    val name: MultiLangText?,
+    val year: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CourseDto(
+    val name: MultiLangText?,
+    val program: MultiLangText?,
+    val year: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LanguageDto(
+    val name: MultiLangText?,
+    val level: MultiLangText?
+)
+
+/*
+    TODO: hypotesen er at jeg ikke trenger masterdata og custom tags
+    Sletter antagelig de dto´ene nedenfor
+ */
+// Legg til denne i FlowcaseResumeDTO.kt
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CustomTagDTO(
+    val id: String,
+    val name: String,
+    val category: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CustomTagCategoryDTO(
+    val id: String,
+    @JsonProperty("values") private val valuesNode: MultiLangText?,
+    @JsonProperty("custom_tags") val tags: List<CustomTagDefinitionDTO> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CustomTagDefinitionDTO(
+    val id: String,
+    @JsonProperty("values") val valuesNode: MultiLangText?,
+    @JsonProperty("custom_tag_category_id") val categoryId: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class MasterDataEntryDTO(
     @JsonProperty("_id")
     val id: String,
 
-    @JsonProperty("user_id")
-    val userId: String,
+    @JsonProperty("values")
+    val valuesNode: MultiLangText?,
 
-    val name: String,
-    val email: String,
-
-    @JsonProperty("born_year")
-    val bornYear: Int?,
-
-    // --- CV Sections ---
-    @JsonProperty("key_qualifications")
-    val keyQualifications: List<KeyQualificationDTO>?,
-
-    val educations: List<EducationDTO>?,
-
-    @JsonProperty("work_experiences")
-    val workExperiences: List<WorkExperienceDTO>?,
-
-    @JsonProperty("project_experiences")
-    val projectExperiences: List<ProjectExperienceDTO>?,
-
-    val languages: List<LanguageDTO>?,
-    val technologies: List<TechnologyCategoryDTO>?,
-    val certifications: List<CertificationDTO>?,
-    val courses: List<CourseDTO>?,
-
-    @JsonProperty("positions_of_trust")
-    val positions: List<PositionDTO>?,
-
-    @JsonProperty("cv_roles")
-    val cvRoles: List<CvRoleDTO>?,
-
-    @JsonProperty("highlighted_roles")
-    val highlightedRoles: List<HighlightedRoleDTO>?
+    @JsonProperty("category_ids")
+    val categoryIds: List<String>? = emptyList()
 )
-
-// --- Section-Specific DTOs ---
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class KeyQualificationDTO(
-    @JsonProperty("label") private val labelNode: MultiLangText?,
-    @JsonProperty("description") private val descriptionNode: MultiLangText?
-) {
-    val label: String? get() = labelNode?.text
-    val description: String? get() = descriptionNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class EducationDTO(
-    @JsonProperty("degree") private val degreeNode: MultiLangText?,
-    @JsonProperty("description") private val descriptionNode: MultiLangText?,
-    @JsonProperty("school") private val schoolNode: MultiLangText?,
-    @JsonProperty("year_from") val yearFrom: Int?,
-    @JsonProperty("year_to") val yearTo: Int?,
-    @JsonProperty("month_from") val monthFrom: Int?,
-    @JsonProperty("month_to") val monthTo: Int?
-) {
-    val degree: String? get() = degreeNode?.text
-    val description: String? get() = descriptionNode?.text
-    val school: String? get() = schoolNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class WorkExperienceDTO(
-    @JsonProperty("description") private val descriptionNode: MultiLangText?,
-    @JsonProperty("employer") private val employerNode: MultiLangText?,
-    @JsonProperty("year_from") val yearFrom: Int?,
-    @JsonProperty("year_to") val yearTo: Int?,
-    @JsonProperty("month_from") val monthFrom: Int?,
-    @JsonProperty("month_to") val monthTo: Int?
-) {
-    val description: String? get() = descriptionNode?.text
-    val employer: String? get() = employerNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class ProjectExperienceDTO(
-    @JsonProperty("customer") private val customerNode: MultiLangText?,
-    @JsonProperty("customer_description") private val customerDescriptionNode: MultiLangText?,
-    @JsonProperty("description") private val descriptionNode: MultiLangText?,
-    @JsonProperty("long_description") private val longDescriptionNode: MultiLangText?,
-    @JsonProperty("industry") private val industryNode: MultiLangText?,
-    @JsonProperty("year_from") val yearFrom: Int?,
-    @JsonProperty("year_to") val yearTo: Int?,
-    @JsonProperty("month_from") val monthFrom: Int?,
-    @JsonProperty("month_to") val monthTo: Int?,
-    @JsonProperty("disabled") val isDisabled: Boolean = false
-) {
-    val customer: String? get() = customerNode?.text
-    val customerDescription: String? get() = customerDescriptionNode?.text
-    val description: String? get() = descriptionNode?.text
-    val longDescription: String? get() = longDescriptionNode?.text
-    val industry: String? get() = industryNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class LanguageDTO(
-    @JsonProperty("language") private val languageNode: MultiLangText?,
-    @JsonProperty("level") private val levelNode: MultiLangText?
-) {
-    val language: String? get() = languageNode?.text
-    val level: String? get() = levelNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class TechnologyCategoryDTO(
-    @JsonProperty("category") private val categoryNode: MultiLangText?,
-    val skills: List<TechnologySkillDTO>?
-) {
-    val category: String? get() = categoryNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class TechnologySkillDTO(
-    val label: String?,
-    val level: Int?
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class CertificationDTO(
-    @JsonProperty("description") private val descriptionNode: MultiLangText?,
-    @JsonProperty("issuer") private val issuerNode: MultiLangText?,
-    @JsonProperty("name") private val nameNode: MultiLangText?,
-    val year: Int?,
-    val month: Int?
-) {
-    val description: String? get() = descriptionNode?.text
-    val issuer: String? get() = issuerNode?.text
-    val name: String? get() = nameNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class CourseDTO(
-    @JsonProperty("name") private val nameNode: MultiLangText?,
-    @JsonProperty("institution") private val institutionNode: MultiLangText?,
-    val year: Int?,
-    val month: Int?
-) {
-    val name: String? get() = nameNode?.text
-    val institution: String? get() = institutionNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class PositionDTO(
-    @JsonProperty("title") private val titleNode: MultiLangText?,
-    @JsonProperty("year_from") val yearFrom: Int?,
-    @JsonProperty("month_from") val monthFrom: Int?
-) {
-    val title: String? get() = titleNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class CvRoleDTO(
-    @JsonProperty("role") private val roleNode: MultiLangText?,
-    @JsonProperty("description") private val descriptionNode: MultiLangText?
-) {
-    val role: String? get() = roleNode?.text
-    val description: String? get() = descriptionNode?.text
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class HighlightedRoleDTO(
-    @JsonProperty("no") private val no: String?,
-    @JsonProperty("int") private val int: String?
-) {
-    val name: String? get() = no ?: int
-}
