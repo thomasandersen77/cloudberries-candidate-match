@@ -57,7 +57,8 @@ class FlowcaseSyncServiceIntegrationTest {
         assertEquals("Senior konsulent", cvDto.title?.text)
         assertEquals(17, cvDto.projectExperiences.size)
         assertEquals(0, cvDto.projectExperiences.first().projectExperienceSkills.size)
-            assertTrue {  cvDto.projectExperiences.flatMap { it.projectExperienceSkills }.contains(TechnologySkillDto(MultiLangText("Java", "Java"), 0)) }
+        assertTrue {  cvDto.projectExperiences.flatMap { it.projectExperienceSkills }.contains(TechnologySkillDto(MultiLangText("Java", "Java"), 0)) }
+        assertTrue {  cvDto.projectExperiences.flatMap { it.projectExperienceSkills }.contains(TechnologySkillDto(MultiLangText("Kotlin", "Kotlin"), 0)) }
     }
 
     @Test
