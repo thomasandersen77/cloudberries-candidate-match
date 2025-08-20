@@ -16,3 +16,8 @@ Accept: application/json
 
 ###
 GET http://localhost:8080/api/health
+
+# ngrok tunnel for testing
+# For testing lokalt med ngrok, bruk følgende URL:
+###
+GET https://bulldog-sweeping-osprey.ngrok-free.app/api/health

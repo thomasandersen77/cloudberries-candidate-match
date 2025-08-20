@@ -1,5 +1,4 @@
 package no.cloudberries.candidatematch.service
-
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk

@@ -18,7 +18,6 @@ class HealthServiceTest {
     private lateinit var aiHealthChecker1: AIHealthChecker
     private lateinit var aiHealthChecker2: AIHealthChecker
     private lateinit var entityManager: EntityManager
-    private lateinit var entityManagerFactory: EntityManagerFactory
     private lateinit var query: Query
 
     // Instans av klassen som testes
@@ -31,12 +30,9 @@ class HealthServiceTest {
         aiHealthChecker1 = mockk()
         aiHealthChecker2 = mockk()
         entityManager = mockk()
-        entityManagerFactory = mockk()
         query = mockk()
 
         // Setter opp mock-hierarkiet for databasetesten
-        every { entityManager.entityManagerFactory } returns entityManagerFactory
-        every { entityManagerFactory.createEntityManager() } returns entityManager
         every { entityManager.createNativeQuery(any()) } returns query
 
         // Oppretter en ny instans av HealthService med de mockede avhengighetene

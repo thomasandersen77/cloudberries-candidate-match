@@ -38,6 +38,4 @@ openai:
   assistantId: ${OPENAI_ASSISTANT_ID}
 gemini:
     apiKey: ${GEMINI_API_KEY}
-    model: gemini-1.5-pro-latest
-
-
+    model: gemini-2.5-pro-latest
