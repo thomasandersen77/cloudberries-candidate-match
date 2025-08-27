@@ -1,5 +1,7 @@
 package no.cloudberries.candidatematch.service
 
+import kotlinx.coroutines.test.runTest
+import no.cloudberries.candidatematch.service.consultants.SyncConsultantService
 import org.junit.Ignore
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -10,21 +12,21 @@ import org.springframework.test.context.ActiveProfiles
 
 @Ignore("Only for manual testing")
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("integration")
 @Import(LiquibaseTestConfig::class)
 class FlowcaseSyncServiceTestManuel {
 
     @Autowired
-    lateinit var flowcaseSyncService: FlowcaseSyncService
+    lateinit var syncConsultantService: SyncConsultantService
 
     @Test
     fun fetchUsers() {
-        val users = flowcaseSyncService.fetchUsers()
-        assertEquals(119, users.size)
+        val users = syncConsultantService.fetchUsers()
+        assertEquals(118, users.size)
     }
 
     @Test
-    fun fetchFullCvForUsers() {
-        flowcaseSyncService.fetchFullCvForUser()
+    fun fetchFullCvForUsers() = runTest {
+        syncConsultantService.fetchFullCvForUser()
     }
 }

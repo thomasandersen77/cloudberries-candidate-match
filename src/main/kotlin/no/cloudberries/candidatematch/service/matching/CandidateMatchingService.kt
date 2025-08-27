@@ -1,13 +1,15 @@
-package no.cloudberries.candidatematch.service
+package no.cloudberries.candidatematch.service.matching
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
+import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.domain.ai.AIResponse
 import no.cloudberries.candidatematch.domain.candidate.ConsultantMatchedEvent
 import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.candidatematch.service.ai.AIAnalysisService
+import no.cloudberries.candidatematch.service.ai.AIService
 import no.cloudberries.candidatematch.templates.MatchParams
 import no.cloudberries.candidatematch.templates.MatchPromptTemplate
 import no.cloudberries.candidatematch.templates.renderTemplate

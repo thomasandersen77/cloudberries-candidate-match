@@ -6,9 +6,10 @@ import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
-import no.cloudberries.candidatematch.service.CandidateMatchingService
+import no.cloudberries.candidatematch.service.matching.CandidateMatchingService
 import no.cloudberries.candidatematch.utils.PdfUtils
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,9 +17,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import java.io.File
 import java.io.FileInputStream
-import kotlin.test.Ignore
 
-@Ignore("Only for manual testing")
+@Disabled("Only for manual testing")
 @SpringBootTest
 @ActiveProfiles("integration")
 @Import(LiquibaseTestConfig::class)

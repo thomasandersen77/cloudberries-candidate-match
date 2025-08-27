@@ -7,6 +7,8 @@ import no.cloudberries.candidatematch.domain.Requirement
 import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.domain.ai.AIResponse
 import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
+import no.cloudberries.candidatematch.service.ai.AIAnalysisService
+import no.cloudberries.candidatematch.service.matching.CandidateMatchingService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

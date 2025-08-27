@@ -43,9 +43,7 @@ fun AISuggestionEntity.toDomain(entity: AISuggestionEntity): AISuggestion {
         cvId = entity.cvId,
         matchScore = entity.matchScore,
         justification = entity.justification,
-        projectRequest = entity.projectRequest?.toProjectRequest()
+        projectRequest = null // Break circular dependency - don't convert projectRequest here
     )
-
-
 }
 

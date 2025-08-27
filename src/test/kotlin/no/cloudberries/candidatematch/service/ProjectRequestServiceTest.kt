@@ -4,12 +4,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.entities.ProjectRequestEntity
 import no.cloudberries.candidatematch.entities.RequestStatus
 import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
+import no.cloudberries.candidatematch.service.ai.AIService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

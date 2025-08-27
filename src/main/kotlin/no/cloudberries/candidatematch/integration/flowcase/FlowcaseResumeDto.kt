@@ -14,13 +14,13 @@ data class MultiLangText(
     val no: String? = null,
     val int: String? = null
 ) {
-    val text: String? get() = no ?: int
+    val text: String get() = no ?: int ?: ""
 }
 
 class MultiLangTextSerializer : JsonSerializer<MultiLangText>() {
-    override fun serialize(value: MultiLangText?, gen: JsonGenerator?, serializers: SerializerProvider?) {
-        // Write the value of the 'text' getter as a string, or null if the object is null.
-        gen?.writeString(value?.text)
+    override fun serialize(value: MultiLangText, gen: JsonGenerator, serializers: SerializerProvider) {
+        // write empty string if no translation is available
+        gen.writeString(value.text)
     }
 }
 
@@ -42,13 +42,13 @@ data class FlowcaseUserDTO(
 )
 
 data class FlowcaseUserSearchResponse(
-    val flowcaseUserDTOList: List<FlowcaseUserDTO>,
+    val flowcaseUserDTOs: List<FlowcaseUserDTO>,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FlowcaseCvDto(
     @JsonProperty("_id")
-    val id: String,
+    val cvId: String,
     @JsonProperty("user_id")
     val userId: String,
     val name: String,
@@ -160,42 +160,4 @@ data class CourseDto(
 data class LanguageDto(
     val name: MultiLangText?,
     val level: MultiLangText?
-)
-
-/*
-    TODO: hypotesen er at jeg ikke trenger masterdata og custom tags
-    Sletter antagelig de dto´ene nedenfor
- */
-// Legg til denne i FlowcaseResumeDTO.kt
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class CustomTagDTO(
-    val id: String,
-    val name: String,
-    val category: String?
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class CustomTagCategoryDTO(
-    val id: String,
-    @JsonProperty("values") private val valuesNode: MultiLangText?,
-    @JsonProperty("custom_tags") val tags: List<CustomTagDefinitionDTO> = emptyList()
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class CustomTagDefinitionDTO(
-    val id: String,
-    @JsonProperty("values") val valuesNode: MultiLangText?,
-    @JsonProperty("custom_tag_category_id") val categoryId: String
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class MasterDataEntryDTO(
-    @JsonProperty("_id")
-    val id: String,
-
-    @JsonProperty("values")
-    val valuesNode: MultiLangText?,
-
-    @JsonProperty("category_ids")
-    val categoryIds: List<String>? = emptyList()
 )

@@ -1,4 +1,4 @@
-package no.cloudberries.candidatematch.service
+package no.cloudberries.candidatematch.service.ai
 
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider

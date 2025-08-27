@@ -2,7 +2,7 @@ package no.cloudberries.candidatematch.controllers.matching
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.service.AIService
+import no.cloudberries.candidatematch.service.ai.AIService
 import no.cloudberries.candidatematch.utils.PdfUtils
 import org.springframework.web.bind.annotation.*
 import java.io.File

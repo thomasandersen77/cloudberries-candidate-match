@@ -2,7 +2,7 @@ package no.cloudberries.candidatematch.controllers
 
 import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.domain.ai.AIResponse
-import no.cloudberries.candidatematch.service.AIAnalysisService
+import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import org.springframework.web.bind.annotation.*
 
 @RestController
