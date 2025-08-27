@@ -1,4 +1,4 @@
-package no.cloudberries.candidatematch.integration.config
+package no.cloudberries.candidatematch.infrastructure.integration.config
 
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Configuration

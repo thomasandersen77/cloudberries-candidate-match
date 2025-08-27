@@ -1,11 +1,12 @@
-package no.cloudberries.candidatematch.integration.flowcase
+package no.cloudberries.candidatematch.infrastructure.integration.flowcase
 
 import LiquibaseTestConfig
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
+import no.cloudberries.candidatematch.infrastructure.repositories.ProjectRequestRepository
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

@@ -4,9 +4,9 @@ import no.cloudberries.candidatematch.domain.AISuggestion
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.domain.toEntity
-import no.cloudberries.candidatematch.entities.RequestStatus
-import no.cloudberries.candidatematch.repositories.ProjectRequestRepository
-import no.cloudberries.candidatematch.entities.toProjectRequest
+import no.cloudberries.candidatematch.infrastructure.entities.RequestStatus
+import no.cloudberries.candidatematch.infrastructure.repositories.ProjectRequestRepository
+import no.cloudberries.candidatematch.infrastructure.entities.toProjectRequest
 import no.cloudberries.candidatematch.service.ai.AIService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

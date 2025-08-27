@@ -1,9 +1,9 @@
 package no.cloudberries.candidatematch.domain
 
 import no.cloudberries.candidatematch.domain.candidate.Skill
-import no.cloudberries.candidatematch.entities.ProjectRequestEntity
-import no.cloudberries.candidatematch.entities.RequestStatus
-import no.cloudberries.candidatematch.repositories.fromDomain
+import no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity
+import no.cloudberries.candidatematch.infrastructure.entities.RequestStatus
+import no.cloudberries.candidatematch.infrastructure.entities.fromDomain
 import java.time.LocalDateTime
 
 

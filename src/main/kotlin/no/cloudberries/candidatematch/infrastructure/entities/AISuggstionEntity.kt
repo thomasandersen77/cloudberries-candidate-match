@@ -1,10 +1,8 @@
-package no.cloudberries.candidatematch.repositories
+package no.cloudberries.candidatematch.infrastructure.entities
 
 import jakarta.persistence.*
 import no.cloudberries.candidatematch.domain.AISuggestion
 import no.cloudberries.candidatematch.domain.toEntity
-import no.cloudberries.candidatematch.entities.ProjectRequestEntity
-import no.cloudberries.candidatematch.entities.toProjectRequest
 
 @Entity
 data class AISuggestionEntity(

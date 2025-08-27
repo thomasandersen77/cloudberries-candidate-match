@@ -1,4 +1,4 @@
-package no.cloudberries.candidatematch.integration.openai
+package no.cloudberries.candidatematch.infrastructure.integration.openai
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration

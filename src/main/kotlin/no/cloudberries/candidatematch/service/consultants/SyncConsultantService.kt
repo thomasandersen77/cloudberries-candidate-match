@@ -3,9 +3,9 @@ package no.cloudberries.candidatematch.service.consultants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.integration.flowcase.FlowcaseCvDto
-import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
-import no.cloudberries.candidatematch.integration.flowcase.FlowcaseUserDTO
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseCvDto
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseUserDTO
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 

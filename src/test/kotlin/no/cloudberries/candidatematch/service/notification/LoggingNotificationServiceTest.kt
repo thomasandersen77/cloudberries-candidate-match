@@ -3,10 +3,10 @@ package no.cloudberries.candidatematch.service.notification
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
-import no.cloudberries.candidatematch.entities.ProjectRequestEntity
-import no.cloudberries.candidatematch.entities.RequestStatus
-import no.cloudberries.candidatematch.entities.toProjectRequest
-import no.cloudberries.candidatematch.repositories.AISuggestionEntity
+import no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity
+import no.cloudberries.candidatematch.infrastructure.entities.RequestStatus
+import no.cloudberries.candidatematch.infrastructure.entities.toProjectRequest
+import no.cloudberries.candidatematch.infrastructure.entities.AISuggestionEntity
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach

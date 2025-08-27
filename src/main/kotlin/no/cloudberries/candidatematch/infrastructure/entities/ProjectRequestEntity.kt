@@ -1,13 +1,10 @@
-package no.cloudberries.candidatematch.entities
+package no.cloudberries.candidatematch.infrastructure.entities
 
 import jakarta.persistence.*
 import no.cloudberries.candidatematch.domain.CustomerId
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
-import no.cloudberries.candidatematch.repositories.AISuggestionEntity
-import no.cloudberries.candidatematch.repositories.toDomain
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity

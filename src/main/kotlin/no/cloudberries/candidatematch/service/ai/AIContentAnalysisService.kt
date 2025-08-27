@@ -2,7 +2,7 @@ package no.cloudberries.candidatematch.service.ai
 
 import no.cloudberries.candidatematch.domain.ai.AIResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.integration.ai.AIContentGeneratorFactory
+import no.cloudberries.candidatematch.infrastructure.integration.ai.AIContentGeneratorFactory
 import org.springframework.stereotype.Service
 
 @Service

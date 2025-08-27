@@ -1,5 +1,5 @@
 import jakarta.persistence.*
-import no.cloudberries.candidatematch.entities.ProjectRequestEntity
+import no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity
 
 @Entity
 @Table(name = "customer")

@@ -1,11 +1,11 @@
-package no.cloudberries.candidatematch.integration.openai
+package no.cloudberries.candidatematch.infrastructure.integration.openai
 
 import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.integration.flowcase.FlowcaseHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.service.matching.CandidateMatchingService
 import no.cloudberries.candidatematch.utils.PdfUtils
 import org.junit.jupiter.api.Assertions.assertNotNull

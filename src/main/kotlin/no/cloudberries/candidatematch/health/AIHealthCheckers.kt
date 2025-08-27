@@ -1,9 +1,9 @@
 package no.cloudberries.candidatematch.health
 
-import no.cloudberries.candidatematch.integration.gemini.GeminiConfig
-import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
-import no.cloudberries.candidatematch.integration.openai.OpenAIConfig
-import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiConfig
+import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIConfig
+import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIHttpClient
 import org.springframework.stereotype.Service
 
 // I HealthService.kt

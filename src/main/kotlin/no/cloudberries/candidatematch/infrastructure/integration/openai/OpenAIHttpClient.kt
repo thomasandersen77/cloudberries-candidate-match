@@ -1,6 +1,7 @@
-package no.cloudberries.candidatematch.integration.openai
+package no.cloudberries.candidatematch.infrastructure.integration.openai
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
 import no.cloudberries.candidatematch.domain.ai.AIResponse
 import okhttp3.MediaType.Companion.toMediaType
@@ -9,13 +10,12 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
 
 @Service
 class OpenAIHttpClient(
     private val config: OpenAIConfig
 ): AIContentGenerator {
-    private val logger = mu.KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
     private val mapper = jacksonObjectMapper()
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)

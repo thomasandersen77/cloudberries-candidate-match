@@ -1,9 +1,9 @@
-package no.cloudberries.candidatematch.integration.ai
+package no.cloudberries.candidatematch.infrastructure.integration.ai
 
 import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
 import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.integration.gemini.GeminiHttpClient
-import no.cloudberries.candidatematch.integration.openai.OpenAIHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIHttpClient
 import org.springframework.stereotype.Component
 
 @Component

@@ -1,4 +1,4 @@
-package no.cloudberries.candidatematch.integration.flowcase
+package no.cloudberries.candidatematch.infrastructure.integration.flowcase
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties

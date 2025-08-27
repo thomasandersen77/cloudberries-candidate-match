@@ -1,11 +1,10 @@
-package no.cloudberries.candidatematch.integration.gemini
+package no.cloudberries.candidatematch.infrastructure.integration.gemini
 
 import com.google.genai.Client
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
 import no.cloudberries.candidatematch.domain.ai.AIGenerationException
 import no.cloudberries.candidatematch.domain.ai.AIResponse
-import okhttp3.Request
 import org.springframework.stereotype.Service
 
 @Service

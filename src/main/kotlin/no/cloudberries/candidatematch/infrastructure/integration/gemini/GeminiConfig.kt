@@ -1,11 +1,11 @@
-package no.cloudberries.candidatematch.integration.flowcase
+package no.cloudberries.candidatematch.infrastructure.integration.gemini
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConfigurationProperties(prefix = "flowcase")
-class FlowcaseConfig {
-    lateinit var baseUrl: String
+@ConfigurationProperties(prefix = "gemini")
+class GeminiConfig {
     lateinit var apiKey: String
+    lateinit var model: String
 }

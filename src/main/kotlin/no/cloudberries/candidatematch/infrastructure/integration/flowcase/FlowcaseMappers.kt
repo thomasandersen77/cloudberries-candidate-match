@@ -1,7 +1,6 @@
-package no.cloudberries.candidatematch.integration.flowcase
+package no.cloudberries.candidatematch.infrastructure.integration.flowcase
 
 import no.cloudberries.candidatematch.domain.consultant.Certification
-import no.cloudberries.candidatematch.domain.consultant.Consultant
 import no.cloudberries.candidatematch.domain.consultant.Course
 import no.cloudberries.candidatematch.domain.consultant.Cv
 import no.cloudberries.candidatematch.domain.consultant.Education

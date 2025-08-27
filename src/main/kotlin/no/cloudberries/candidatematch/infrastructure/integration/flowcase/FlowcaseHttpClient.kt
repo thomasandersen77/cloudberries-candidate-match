@@ -1,9 +1,9 @@
-package no.cloudberries.candidatematch.integration.flowcase
+package no.cloudberries.candidatematch.infrastructure.integration.flowcase
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.cloudberries.candidatematch.domain.consultant.Cv
+import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.springframework.stereotype.Service
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 class FlowcaseHttpClient(
     private val config: FlowcaseConfig
 ) {
-    private val logger = mu.KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
     private val bearerToken = "Bearer ${config.apiKey}"
     private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
     private val client = OkHttpClient.Builder()
