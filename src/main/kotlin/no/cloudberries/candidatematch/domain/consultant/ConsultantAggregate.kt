@@ -1,5 +1,7 @@
 package no.cloudberries.candidatematch.domain.consultant
 
+import no.cloudberries.candidatematch.domain.Identifiable
+import org.springframework.stereotype.Component
 import java.time.Year
 import java.time.YearMonth
 
@@ -9,16 +11,147 @@ import java.time.YearMonth
 // All business rules and consistency for the CV are enforced through this class.
 // =================================================================================
 
-data class Consultant(
-    val id: String, // e.g., user_id from Flowcase
-    val defaultCvId: String,
+data class PersonalInfo(
     val name: String,
     val email: String,
-    val birthYear: Year,
+    val birthYear: Year?
+)
+
+data class Consultant(
+    override val id: String,
+    val defaultCvId: String,
+    val personalInfo: PersonalInfo,
     val cv: Cv,
     val cvAsJson: String, // Useful for persistence without complex mapping
-    val skills: List<Skill> = mutableListOf()
-)
+    val skills: List<Skill> = emptyList()
+) : Identifiable {
+
+    class Builder(
+        private val id: String,
+        private val defaultCvId: String
+    ) {
+        private var personalInfo: PersonalInfo? = null
+        private var cv: Cv = Cv(id = defaultCvId) // Default empty CV
+        private var cvAsJson: String = ""
+        private var skills: List<Skill> = emptyList()
+
+        fun withPersonalInfo(personalInfo: PersonalInfo) = apply {
+            this.personalInfo = personalInfo
+        }
+
+        fun withCv(cv: Cv) = apply {
+            this.cv = cv
+        }
+
+        fun withCvAsJson(cvAsJson: String) = apply {
+            this.cvAsJson = cvAsJson
+        }
+
+        fun withSkills(skills: List<Skill>) = apply {
+            this.skills = skills
+        }
+
+        fun build(): Consultant {
+            requireNotNull(personalInfo) { "Personal info must be set" }
+            require(cvAsJson.isNotBlank()) { "CV as JSON must be set" }
+
+            return Consultant(
+                id = id,
+                defaultCvId = defaultCvId,
+                personalInfo = personalInfo!!,
+                cv = cv,
+                cvAsJson = cvAsJson,
+                skills = skills
+            )
+        }
+    }
+
+    companion object {
+        fun builder(id: String, defaultCvId: String) = Builder(
+            id,
+            defaultCvId
+        )
+    }
+}
+
+@Component
+class ConsultantFactory {
+
+    fun createConsultant(
+        id: String,
+        defaultCvId: String,
+        name: String,
+        email: String,
+        birthYear: Year?,
+        cv: Cv? = null,
+        cvAsJson: String = "",
+        skills: List<Skill> = emptyList()
+    ): Consultant {
+        val personalInfo = PersonalInfo(
+            name = name,
+            email = email,
+            birthYear = birthYear
+        )
+
+        return Consultant.builder(
+            id,
+            defaultCvId
+        )
+            .withPersonalInfo(personalInfo)
+            .withCv(cv ?: Cv(id = defaultCvId))
+            .withCvAsJson(cvAsJson)
+            .withSkills(skills)
+            .build()
+    }
+
+    fun updatePersonalInfo(
+        consultant: Consultant,
+        name: String? = null,
+        email: String? = null,
+        birthYear: Year? = null
+    ): Consultant {
+        val updatedPersonalInfo = consultant.personalInfo.copy(
+            name = name ?: consultant.personalInfo.name,
+            email = email ?: consultant.personalInfo.email,
+            birthYear = birthYear ?: consultant.personalInfo.birthYear
+        )
+
+        return Consultant.builder(
+            consultant.id,
+            consultant.defaultCvId
+        )
+            .withPersonalInfo(updatedPersonalInfo)
+            .withCv(consultant.cv)
+            .withCvAsJson(consultant.cvAsJson)
+            .withSkills(consultant.skills)
+            .build()
+    }
+
+    fun updateCv(consultant: Consultant, cv: Cv, cvAsJson: String): Consultant {
+        return Consultant.builder(
+            consultant.id,
+            consultant.defaultCvId
+        )
+            .withPersonalInfo(consultant.personalInfo)
+            .withCv(cv)
+            .withCvAsJson(cvAsJson)
+            .withSkills(consultant.skills)
+            .build()
+    }
+
+    fun updateSkills(consultant: Consultant, skills: List<Skill>): Consultant {
+        return Consultant.builder(
+            consultant.id,
+            consultant.defaultCvId
+        )
+            .withPersonalInfo(consultant.personalInfo)
+            .withCv(consultant.cv)
+            .withCvAsJson(consultant.cvAsJson)
+            .withSkills(skills)
+            .build()
+    }
+}
+
 
 // =================================================================================
 // ENTITIES WITHIN THE AGGREGATE
@@ -26,21 +159,19 @@ data class Consultant(
 // Their lifecycle is tied to the Consultant.
 // =================================================================================
 
+
 data class Cv(
-    val id: String,
-    val consultantId: String,
-    val title: String,
-    val nationality: String,
-    val residence: String,
-    val keyQualifications: List<KeyQualification>,
-    val skillCategories: List<SkillCategory>,
-    val workExperiences: List<WorkExperience>,
-    val projectExperiences: List<ProjectExperience>,
-    val educations: List<Education>,
-    val certifications: List<Certification>,
-    val courses: List<Course>,
-    val languages: List<LanguageSkill>
-)
+    override val id: String,
+    val keyQualifications: List<KeyQualification> = emptyList(),
+    val workExperiences: List<WorkExperience> = emptyList(),
+    val projectExperiences: List<ProjectExperience> = emptyList(),
+    val educations: List<Education> = emptyList(),
+    val certifications: List<Certification> = emptyList(),
+    val courses: List<Course> = emptyList(),
+    val languages: List<LanguageSkill> = emptyList(),
+    val skillCategories: List<SkillCategory> = emptyList(),
+    val qualityScore: Int? = null,
+) : Identifiable
 
 data class ProjectExperience(
     val customer: String,
@@ -108,4 +239,12 @@ data class Course(
 data class LanguageSkill(
     val name: String,
     val level: String
+)
+
+data class CvUserInfo(
+    val userId: String,
+    val cvId: String,
+    val name: String,
+    val bornYear: Int,
+    val email: String,
 )

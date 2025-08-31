@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.infrastructure.repositories.ProjectRequestRepository
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Disabled
@@ -29,6 +28,14 @@ class FlowcaseHttpClientIntegrationTest {
     val mapper = jacksonObjectMapper().apply {
         writerWithDefaultPrettyPrinter()
     }.registerModule(JavaTimeModule())
+
+    @Test
+    fun fetchSingleConsultant() {
+        val userId = "682c529a17774f004390031f"
+        val response = flowcaseHttpClient.fetchUserById(userId)
+        assertNotNull(response)
+        println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response))
+    }
 
     @Test
     fun fetchCompleteCv() {

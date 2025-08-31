@@ -4,17 +4,16 @@
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{ISO8601} %highlight(%-5level) [%blue(%t)] %yellow(%C{1}): %msg%n%throwable</pattern>
+            <pattern>%d{ISO8601} %highlight(%-5level) [%blue(%t)] %yellow(%C{1}.%M:%L): %msg%n%throwable</pattern>
         </encoder>
     </appender>
 
-    <!-- LOG everything at INFO level -->
+
     <root level="info">
         <appender-ref ref="Console" />
     </root>
 
-    <!-- LOG "com.yourpackage*" at TRACE level -->
-    <logger name="no.cloudberries" level="trace" additivity="false">
+    <logger name="no.cloudberries" level="info" additivity="false">
         <appender-ref ref="Console" />
     </logger>
 </configuration>

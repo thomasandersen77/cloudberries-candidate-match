@@ -1,17 +1,6 @@
 package no.cloudberries.candidatematch.infrastructure.integration.flowcase
 
-import no.cloudberries.candidatematch.domain.consultant.Certification
-import no.cloudberries.candidatematch.domain.consultant.Course
-import no.cloudberries.candidatematch.domain.consultant.Cv
-import no.cloudberries.candidatematch.domain.consultant.Education
-import no.cloudberries.candidatematch.domain.consultant.KeyQualification
-import no.cloudberries.candidatematch.domain.consultant.LanguageSkill
-import no.cloudberries.candidatematch.domain.consultant.ProjectExperience
-import no.cloudberries.candidatematch.domain.consultant.Role
-import no.cloudberries.candidatematch.domain.consultant.Skill
-import no.cloudberries.candidatematch.domain.consultant.SkillCategory
-import no.cloudberries.candidatematch.domain.consultant.TimePeriod
-import no.cloudberries.candidatematch.domain.consultant.WorkExperience
+import no.cloudberries.candidatematch.domain.consultant.*
 import java.time.Year
 import java.time.YearMonth
 import java.time.format.DateTimeParseException
@@ -30,7 +19,16 @@ private fun toYearMonth(year: String?, month: String?): YearMonth? {
 }
 
 // A helper function to safely parse a year string.
-private fun toYear(year: String?): Year? {
+fun Int.toYear(): Year? {
+    return try {
+        Year.parse(this.toString())
+    } catch (_: DateTimeParseException) {
+        null
+    }
+}
+
+
+fun toYear(year: String?): Year? {
     if (year == null) return null
     return try {
         Year.parse(year)
@@ -56,7 +54,7 @@ fun TechnologySkillDto.toDomain(): Skill {
 fun TechnologyDto.toDomain(): SkillCategory {
     return SkillCategory(
         name = this.category?.toDomain() ?: "",
-        skills = this.technologySkills.map { it.toDomain() }
+        skills = this.technologySkills.filter { !it.disabled }.map { it.toDomain() }
     )
 }
 
@@ -148,25 +146,33 @@ fun LanguageDto.toDomain(): LanguageSkill {
         level = this.level?.toDomain() ?: ""
     )
 }
+/*
+*//**
+ * Maps the summary user information from Flowcase to the Consultant domain object.
+ *//*
+fun FlowcaseUserDTO.toDomain(): Consultant {
+    return Consultant(
+        id = this.userId,
+        name = this.name,
+        email = this.email,
+        yearOfBirth = this.bornYear
+    )
+}
 
-/**
- * Main mapper for the entire CV.
- */
+*/
+// * Main mapper for the entire CV.
+
 fun FlowcaseCvDto.toDomain(): Cv {
     return Cv(
         id = this.cvId,
-        consultantId = this.userId,
-        title = this.title?.toDomain() ?: "",
-        nationality = this.nationality?.toDomain() ?: "",
-        residence = this.placeOfResidence?.toDomain()  ?: "",
-        keyQualifications = this.keyQualifications.map { it.toDomain() },
-        skillCategories = this.technologies.map { it.toDomain() },
-        workExperiences = this.workExperiences.map { it.toDomain() },
-        projectExperiences = this.projectExperiences.map { it.toDomain() },
-        educations = this.educations.map { it.toDomain() },
-        certifications = this.certifications.map { it.toDomain() },
-        courses = this.courses.map { it.toDomain() },
-        languages = this.languages.map { it.toDomain() }
+        keyQualifications = this.keyQualifications.filter { !it.disabled }.map { it.toDomain() },
+        skillCategories = this.technologies.filter { !it.disabled }.map { it.toDomain() },
+        workExperiences = this.workExperiences.filter { !it.disabled }.map { it.toDomain() },
+        projectExperiences = this.projectExperiences.filter { !it.disabled }.map { it.toDomain() },
+        educations = this.educations.filter { !it.disabled }.map { it.toDomain() },
+        certifications = this.certifications.filter { !it.disabled }.map { it.toDomain() },
+        courses = this.courses.filter { !it.disabled }.map { it.toDomain() },
+        languages = this.languages.filter { !it.disabled }.map { it.toDomain() }
     )
 }
 

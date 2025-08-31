@@ -59,16 +59,46 @@ class FlowcaseHttpClient(
             return responseBodyString.let {
                 val typeRef = object : TypeReference<List<FlowcaseUserDTO>>() {}
 
-
                 val flowcaseUserDTOS = mapper.readValue(
                     it,
                     typeRef
                 )
-                logger.info { "Fetched ${flowcaseUserDTOS.size} users from Flowcase API" }
 
+                logger.info { "Fetched ${flowcaseUserDTOS.size} users from Flowcase API" }
                 FlowcaseUserSearchResponse(
                     flowcaseUserDTOS
                 )
+            }
+        }
+    }
+
+    fun fetchUserById(userId: String): FlowcaseUserResponse {
+        val url = "${config.baseUrl}/v1/users/$userId"
+        val request = buildGetRequest(url)
+        logger.info { "Fetching user with userId $userId and url $url" }
+        client.newCall(request).execute().use { response ->
+            when {
+                response.isSuccessful -> {
+                    return response.body.string().let {
+                        FlowcaseUserResponse.Found(
+                            mapper.readValue(
+                                it,
+                                FlowcaseUserDTO::class.java
+                            ).also {
+                                logger.info { "Fetched user with userId $userId" }
+                            }
+                        )
+                    }
+                }
+
+                response.code == 404 -> {
+                    logger.error { "User with userId $userId not found in Flowcase API" }
+                    return FlowcaseUserResponse.NotFound
+                }
+
+                else -> {
+                    throw RuntimeException("Error from Flowcase API (fetchUserById($userId)): ${response.code} - ${response.message}")
+                }
             }
         }
     }

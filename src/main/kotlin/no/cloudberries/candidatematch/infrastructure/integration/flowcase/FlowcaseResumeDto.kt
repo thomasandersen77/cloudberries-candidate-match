@@ -1,6 +1,5 @@
 package no.cloudberries.candidatematch.infrastructure.integration.flowcase
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
@@ -24,6 +23,22 @@ class MultiLangTextSerializer : JsonSerializer<MultiLangText>() {
     }
 }
 
+/**
+ * Represents the result of fetching a single user from the Flowcase API.
+ * It can either be successful (`Found`) or expectedly not found (`NotFound`).
+ */
+sealed interface FlowcaseUserResponse {
+    /**
+     * Represents a successful response containing the user's CV data.
+     */
+    data class Found(val userDTO: FlowcaseUserDTO) : FlowcaseUserResponse
+
+    /**
+     * Represents that the user was not found (HTTP 404).
+     */
+    data object NotFound : FlowcaseUserResponse
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FlowcaseUserDTO(
     @JsonProperty("user_id")
@@ -35,10 +50,7 @@ data class FlowcaseUserDTO(
     @JsonProperty("name")
     val name: String,
     @JsonProperty("email")
-    val email: String,
-    // json representasjon av en full cv
-    @JsonIgnore
-    val flowcaseCvData: String? = null,
+    val email: String
 )
 
 data class FlowcaseUserSearchResponse(
@@ -77,21 +89,24 @@ data class FlowcaseCvDto(
 data class TechnologyDto(
     val category: MultiLangText?,
     @JsonProperty("technology_skills")
-    val technologySkills: List<TechnologySkillDto> = emptyList()
+    val technologySkills: List<TechnologySkillDto> = emptyList(),
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TechnologySkillDto(
     val tags: MultiLangText?,
     @JsonProperty("total_duration_in_years")
-    val totalDurationInYears: Int?
+    val totalDurationInYears: Int?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class KeyQualificationDto(
     val label: MultiLangText?,
     @JsonProperty("long_description")
-    val longDescription: MultiLangText?
+    val longDescription: MultiLangText?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -104,7 +119,8 @@ data class WorkExperienceDto(
     @JsonProperty("year_from")
     val yearFrom: String?,
     @JsonProperty("year_to")
-    val yearTo: String?
+    val yearTo: String?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -123,14 +139,17 @@ data class ProjectExperienceDto(
     val yearTo: String?,
     val roles: List<RoleDto> = emptyList(),
     @JsonProperty("project_experience_skills")
-    val projectExperienceSkills: List<TechnologySkillDto> = emptyList()
+    val projectExperienceSkills: List<TechnologySkillDto> = emptyList(),
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RoleDto(
     val name: MultiLangText?,
+    val description: MultiLangText?,
     @JsonProperty("long_description")
-    val longDescription: MultiLangText?
+    val longDescription: MultiLangText?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -140,24 +159,28 @@ data class EducationDto(
     @JsonProperty("year_from")
     val yearFrom: String?,
     @JsonProperty("year_to")
-    val yearTo: String?
+    val yearTo: String?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CertificationDto(
     val name: MultiLangText?,
-    val year: String?
+    val year: String?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CourseDto(
     val name: MultiLangText?,
     val program: MultiLangText?,
-    val year: String?
+    val year: String?,
+    val disabled: Boolean = false,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class LanguageDto(
     val name: MultiLangText?,
-    val level: MultiLangText?
+    val level: MultiLangText?,
+    val disabled: Boolean = false,
 )
