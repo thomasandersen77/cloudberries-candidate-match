@@ -39,7 +39,7 @@ object MatchPromptTemplate {
         Returner et gyldig JSON-objekt med følgende struktur:
 
         {
-          "totalScore": "X,X/10",
+          "totalScore": "X,XX/10",
           "matchTimeSeconds": 42,
           "requirements": [
             {

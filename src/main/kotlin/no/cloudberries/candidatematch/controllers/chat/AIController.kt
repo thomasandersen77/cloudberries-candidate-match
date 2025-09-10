@@ -1,23 +1,25 @@
-package no.cloudberries.candidatematch.controllers
+package no.cloudberries.candidatematch.controllers.chat
 
 import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.domain.ai.AIResponse
 import no.cloudberries.candidatematch.service.ai.AIAnalysisService
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/api/chatbot")
 class AIController(
     private val aiAnalysisService: AIAnalysisService
 ) {
     @PostMapping("/analyze")
     fun analyzeContent(
         @RequestBody request: AIAnalysisRequest,
-        @RequestParam provider: AIProvider = AIProvider.GEMINI // Default provider
     ): AIResponse {
         return aiAnalysisService.analyzeContent(
             request.content,
-            provider
+            AIProvider.GEMINI
         )
     }
 }

@@ -8,12 +8,10 @@ import no.cloudberries.candidatematch.infrastructure.integration.flowcase.Flowca
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseUserResponse
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.toDomain
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.toYear
-import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import org.springframework.stereotype.Component
 
 @Component
 class ConsultantAdapterImpl(
-    private val consultantRepository: ConsultantRepository,
     private val flowcaseHttpClient: FlowcaseHttpClient,
 ) : ConsultantAdapter {
     private val logger = mu.KotlinLogging.logger { }
@@ -21,7 +19,7 @@ class ConsultantAdapterImpl(
         .registerModule(JavaTimeModule())
         .writerWithDefaultPrettyPrinter()
 
-    fun fetchAllConsultants(): List<CvUserInfo> = flowcaseHttpClient.fetchAllUsers()
+    override fun fetchAllConsultants(): List<CvUserInfo> = flowcaseHttpClient.fetchAllUsers()
         .flowcaseUserDTOs.map { user ->
             CvUserInfo(
                 userId = user.userId,
@@ -32,14 +30,14 @@ class ConsultantAdapterImpl(
             ).also { logger.info { "Fetched user ${user.name} with userId ${user.userId} and cvId ${user.cvId}" } }
         }
 
-    fun fetchCompleteCv(userId: String, cvId: String): Cv = flowcaseHttpClient.fetchCompleteCv(
+    override fun fetchCompleteCv(userId: String, cvId: String): Cv = flowcaseHttpClient.fetchCompleteCv(
         userId = userId,
         cvId = cvId
     ).toDomain()
         .also { logger.info { "Fetched CV for userId $userId / cvId $cvId" } }
 
 
-    fun fetchConsultant(userId: String): Consultant {
+    override fun fetchConsultant(userId: String): Consultant {
         val response = flowcaseHttpClient.fetchUserById(userId)
         if (response is FlowcaseUserResponse.NotFound) {
             throw RuntimeException("User with userId $userId not found in Flowcase API")
@@ -69,7 +67,7 @@ class ConsultantAdapterImpl(
     }
 
 
-    suspend fun fetchConsultantsWithCv(): List<Consultant> = run {
+    override suspend fun fetchConsultantsWithCv(): List<Consultant> = run {
         val cvUserInfos = fetchAllConsultants()
         val consultantsList = mutableListOf<Consultant?>()
 
@@ -79,7 +77,7 @@ class ConsultantAdapterImpl(
                     delay(500)
                     fetchConsultant(it.userId)
                 } catch (e: Exception) {
-                    logger.warn { "Could not fetch CV for ${it.name} with userId ${it.userId} / cvId ${it.cvId}. Exception: ${e.message}" }
+                    logger.warn(e) { "Could not fetch CV for ${it.name} with userId ${it.userId} / cvId ${it.cvId}. Exception: ${e.message}" }
                     null
                 }
             )

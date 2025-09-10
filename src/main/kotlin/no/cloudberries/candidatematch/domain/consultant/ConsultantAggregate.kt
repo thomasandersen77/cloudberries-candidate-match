@@ -1,7 +1,6 @@
 package no.cloudberries.candidatematch.domain.consultant
 
 import no.cloudberries.candidatematch.domain.Identifiable
-import org.springframework.stereotype.Component
 import java.time.Year
 import java.time.YearMonth
 
@@ -25,7 +24,36 @@ data class Consultant(
     val cvAsJson: String, // Useful for persistence without complex mapping
     val skills: List<Skill> = emptyList()
 ) : Identifiable {
+    companion object {
+        fun builder(id: String, defaultCvId: String) = Builder(
+            id,
+            defaultCvId
+        )
+    }
 
+    fun updateCv(consultant: Consultant, cv: Cv, cvAsJson: String): Consultant {
+        return Consultant.builder(
+            consultant.id,
+            consultant.defaultCvId
+        )
+            .withPersonalInfo(consultant.personalInfo)
+            .withCv(cv)
+            .withCvAsJson(cvAsJson)
+            .withSkills(consultant.skills)
+            .build()
+    }
+
+    fun updateSkills(consultant: Consultant, skills: List<Skill>): Consultant {
+        return Consultant.builder(
+            consultant.id,
+            consultant.defaultCvId
+        )
+            .withPersonalInfo(consultant.personalInfo)
+            .withCv(consultant.cv)
+            .withCvAsJson(consultant.cvAsJson)
+            .withSkills(skills)
+            .build()
+    }
     class Builder(
         private val id: String,
         private val defaultCvId: String
@@ -64,93 +92,10 @@ data class Consultant(
                 skills = skills
             )
         }
-    }
 
-    companion object {
-        fun builder(id: String, defaultCvId: String) = Builder(
-            id,
-            defaultCvId
-        )
     }
 }
 
-@Component
-class ConsultantFactory {
-
-    fun createConsultant(
-        id: String,
-        defaultCvId: String,
-        name: String,
-        email: String,
-        birthYear: Year?,
-        cv: Cv? = null,
-        cvAsJson: String = "",
-        skills: List<Skill> = emptyList()
-    ): Consultant {
-        val personalInfo = PersonalInfo(
-            name = name,
-            email = email,
-            birthYear = birthYear
-        )
-
-        return Consultant.builder(
-            id,
-            defaultCvId
-        )
-            .withPersonalInfo(personalInfo)
-            .withCv(cv ?: Cv(id = defaultCvId))
-            .withCvAsJson(cvAsJson)
-            .withSkills(skills)
-            .build()
-    }
-
-    fun updatePersonalInfo(
-        consultant: Consultant,
-        name: String? = null,
-        email: String? = null,
-        birthYear: Year? = null
-    ): Consultant {
-        val updatedPersonalInfo = consultant.personalInfo.copy(
-            name = name ?: consultant.personalInfo.name,
-            email = email ?: consultant.personalInfo.email,
-            birthYear = birthYear ?: consultant.personalInfo.birthYear
-        )
-
-        return Consultant.builder(
-            consultant.id,
-            consultant.defaultCvId
-        )
-            .withPersonalInfo(updatedPersonalInfo)
-            .withCv(consultant.cv)
-            .withCvAsJson(consultant.cvAsJson)
-            .withSkills(consultant.skills)
-            .build()
-    }
-
-    fun updateCv(consultant: Consultant, cv: Cv, cvAsJson: String): Consultant {
-        return Consultant.builder(
-            consultant.id,
-            consultant.defaultCvId
-        )
-            .withPersonalInfo(consultant.personalInfo)
-            .withCv(cv)
-            .withCvAsJson(cvAsJson)
-            .withSkills(consultant.skills)
-            .build()
-    }
-
-    fun updateSkills(consultant: Consultant, skills: List<Skill>): Consultant {
-        return Consultant.builder(
-            consultant.id,
-            consultant.defaultCvId
-        )
-            .withPersonalInfo(consultant.personalInfo)
-            .withCv(consultant.cv)
-            .withCvAsJson(consultant.cvAsJson)
-            .withSkills(skills)
-            .build()
-    }
-}
 
 
 // =================================================================================

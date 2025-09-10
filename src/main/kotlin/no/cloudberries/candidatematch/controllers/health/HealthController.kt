@@ -13,7 +13,6 @@ class HealthController(
     val healthService: HealthService
 ) {
 
-
     @GetMapping
     fun healthCheck(): Health {
         val status = if (healthService.checkOverallHealth()) Status.UP else Status.DOWN

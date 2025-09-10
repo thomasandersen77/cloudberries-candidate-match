@@ -12,7 +12,7 @@ import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import no.cloudberries.candidatematch.service.ai.AIService
 import no.cloudberries.candidatematch.templates.MatchParams
 import no.cloudberries.candidatematch.templates.MatchPromptTemplate
-import no.cloudberries.candidatematch.templates.renderTemplate
+import no.cloudberries.candidatematch.templates.renderMatchTemplate
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -30,7 +30,7 @@ class CandidateMatchingService(
         request: String,
         consultantName: String
     ): CandidateMatchResponse {
-        val prompt = renderTemplate(
+        val prompt = renderMatchTemplate(
             MatchPromptTemplate.template,
             MatchParams(
                 cv = cv,

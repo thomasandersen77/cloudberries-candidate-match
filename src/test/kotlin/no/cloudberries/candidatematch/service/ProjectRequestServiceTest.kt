@@ -160,9 +160,10 @@ class ProjectRequestServiceTest {
             0
         )
 
-        val savedRequestSlot = slot<ProjectRequestEntity>()
-        every { projectRequestRepository.save(capture(savedRequestSlot)) } answers {
-            savedRequestSlot.captured.copy(id = 1L)
+        every {
+            projectRequestRepository.save(any<ProjectRequestEntity>()) as ProjectRequestEntity
+        } answers {
+            firstArg<ProjectRequestEntity>().copy(id = 1L)
         }
 
         val request = projectRequestService.createProjectRequest(
