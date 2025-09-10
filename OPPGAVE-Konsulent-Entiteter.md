@@ -37,24 +37,12 @@ beregning av likviditetsreduksjon som passer til disse modellene.
 - Opprett adaptere/mapper-e mellom domenemodell og entiteter under `infrastructure/adapters`.
 - Lag Liquibase-changelogs for alle tabeller, constraints, FK-er og indekser i `db/changelog`.
 
-5) Likviditetsreduksjon
-
-- Implementer et domene-/tjenestelag som beregner "likviditetsreduksjon" for en konsulent (og ev. en portefølje) basert
-  på aktive Jobb/PA-oppdrag i en valgt periode.
-- Forslag til input: consultantId, periode (fra–til), oppdrag med allokeringsgrad (%), timesats/kost og evt.
-  fakturerbarhet.
-- Forslag til output: `LiquidityReductionResult { periode, redusertProsent, estimertBeløp, detaljerPerOppdrag[] }`.
-- Grunntanke (eksempel): reduksjon = sum(allokering%) over overlapp med perioden, og/eller estimert beløp = (
-  timer_i_periode × allokering% × sats). Tilpass nøyaktig formel til forretningsregler.
-- Eksponer beregningen som en tjeneste i service-laget og verifiser med enhetstester.
 
 ## Akseptansekriterier
 
 - Alle entiteter persisteres og lastes korrekt via JPA; nødvendige relasjoner og constraints er på plass.
 - Liquibase-migrasjoner kjører grønt ved `mvn verify` og under `docker-compose up`.
 - Mapper/adapters dekker toveis mapping domenemodell ↔ entiteter, med representative tester.
-- Likviditetsreduksjon beregnes korrekt for scenarier som: ingen oppdrag, overlappende oppdrag, 50/80/100% allokering,
-  ulike satser.
 - Kort dokumentasjon beskriver modellvalg og antakelser, spesielt rundt PA, CV-struktur og formel for
   likviditetsreduksjon.
 
