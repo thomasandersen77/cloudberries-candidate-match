@@ -4,7 +4,9 @@ import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.service.ai.AIService
 import no.cloudberries.candidatematch.utils.PdfUtils
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.io.FileInputStream
 
@@ -24,11 +26,7 @@ class MatchingController(
     fun findMatches(@RequestBody request: MatchApiRequest): List<CandidateMatchResponse> {
         logger.info("Received match request for: ${request.projectRequestText.take(150)}...")
 
-        // --- THIS IS WHERE YOUR CORE LOGIC GOES ---
-        // 1. Get all relevant consultants from your database or Flowcase.
-        // 2. For each consultant, call your AIService to get a match score.
-        //    (For simplicity, this example just matches one hardcoded consultant)
-
+        // Example using a local PDF (kept for reference). Real use should use the upload endpoint.
         val cvText = PdfUtils.extractText(FileInputStream(File("src/main/resources/Thomas-Andersen_CV.pdf")))
         val consultantName = "Thomas Andersen"
 
@@ -38,9 +36,27 @@ class MatchingController(
             consultantName = consultantName,
             aiProvider = AIProvider.GEMINI
         )
+        return listOf(matchResponse)
+    }
 
-        // 3. Collect the responses, sort by score, and return the top N.
-        // This is a simplified list of one for the example.
+    // New: upload a PDF and send its text to the AI, following the existing logic
+    @PostMapping(
+        path = ["/upload"],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
+    )
+    fun findMatchesFromPdf(
+        @RequestPart("file") file: MultipartFile,
+        @RequestPart("projectRequestText") projectRequestText: String,
+    ): List<CandidateMatchResponse> {
+        logger.info("Received match request with uploaded PDF: ${file.originalFilename}")
+        val cvText = PdfUtils.extractText(file.inputStream)
+        val consultantName = (file.originalFilename ?: "Uploaded CV").substringBeforeLast('.')
+        val matchResponse = aIService.matchCandidate(
+            aiProvider = AIProvider.GEMINI,
+            cv = cvText,
+            request = projectRequestText,
+            consultantName = consultantName,
+        )
         return listOf(matchResponse)
     }
 }
