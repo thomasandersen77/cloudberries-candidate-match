@@ -17,6 +17,7 @@ class YearMonthPeriodEmbeddable(
     val toMonth: Int?,
 )
 
+
 @Entity
 @Table(name = "consultant_cv")
 class ConsultantCvEntity(
