@@ -13,13 +13,13 @@ class LiquidityReductionService(
     private val monthlyHours = BigDecimal("160")
 
     fun calculateLiquidityReductionForMonth(consultantId: Long, month: YearMonth): BigDecimal {
-        val start = month.atDay(1)
-        val end = month.atEndOfMonth()
+        val startOfMonth = month.atDay(1)
+        val endOfMonth = month.atEndOfMonth()
         val assignments = projectAssignmentRepository
             .findByConsultantIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                 consultantId,
-                end,
-                start
+                startOfMonth,
+                endOfMonth
             )
 
         var total = BigDecimal.ZERO

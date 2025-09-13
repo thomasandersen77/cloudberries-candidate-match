@@ -33,8 +33,8 @@ fun ConsultantEntity.toDomain(mapper: ObjectMapper = objectMapper()): Consultant
     val cvJson = resumeData.toString()
     val personal = PersonalInfo(
         name = this.name,
-        email = "unknown@example.com",
-        birthYear = null as Year?
+        email = this.resumeData.get("email")?.asText() ?: "unknown@example.com",
+        birthYear = this.resumeData.get("bornYear")?.asInt()?.let { Year.of(it) }
     )
     val cv = Cv(id = this.cvId)
     val skills = this.skills.map { s ->
