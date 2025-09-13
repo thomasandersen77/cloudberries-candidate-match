@@ -8,10 +8,16 @@ openai:
 gemini:
   apiKey: ${GEMINI_API_KEY}
   model: gemini-1.5-pro-latest
+embedding:
+  enabled: true
+  provider: GEMINI
+  model: text-embedding-004
+  dimension: 768
 
 spring:
   liquibase:
     change-log: classpath*:/db/changelog/db.changelog-master.xml
+    contexts: pgvector
   datasource:
     url: jdbc:postgresql://localhost:5433/candidatematch
     username: ${POSTGRES_USER}

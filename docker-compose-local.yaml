@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres-local:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: cloudberries-postgres-local
     restart: unless-stopped
     environment:

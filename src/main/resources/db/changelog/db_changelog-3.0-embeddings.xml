@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Enable pgvector extension (only in pgvector context) -->
+    <changeSet id="20250913-01-enable-pgvector" author="agent" context="pgvector">
+        <sql>CREATE
+        EXTENSION IF NOT EXISTS vector;</sql>
+    </changeSet>
+
+    <!-- Table to store embeddings for Flowcase CVs -->
+    <changeSet id="20250913-02-create-cv-embedding" author="agent" context="pgvector">
+        <createTable tableName="cv_embedding">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cv_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="embedding" type="vector(768)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="cv_embedding"
+                             columnNames="user_id, cv_id, provider, model"
+                             constraintName="uk_cv_embedding_user_cv_provider_model"/>
+    </changeSet>
+
+    <!-- Vector index for similarity search -->
+    <changeSet id="20250913-03-create-cv-embedding-index" author="agent" context="pgvector">
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_cv_embedding_ivfflat
+                ON cv_embedding USING ivfflat (embedding vector_l2_ops) WITH (lists = 100);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
