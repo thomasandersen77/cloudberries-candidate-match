@@ -18,7 +18,6 @@ data class ProjectRequestEntity(
     val customerName: String,
     @ElementCollection
     @CollectionTable(
-        schema = "public",
         name = "project_request_required_skills",
         joinColumns = [JoinColumn(name = "project_request_id")]
     )

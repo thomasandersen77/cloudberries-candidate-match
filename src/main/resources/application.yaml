@@ -7,6 +7,8 @@ spring:
       idle-timeout: 300000         # 5 minutes
       max-lifetime: 1200000        # 20 minutes
       validation-timeout: 5000      # 5 seconds
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
 flowcase:
   apiKey: ${FLOWCASE_API_KEY}
   baseUrl: ${FLOWCASE_BASE_URL}

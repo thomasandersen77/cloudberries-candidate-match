@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @Disabled("Only for manual testing")
 @Import(LiquibaseTestConfig::class)
-@ActiveProfiles("integration")
+@ActiveProfiles("manualtest")
 @SpringBootTest
 class FlowcaseHttpClientIntegrationTest {
     @Autowired

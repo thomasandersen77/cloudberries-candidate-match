@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles
 @SpringBootTest
 @Disabled("Not yet implemented")
 @Import(LiquibaseTestConfig::class)
-@ActiveProfiles("integration")
+@ActiveProfiles("manualtest")
 class ScoreCandidateServiceIntegrationTest {
 
     @Autowired

@@ -1,11 +1,41 @@
-# Steg 1: Bygg applikasjonen med Maven
-FROM maven:3.8.5-openjdk-17 AS build
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
+# Multi-stage build for minimal image size
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
 
-# Steg 2: Bygg det endelige, lettvekts imaget
-FROM openjdk:17-jdk-slim
-COPY --from=build /home/app/target/candidate-match.jar /usr/local/lib/app.jar
+# Copy Maven files first for better layer caching
+COPY pom.xml ./
+COPY src ./src
+COPY mvnw ./
+COPY .mvn ./.mvn
+
+# Build the application
+RUN ./mvnw clean package -DskipTests
+
+# Final stage - use JRE for smaller image
+FROM eclipse-temurin:21-jre-alpine
+
+# Create non-root user for security
+RUN addgroup -g 1000 appuser && \
+    adduser -D -s /bin/sh -u 1000 -G appuser appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built JAR from build stage
+COPY --from=build /app/target/candidate-match.jar app.jar
+
+# Change ownership to non-root user
+RUN chown appuser:appuser app.jar
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/usr/local/lib/app.jar"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+
+# Run the application
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

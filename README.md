@@ -1,8 +1,8 @@
 
 ```mermaid
 graph TB
-    subgraph Frontend["Client Layer"]
-        CLI["CLI/Scheduler"]
+    subgraph Frontend["Web/Client Layer"]
+        CLI["Web Client/Scheduler"]
     end
 
     subgraph Application["Application Layer"]

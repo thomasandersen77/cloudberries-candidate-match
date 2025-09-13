@@ -20,7 +20,7 @@ import java.io.FileInputStream
 
 @Disabled("Only for manual testing")
 @SpringBootTest
-@ActiveProfiles("integration")
+@ActiveProfiles("manualtest")
 @Import(LiquibaseTestConfig::class)
 class CandidateMatchingServiceIntegrationTest {
     @Autowired

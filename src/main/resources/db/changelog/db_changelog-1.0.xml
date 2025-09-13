@@ -58,7 +58,7 @@
             <column name="customer_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="customer_name" type="varchar2(255)">
+            <column name="customer_name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="required_skills" type="bigint">
@@ -89,7 +89,7 @@
             <column name="cv_id" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="match_score" type="double">
+            <column name="match_score" type="double precision">
                 <constraints nullable="false"/>
             </column>
             <column name="justification" type="text">
@@ -140,7 +140,7 @@
             <column name="project_request_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="skill" type="varchar2(255)">
+            <column name="skill" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
