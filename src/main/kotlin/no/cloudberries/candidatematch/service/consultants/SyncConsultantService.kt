@@ -1,32 +1,117 @@
 package no.cloudberries.candidatematch.service.consultants
 
-import kotlinx.coroutines.delay
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import no.cloudberries.candidatematch.infrastructure.adapters.toEntity
+import no.cloudberries.candidatematch.infrastructure.entities.ConsultantEntity
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseCvDto
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseUserDTO
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.toDomain
+import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
+import no.cloudberries.candidatematch.service.embedding.CvEmbeddingService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.Year
 
 @Service
 class SyncConsultantService(
-    val flowcaseHttpClient: FlowcaseHttpClient
+    private val flowcaseHttpClient: FlowcaseHttpClient,
+    private val consultantRepository: ConsultantRepository,
+    private val cvEmbeddingService: CvEmbeddingService,
 ) {
 
     private val logger = KotlinLogging.logger {}
+    private val mapper = jacksonObjectMapper()
+
+    data class SyncResult(val processed: Int, val skipped: Int, val errors: List<Pair<String, String>>)
 
     @Scheduled(cron = "0 0 */8 * * *")
-    fun fetchFullCvForUser(){
-        runBlocking { logger.info { "Running scheduled job to fetch full CV for all users"}
-            flowcaseHttpClient.fetchAllUsers().flowcaseUserDTOs.forEach {
-                delay(10)
-                val cv = fetchCvForUser(
-                    it.userId,
-                    it.cvId
+    fun scheduledSyncAll() {
+        runBlocking {
+            logger.info { "Running scheduled job to sync consultants and CVs" }
+            syncAll()
+        }
+    }
+
+    fun syncAll(batchSize: Int = 100): SyncResult {
+        val users = fetchUsers().take(batchSize)
+        var processed = 0
+        var skipped = 0
+        val errors = mutableListOf<Pair<String, String>>()
+        users.forEach { u ->
+            try {
+                val changed = processUser(
+                    u.userId,
+                    u.cvId,
+                    u.name
                 )
+                // Embedding and persistence handled in processUser and CvEmbeddingService
+                if (changed) processed++ else skipped++
+            } catch (e: Exception) {
+                logger.error(e) { "Error processing userId=${u.userId} cvId=${u.cvId}" }
+                errors.add(u.userId to (e.message ?: "unknown"))
             }
         }
+        logger.info { "Sync completed: processed=$processed, skipped=$skipped, errors=${errors.size}" }
+        return SyncResult(
+            processed,
+            skipped,
+            errors
+        )
+    }
+
+    fun processUser(userId: String, cvId: String, name: String? = null): Boolean {
+        val cvDto = fetchCvForUser(
+            userId,
+            cvId
+        )
+        val cvDomain = cvDto.toDomain()
+
+        // Build domain Consultant and persist idempotently
+        val consultant = no.cloudberries.candidatematch.domain.consultant.Consultant.builder(
+            id = userId,
+            defaultCvId = cvId
+        )
+            .withCv(cvDomain)
+            .withCvAsJson(mapper.writeValueAsString(cvDomain))
+            .withPersonalInfo(
+                no.cloudberries.candidatematch.domain.consultant.PersonalInfo(
+                    name = name ?: cvDto.name,
+                    email = cvDto.email,
+                    birthYear = cvDto.bornYear?.let { Year.of(it) }
+                )
+            )
+            .withSkills(cvDomain.skillCategories.flatMap { it.skills })
+            .build()
+
+        val toSave = consultant.toEntity()
+        val existing = consultantRepository.findByUserId(userId)
+        val saved = if (existing == null) {
+            consultantRepository.save(toSave)
+        } else {
+            consultantRepository.save(
+                ConsultantEntity(
+                    id = existing.id,
+                    name = toSave.name,
+                    userId = toSave.userId,
+                    cvId = toSave.cvId,
+                    resumeData = toSave.resumeData,
+                    skills = toSave.skills
+                )
+            )
+        }
+        logger.debug { "Persisted consultant userId=$userId id=${saved.id}" }
+
+        // Delegate embedding logic (idempotent) to CvEmbeddingService
+        val embedded = cvEmbeddingService.processUserCv(
+            userId,
+            cvId
+        )
+        if (embedded) logger.info { "Saved embedding for userId=$userId cvId=$cvId" } else logger.debug { "Embedding skipped for userId=$userId cvId=$cvId" }
+        // Consider 'changed' if either persistence inserted/updated or embedding saved; heuristic here returns embedded flag
+        return embedded || existing == null
     }
 
     fun fetchCvForUser(userid: String, cvId: String): FlowcaseCvDto = flowcaseHttpClient.fetchCompleteCv(userid, cvId)
@@ -35,5 +120,4 @@ class SyncConsultantService(
         val response = flowcaseHttpClient.fetchAllUsers()
         return response.flowcaseUserDTOs
     }
-
 }

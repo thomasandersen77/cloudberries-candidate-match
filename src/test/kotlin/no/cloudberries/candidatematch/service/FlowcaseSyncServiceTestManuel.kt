@@ -30,6 +30,6 @@ class FlowcaseSyncServiceTestManuel {
     @Test
     @Disabled("Only for manual testing - not even triggered by run all tests in `IntelliJ`, To run, run just this test alone.")
     fun fetchFullCvForUsers() = runTest {
-        syncConsultantService.fetchFullCvForUser()
+        syncConsultantService.scheduledSyncAll()
     }
 }
