@@ -33,57 +33,132 @@ jobs:
         run: mvn -B verify --file pom.xml
 
       # --- Steg 3: Kall Gemini API for kode-review ---
-      - name: Perform Code Review with Gemini
+      - name: Perform Architecture Review with Gemini
         if: ${{ success() }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           PROMPT_TEMPLATE=$(cat .github/prompts/pr_review_prompt.txt)
           CODE_DIFF=$(git diff origin/main...HEAD)
-          
-          # Bygg payload på en sikker måte
-          FULL_PROMPT="${PROMPT_TEMPLATE//\{diff\}/$CODE_DIFF}"
-          JSON_PAYLOAD=$(jq -n --arg text_content "$FULL_PROMPT" \
-            '{contents: [{parts: [{text: $text_content}]}]}')
 
-          # Logikk for å prøve på nytt (retry)
-          MAX_ATTEMPTS=3
-          RETRY_DELAY=5 # Sekunder
+          # Minimal arkitektur-kontekst
+          CONTEXT=$(cat <<'EOF'
+          System: Candidate-matching app (Spring Boot, Kotlin, JPA, Liquibase, OkHttp, WireMock). DDD-lag: controllers -> services -> domain -> infra/adapters. Embeddings via Google Gemini, lagret i Postgres/pgvector. Teststrategi: JUnit5, MockK, WireMock, Testcontainers (pgvector), Zonky Embedded Postgres. Viktige valg: DIP via interfaces, domene-atferd i aggregates, YAML for config, Liquibase contexts for pgvector.
+          EOF
+          )
+
+          FULL_PROMPT="$PROMPT_TEMPLATE
+
+          ---
+          Prosjektkontekst:
+          $CONTEXT
+          ---
+
+          $CODE_DIFF"
+
+          JSON_PAYLOAD=$(jq -n --arg text_content "$FULL_PROMPT" '{contents: [{parts: [{text: $text_content}]}]}')
+
+          # Retry
+          MAX_ATTEMPTS=3; RETRY_DELAY=5
           for ((i=1; i<=MAX_ATTEMPTS; i++)); do
             echo "::notice::Forsøk $i av $MAX_ATTEMPTS på å kalle Gemini API..."
-          
-            # Bruk -w for å få http-status og body separat
             HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
               "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
               -H "Content-Type: application/json" \
               -d "$JSON_PAYLOAD")
-          
             HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
             GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
-          
             if [ "$HTTP_STATUS_CODE" -eq 200 ]; then
-              echo "::notice::Suksess fra Gemini API."
-              break # Gå ut av loopen ved suksess
+              echo "::notice::Suksess fra Gemini API."; break
             elif [ "$i" -lt "$MAX_ATTEMPTS" ]; then
-              echo "::warning::Mottok HTTP status $HTTP_STATUS_CODE. Prøver igjen om $RETRY_DELAY sekunder..."
-              echo "API-respons: $GEMINI_RESPONSE"
-              sleep $RETRY_DELAY
+              echo "::warning::HTTP $HTTP_STATUS_CODE. Prøver igjen om $RETRY_DELAY sek..."; sleep $RETRY_DELAY
             else
-              echo "::error::Feil fra Gemini API etter $MAX_ATTEMPTS forsøk. HTTP status: $HTTP_STATUS_CODE"
-              echo "$GEMINI_RESPONSE"
-              exit 1
+              echo "::error::Feil etter $MAX_ATTEMPTS forsøk. HTTP: $HTTP_STATUS_CODE"; echo "$GEMINI_RESPONSE"; exit 1
             fi
           done
 
-          # Sjekk for feil i selve JSON-responsen
           if echo "$GEMINI_RESPONSE" | jq -e '.error' > /dev/null; then
-            echo "::error::Gemini API returnerte en feilmelding:"
-            echo "$GEMINI_RESPONSE"
-            exit 1
+            echo "::error::Gemini API returnerte en feilmelding:"; echo "$GEMINI_RESPONSE"; exit 1
           fi
 
-          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review.txt
-          echo "Gemini-review lagret i gemini_review.txt"
+          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review_arch.txt
+          echo "Gemini arkitektur-review lagret i gemini_review_arch.txt"
+
+      - name: Comment Architecture Review on PR
+        if: ${{ success() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const review = fs.readFileSync('gemini_review_arch.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 🏛️ Gemini Architecture Review\n\n${review}`
+            });
+
+      - name: Perform Security Review with Gemini
+        if: ${{ success() }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          PROMPT="Gjennomfør en SIKKERHETS-review. Se etter: SQL-injection (bruk parametrisert SQL), hemmeligheter i kode/logg, usikrede nettverkskall, validering/sanitization, authz/mindste privilegier. Vær konkret og gi kodeforslag.\n\nDiff:\n"
+          CODE_DIFF=$(git diff origin/main...HEAD)
+          JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
+          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+          HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
+            -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
+          HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
+          GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
+          [ "$HTTP_STATUS_CODE" -eq 200 ] || { echo "$GEMINI_RESPONSE"; exit 1; }
+          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review_sec.txt
+
+      - name: Comment Security Review on PR
+        if: ${{ success() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const review = fs.readFileSync('gemini_review_sec.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 🔒 Gemini Security Review\n\n${review}`
+            });
+
+      - name: Perform Readability Review with Gemini
+        if: ${{ success() }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          PROMPT="Gjennomfør en LESBARHETS/CLEAN CODE-review. Fokuser på navngivning, funksjonsstørrelse, stegvis nedstigning, og overflødig kompleksitet. Gi konkrete forslag.\n\nDiff:\n"
+          CODE_DIFF=$(git diff origin/main...HEAD)
+          JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
+          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+          HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
+            -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
+          HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
+          GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
+          [ "$HTTP_STATUS_CODE" -eq 200 ] || { echo "$GEMINI_RESPONSE"; exit 1; }
+          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review_readability.txt
+
+      - name: Comment Readability Review on PR
+        if: ${{ success() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const review = fs.readFileSync('gemini_review_readability.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### ✍️ Gemini Readability Review\n\n${review}`
+            });
       # --- Steg 4: Publiser review som en kommentar på Pull Requesten ---
       - name: Comment on Pull Request
         if: ${{ success() && github.event_name == 'pull_request' }}
