@@ -106,7 +106,7 @@ jobs:
           PROMPT="Gjennomfør en SIKKERHETS-review. Se etter: SQL-injection (bruk parametrisert SQL), hemmeligheter i kode/logg, usikrede nettverkskall, validering/sanitization, authz/mindste privilegier. Vær konkret og gi kodeforslag.\n\nDiff:\n"
           CODE_DIFF=$(git diff origin/main...HEAD)
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+$CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
@@ -137,7 +137,7 @@ jobs:
           PROMPT="Gjennomfør en LESBARHETS/CLEAN CODE-review. Fokuser på navngivning, funksjonsstørrelse, stegvis nedstigning, og overflødig kompleksitet. Gi konkrete forslag.\n\nDiff:\n"
           CODE_DIFF=$(git diff origin/main...HEAD)
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+$CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
@@ -158,18 +158,4 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `### ✍️ Gemini Readability Review\n\n${review}`
-            });
-      # --- Steg 4: Publiser review som en kommentar på Pull Requesten ---
-      - name: Comment on Pull Request
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const review = fs.readFileSync('gemini_review.txt', 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### 🤖 Gemini Code Review\n\n${review}`
             });
