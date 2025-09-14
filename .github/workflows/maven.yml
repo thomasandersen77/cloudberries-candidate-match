@@ -109,7 +109,7 @@ jobs:
           PROMPT=$(cat .github/prompts/security_review_prompt.txt)
           CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-$CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
@@ -140,7 +140,7 @@ $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           PROMPT=$(cat .github/prompts/readability_review_prompt.txt)
           CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-$CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
