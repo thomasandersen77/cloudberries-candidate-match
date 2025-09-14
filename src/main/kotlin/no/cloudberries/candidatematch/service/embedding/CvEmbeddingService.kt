@@ -1,9 +1,11 @@
 package no.cloudberries.candidatematch.service.embedding
 
 import mu.KotlinLogging
+import no.cloudberries.candidatematch.domain.consultant.toFlatText
 import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
 import no.cloudberries.candidatematch.infrastructure.integration.embedding.EmbeddingConfig
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
+import no.cloudberries.candidatematch.infrastructure.integration.flowcase.toDomain
 import no.cloudberries.candidatematch.infrastructure.repositories.embedding.CvEmbeddingRepository
 import org.springframework.stereotype.Service
 
@@ -52,11 +54,11 @@ class CvEmbeddingService(
             logger.info { "Embedding already exists for userId=$userId, cvId=$cvId." }
             return false
         }
-        val cv = flowcaseHttpClient.fetchCompleteCv(
+        val cvDomain = flowcaseHttpClient.fetchCompleteCv(
             userId,
             cvId
-        )
-        val text = FlowcaseCvTextFlattener.toText(cv)
+        ).toDomain()
+        val text = cvDomain.toFlatText()
         val vec = embeddingProvider.embed(text)
         if (vec.isEmpty()) {
             logger.warn { "Embedding provider returned empty vector for userId=$userId, cvId=$cvId. Skipping save." }
@@ -88,11 +90,11 @@ class CvEmbeddingService(
                     embeddingProvider.modelName
                 )
             ) {
-                val cv = flowcaseHttpClient.fetchCompleteCv(
+                val cvDomain = flowcaseHttpClient.fetchCompleteCv(
                     u.userId,
                     u.cvId
-                )
-                val text = FlowcaseCvTextFlattener.toText(cv)
+                ).toDomain()
+                val text = cvDomain.toFlatText()
                 val vec = embeddingProvider.embed(text)
                 if (vec.isNotEmpty()) {
                     repository.save(

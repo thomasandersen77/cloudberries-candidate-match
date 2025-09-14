@@ -82,17 +82,13 @@ class GoogleGeminiEmbeddingProvider(
     private val httpClient: OkHttpClient = OkHttpClient()
 
     private fun parseEmbedding(node: JsonNode): DoubleArray {
-        // Expected shape: { "embedding": { "values": [..] } }
-        val valuesNode = when {
-            node.has("embedding") && node.get("embedding").has("values") -> node.get("embedding").get("values")
-            node.has("embeddings") && node.get("embeddings").isArray && node.get("embeddings").size() > 0 -> {
-                val first = node.get("embeddings").get(0)
-                if (first.has("values")) first.get("values") else null
-            }
-
-            else -> null
-        }
-        if (valuesNode == null || !valuesNode.isArray) {
+        // Prefer JSON Pointer navigation for clarity and robustness
+        val candidates = listOf(
+            node.at("/embedding/values"),
+            node.at("/embeddings/0/values")
+        )
+        val valuesNode = candidates.firstOrNull { it.isArray }
+        if (valuesNode == null) {
             logger.error { "Could not find embedding values in Gemini response" }
             return DoubleArray(0)
         }

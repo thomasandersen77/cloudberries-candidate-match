@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.candidatematch.domain.scoring.CVEvaluation
 import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import no.cloudberries.candidatematch.templates.CvReviewParams
 import no.cloudberries.candidatematch.templates.CvReviewPromptTemplate
@@ -62,25 +63,3 @@ class ScoreCandidateService(
         return cvReviewResponseDto
     }
 }
-
-data class ScoreBreakdown(
-    val structureAndReadability: CriterionScore?,
-    val contentAndRelevance: CriterionScore?,
-    val quantificationAndResults: CriterionScore?,
-    val technicalDepth: CriterionScore?,
-    val languageAndProfessionalism: CriterionScore?
-)
-
-data class CriterionScore(
-    val score: Int?,
-    val justification: String?
-)
-
-data class CVEvaluation(
-    val name: String?,
-    val summary: String?,
-    val strengths: List<String>?,
-    val improvements: List<String>?,
-    val scoreBreakdown: ScoreBreakdown?,
-    val scorePercentage: Int
-)

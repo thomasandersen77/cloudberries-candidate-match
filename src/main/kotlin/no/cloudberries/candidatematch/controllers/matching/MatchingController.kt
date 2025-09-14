@@ -50,7 +50,7 @@ class MatchingController(
     ): List<CandidateMatchResponse> {
         logger.info("Received match request with uploaded PDF: ${file.originalFilename}")
         val cvText = PdfUtils.extractText(file.inputStream)
-        val consultantName = (file.originalFilename ?: "Uploaded CV").substringBeforeLast('.')
+        val consultantName = file.originalFilename?.substringBeforeLast('.') ?: "Uploaded CV"
         val matchResponse = aIService.matchCandidate(
             aiProvider = AIProvider.GEMINI,
             cv = cvText,
