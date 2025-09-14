@@ -39,7 +39,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           PROMPT_TEMPLATE=$(cat .github/prompts/pr_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD)
+          ARCH_PROMPT=$(cat .github/prompts/architecture_review_prompt.txt)
+          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
 
           # Minimal arkitektur-kontekst
           CONTEXT=$(cat <<'EOF'
@@ -53,6 +54,8 @@ jobs:
           Prosjektkontekst:
           $CONTEXT
           ---
+
+          $ARCH_PROMPT
 
           $CODE_DIFF"
 
@@ -71,9 +74,9 @@ jobs:
             if [ "$HTTP_STATUS_CODE" -eq 200 ]; then
               echo "::notice::Suksess fra Gemini API."; break
             elif [ "$i" -lt "$MAX_ATTEMPTS" ]; then
-              echo "::warning::HTTP $HTTP_STATUS_CODE. Prøver igjen om $RETRY_DELAY sek..."; sleep $RETRY_DELAY
+              echo "::warning::Mottok HTTP status $HTTP_STATUS_CODE. Prøver igjen om $RETRY_DELAY sekunder..."; sleep $RETRY_DELAY
             else
-              echo "::error::Feil etter $MAX_ATTEMPTS forsøk. HTTP: $HTTP_STATUS_CODE"; echo "$GEMINI_RESPONSE"; exit 1
+              echo "::error::Feil fra Gemini API etter $MAX_ATTEMPTS forsøk. HTTP status: $HTTP_STATUS_CODE"; echo "$GEMINI_RESPONSE"; exit 1
             fi
           done
 
@@ -103,8 +106,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          PROMPT="Gjennomfør en SIKKERHETS-review. Se etter: SQL-injection (bruk parametrisert SQL), hemmeligheter i kode/logg, usikrede nettverkskall, validering/sanitization, authz/mindste privilegier. Vær konkret og gi kodeforslag.\n\nDiff:\n"
-          CODE_DIFF=$(git diff origin/main...HEAD)
+          PROMPT=$(cat .github/prompts/security_review_prompt.txt)
+          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
 $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
@@ -134,8 +137,8 @@ $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          PROMPT="Gjennomfør en LESBARHETS/CLEAN CODE-review. Fokuser på navngivning, funksjonsstørrelse, stegvis nedstigning, og overflødig kompleksitet. Gi konkrete forslag.\n\nDiff:\n"
-          CODE_DIFF=$(git diff origin/main...HEAD)
+          PROMPT=$(cat .github/prompts/readability_review_prompt.txt)
+          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
 $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \

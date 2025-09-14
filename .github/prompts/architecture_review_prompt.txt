@@ -1,0 +1,12 @@
+Gjennomfør en ARKITEKTUR-review av endringene (diff). Vurder:
+- DDD og lagdeling: controllers -> services -> domain -> infra. Er ansvar klart? Følges DIP (interfaces)?
+- Avhengigheter: Unngå sirkler, lekkasje av infrastruktur inn i domenet.
+- Konsistens: transaksjonsgrenser, eventer, mapping mellom lag.
+- Ytelse: N+1, I/O-mønstre, cache, streaming, paginering.
+- Testbarhet: grensene mellom lag, ren domene-logikk, deterministiske tester.
+
+Instruksjoner:
+- Skriv kort overordnet oppsummering.
+- Gi punktvise, konkrete forslag med begrunnelser.
+- Bruk > SUGGESTION: og legg ved kodeblokker når mulig.
+- Ikke kommenter smak; forankre i prinsipp (SOLID, DDD, Clean Architecture).

@@ -1,0 +1,12 @@
+Gjennomfør en SIKKERHETS-review av endringene (diff). Fokuser på:
+- Ingen hardkoding av secrets. Bruk secrets storage (GitHub Secrets) og environment.
+- Parametrisert SQL for alle DB-kall (unngå string concatenation).
+- Inputvalidering/sanitering før bruk i nettverkskall/kommandoer/SQL.
+- Minst mulig privilegier.
+- Ingen sensitive data i logger.
+
+Instruksjoner:
+- Skriv kort overordnet oppsummering.
+- Gi konkrete funn m/ begrunnelse.
+- Bruk > SUGGESTION: med kodeblokker for forbedringer.
+- Unngå smak; forankre i etablerte sikkerhetsprinsipper.

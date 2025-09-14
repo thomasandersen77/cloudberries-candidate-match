@@ -1,0 +1,11 @@
+Gjennomfør en LESBARHETS/CLEAN CODE-review av endringene (diff). Fokuser på:
+- Navngivning som avslører intensjon.
+- Små funksjoner som gjør én ting; stegvis nedstigning.
+- Fjerning av duplisering (DRY); enkelhet fremfor kompleksitet.
+- Konsistente mønstre og struktur.
+
+Instruksjoner:
+- Skriv kort overordnet oppsummering.
+- Gi konkrete, linje-for-linje forslag når mulig.
+- Bruk > SUGGESTION: og legg ved kodeblokker.
+- Forankre forslag i Clean Code/SOLID-prinsipper.
