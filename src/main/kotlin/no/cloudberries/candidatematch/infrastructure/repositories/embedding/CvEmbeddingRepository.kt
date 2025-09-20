@@ -8,8 +8,19 @@ class CvEmbeddingRepository(
     private val jdbcTemplate: JdbcTemplate,
 ) {
 
+    data class VectorSearchHit(
+        val userId: String,
+        val cvId: String,
+        val distance: Double,
+        val similarity: Double,
+    )
+
     fun exists(userId: String, cvId: String, provider: String, model: String): Boolean {
-        val sql = "SELECT 1 FROM cv_embedding WHERE user_id = ? AND cv_id = ? AND provider = ? AND model = ? LIMIT 1"
+        val sql = """
+                SELECT 1 FROM cv_embedding
+                WHERE user_id = ? AND cv_id = ? 
+                AND provider = ? AND model = ? LIMIT 1"""
+            .trimMargin()
         return jdbcTemplate.query(
             sql,
             { rs, _ -> rs.getInt(1) },
@@ -38,6 +49,49 @@ class CvEmbeddingRepository(
             provider,
             model,
             vecLiteral
+        )
+    }
+
+    /**
+     * Vector similarity search using pgvector cosine distance operator (<=>).
+     * Returns top K most similar CV embeddings for a given provider/model.
+     * Note: Similarity is computed as 1 - distance (assumes normalized vectors).
+     */
+    fun searchSimilar(
+        queryVector: DoubleArray,
+        provider: String,
+        model: String,
+        topK: Int = 10,
+    ): List<VectorSearchHit> {
+        val vecLiteral = queryVector.joinToString(
+            prefix = "[",
+            postfix = "]"
+        ) { it.toString() }
+        val sql = """
+            SELECT user_id, cv_id,
+                   (embedding <=> ?::vector) AS distance,
+                   1 - (embedding <=> ?::vector) AS similarity
+            FROM cv_embedding
+            WHERE provider = ? AND model = ?
+            ORDER BY embedding <=> ?::vector ASC
+            LIMIT ?
+        """.trimIndent()
+        return jdbcTemplate.query(
+            sql,
+            { rs, _ ->
+                VectorSearchHit(
+                    userId = rs.getString("user_id"),
+                    cvId = rs.getString("cv_id"),
+                    distance = rs.getDouble("distance"),
+                    similarity = rs.getDouble("similarity"),
+                )
+            },
+            vecLiteral,
+            vecLiteral,
+            provider,
+            model,
+            vecLiteral,
+            topK
         )
     }
 }

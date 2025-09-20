@@ -8,7 +8,7 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-// Only read operations from Flowcase via service. No create/update.
+// Only read operations from database via service. No create/update.
 
 data class ConsultantSummaryDto(
     val userId: String,

@@ -13,7 +13,7 @@ class CvEmbeddingScheduler(
     private val logger = KotlinLogging.logger { }
 
     // Hver time
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 23 * * ?")
     fun scheduleEmbeddingJob() {
         if (!embeddingConfig.enabled) {
             logger.debug { "Embedding disabled; scheduler skipping run." }

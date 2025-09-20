@@ -66,7 +66,7 @@ jobs:
           for ((i=1; i<=MAX_ATTEMPTS; i++)); do
             echo "::notice::Forsøk $i av $MAX_ATTEMPTS på å kalle Gemini API..."
             HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
-              "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
               -H "Content-Type: application/json" \
               -d "$JSON_PAYLOAD")
             HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
@@ -111,7 +111,7 @@ jobs:
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
           $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
           HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
           GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
@@ -142,7 +142,7 @@ jobs:
           JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
           $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$GEMINI_API_KEY" \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
             -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
           HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
           GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}

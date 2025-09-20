@@ -9,7 +9,11 @@ class WebConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/**") // Apply CORS configuration to all endpoints under /api
-            .allowedOrigins("http://192.168.0.12:5174") // Allow requests from your frontend's origin
+            .allowedOrigins(
+                "http://192.168.0.12:5174",
+                "http://localhost:5174",
+                "http://169.254.189.144:5174"
+            ) // Allow requests from your frontend's origin(s)
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Specify which methods are allowed
             .allowedHeaders("*") // Allow all headers
             .allowCredentials(true) // Allow cookies and credentials

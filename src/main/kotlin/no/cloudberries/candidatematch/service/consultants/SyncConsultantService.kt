@@ -1,5 +1,6 @@
 package no.cloudberries.candidatematch.service.consultants
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -13,6 +14,9 @@ import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepo
 import no.cloudberries.candidatematch.service.embedding.CvEmbeddingService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.time.Year
 
 @Service
@@ -23,7 +27,7 @@ class SyncConsultantService(
 ) {
 
     private val logger = KotlinLogging.logger {}
-    private val mapper = jacksonObjectMapper()
+    private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
 
     data class SyncResult(val processed: Int, val skipped: Int, val errors: List<Pair<String, String>>)
 
@@ -47,6 +51,7 @@ class SyncConsultantService(
                     u.cvId,
                     u.name
                 )
+                Thread.sleep(200) // to avoid hitting rate limits on Flowcase API
                 // Embedding and persistence handled in processUser and CvEmbeddingService
                 if (changed) processed++ else skipped++
             } catch (e: Exception) {
@@ -61,6 +66,8 @@ class SyncConsultantService(
             errors
         )
     }
+
+    val file: File = File("cvs.txt")
 
     fun processUser(userId: String, cvId: String, name: String? = null): Boolean {
         val cvDto = fetchCvForUser(
@@ -102,7 +109,12 @@ class SyncConsultantService(
                 )
             )
         }
-        logger.debug { "Persisted consultant userId=$userId id=${saved.id}" }
+        logger.info { "Persisted consultant userId=$userId id=${saved.id}" }
+        Files.write(
+            file.toPath(),
+            "${mapper.writeValueAsString(saved)}\n".toByteArray(),
+            StandardOpenOption.APPEND
+        )
 
         // Delegate embedding logic (idempotent) to CvEmbeddingService
         val embedded = cvEmbeddingService.processUserCv(

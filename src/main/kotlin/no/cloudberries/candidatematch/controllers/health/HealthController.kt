@@ -1,8 +1,6 @@
 package no.cloudberries.candidatematch.controllers.health
 
 import no.cloudberries.candidatematch.health.HealthService
-import org.springframework.boot.actuate.health.Health
-import org.springframework.boot.actuate.health.Status
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -13,12 +11,22 @@ class HealthController(
     val healthService: HealthService
 ) {
 
-    @GetMapping
-    fun healthCheck(): Health {
-        val status = if (healthService.checkOverallHealth()) Status.UP else Status.DOWN
+    data class HealthResponse(val status: String, val details: Map<String, Any>)
 
-        return Health.status(status)
-            .withDetails(healthService.getHealthDetails()) // Hent detaljer fra service
-            .build()
+    @GetMapping
+    fun healthCheck(): HealthResponse {
+        val up = healthService.checkOverallHealth()
+        val rawDetails = healthService.getHealthDetails()
+        val normalized = rawDetails.mapValues { (_, v) ->
+            when (v) {
+                is Boolean -> if (v) "UP" else "DOWN"
+                is String -> v
+                else -> v.toString()
+            }
+        }
+        return HealthResponse(
+            status = if (up) "UP" else "DOWN",
+            details = normalized
+        )
     }
 }

@@ -13,14 +13,18 @@ import org.springframework.web.bind.annotation.RestController
 class AIController(
     private val aiAnalysisService: AIAnalysisService
 ) {
+    private val logger = mu.KotlinLogging.logger {}
+
     @PostMapping("/analyze")
     fun analyzeContent(
         @RequestBody request: AIAnalysisRequest,
     ): AIResponse {
+        logger.info { "Analyzing prompt: ${request.content}" }
+
         return aiAnalysisService.analyzeContent(
             request.content,
             AIProvider.GEMINI
-        )
+        ).also { logger.info { "Analysis result: $it" } }
     }
 }
 
