@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AI Advokaten — Fremtidsfullmakt</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <!-- Tailwind CSS (dev only) -->
+    <script defer src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM UMD (dev) -->
+    <script crossorigin defer src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin defer src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX (dev) -->
+    <script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- jsPDF UMD -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- docx UMD -->
+    <script defer src="https://unpkg.com/docx@8.0.4/build/index.umd.js"></script>
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<noscript>Du må aktivere JavaScript for å bruke denne siden.</noscript>
+<div id="root"></div>
+
+<!-- JSX app -->
+<script data-presets="react" type="text/babel">
+    const {useState, useMemo, useEffect} = React;
+
+    function useEnvWarnings() {
+        useEffect(() => {
+            const isFile = location.protocol === "file:";
+            if (isFile) {
+                const bar = document.createElement("div");
+                bar.className = "fixed bottom-3 right-3 bg-amber-100 text-amber-900 text-sm px-3 py-2 rounded shadow";
+                bar.textContent = "Tips: Hvis siden ikke fungerer, kjør via en enkel server: `python -m http.server` og åpne http://localhost:8000";
+                document.body.appendChild(bar);
+                setTimeout(() => bar.remove(), 12000);
+            }
+        }, []);
+    }
+
+    const Field = ({label, children}) => (
+        <label className="block mb-3">
+            <span className="block text-sm font-medium mb-1">{label}</span>
+            {children}
+        </label>
+    );
+
+    const defaultData = {
+        giver: {navn: "", adresse: ""},
+        fullmektig: {navn: "", adresse: ""},
+        vitner: [{navn: "", adresse: ""}, {navn: "", adresse: ""}],
+        sted: "", dato: ""
+    };
+
+    function App() {
+        useEnvWarnings();
+        const [data, setData] = useState(defaultData);
+        const [docxReady, setDocxReady] = useState(false);
+        const [pdfReady, setPdfReady] = useState(false);
+
+        useEffect(() => {
+            // Check globals once scripts have loaded
+            const id = setInterval(() => {
+                if (window.jspdf && !pdfReady) setPdfReady(true);
+                if (window.docx && !docxReady) setDocxReady(true);
+                if (pdfReady && docxReady) clearInterval(id);
+            }, 200);
+            return () => clearInterval(id);
+        }, [pdfReady, docxReady]);
+
+        const handle = (path, value) => {
+            setData(prev => {
+                const copy = {...prev};
+                const keys = path.split(".");
+                let obj = copy;
+                for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
+                obj[keys[keys.length - 1]] = value;
+                return copy;
+            });
+        };
+
+        const fullmaktTekst = useMemo(() => {
+            return `FREMTIDSFULLMAKT\n
+Fullmaktsgiver: ${data.giver.navn}, ${data.giver.adresse}
+Fullmektig: ${data.fullmektig.navn}, ${data.fullmektig.adresse}
+
+Sted og dato: ${data.sted}, ${data.dato}
+
+Vitner:
+1) ${data.vitner[0].navn}, ${data.vitner[0].adresse}
+2) ${data.vitner[1].navn}, ${data.vitner[1].adresse}
+
+Signatur fullmaktsgiver: ______________________
+Signatur vitner: ______________________`;
+        }, [data]);
+
+        const downloadPDF = () => {
+            if (!window.jspdf) {
+                alert("PDF-modul ikke klar. Prøv å laste siden på nytt.");
+                return;
+            }
+            const {jsPDF} = window.jspdf;
+            const doc = new jsPDF({unit: "mm"});
+            doc.setFontSize(12);
+            const lines = doc.splitTextToSize(fullmaktTekst, 180);
+            doc.text(lines, 15, 20);
+            doc.save("Fremtidsfullmakt.pdf");
+        };
+
+        const downloadDOCX = async () => {
+            if (!window.docx) {
+                alert("DOCX-modul ikke klar. Prøv å laste siden på nytt.");
+                return;
+            }
+            const {Document, Packer, Paragraph, TextRun} = window.docx;
+            const paragraphs = fullmaktTekst.split("\n").map(line =>
+                new Paragraph({children: [new TextRun(line)]})
+            );
+            const document = new Document({sections: [{properties: {}, children: paragraphs}]});
+            const blob = await Packer.toBlob(document);
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "Fremtidsfullmakt.docx";
+            a.click();
+        };
+
+        return (
+            <div className="max-w-4xl mx-auto p-6 space-y-6">
+                <h1 className="text-2xl font-bold">AI Advokaten — Fremtidsfullmakt</h1>
+                <p className="text-xs text-gray-500">Dev-modus: laster biblioteker fra CDN. For produksjon, bygg uten
+                    Babel in-browser og bruk Tailwind/React lokalt.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <Field label="Fullmaktsgiver navn">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.giver.navn}
+                                   onChange={e => handle("giver.navn", e.target.value)}/>
+                        </Field>
+                        <Field label="Fullmaktsgiver adresse">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.giver.adresse}
+                                   onChange={e => handle("giver.adresse", e.target.value)}/>
+                        </Field>
+                        <Field label="Fullmektig navn">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.fullmektig.navn}
+                                   onChange={e => handle("fullmektig.navn", e.target.value)}/>
+                        </Field>
+                        <Field label="Fullmektig adresse">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.fullmektig.adresse}
+                                   onChange={e => handle("fullmektig.adresse", e.target.value)}/>
+                        </Field>
+                        <Field label="Sted">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.sted}
+                                   onChange={e => handle("sted", e.target.value)}/>
+                        </Field>
+                        <Field label="Dato">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.dato}
+                                   onChange={e => handle("dato", e.target.value)}/>
+                        </Field>
+                    </div>
+
+                    <div>
+                        <Field label="Vitne 1 navn">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.vitner[0].navn}
+                                   onChange={e => handle("vitner.0.navn", e.target.value)}/>
+                        </Field>
+                        <Field label="Vitne 1 adresse">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.vitner[0].adresse}
+                                   onChange={e => handle("vitner.0.adresse", e.target.value)}/>
+                        </Field>
+                        <Field label="Vitne 2 navn">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.vitner[1].navn}
+                                   onChange={e => handle("vitner.1.navn", e.target.value)}/>
+                        </Field>
+                        <Field label="Vitne 2 adresse">
+                            <input className="border rounded p-2 w-full"
+                                   value={data.vitner[1].adresse}
+                                   onChange={e => handle("vitner.1.adresse", e.target.value)}/>
+                        </Field>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 className="font-semibold mb-2">Forhåndsvisning</h2>
+                    <pre className="bg-gray-100 p-4 rounded whitespace-pre-wrap">{fullmaktTekst}</pre>
+                </div>
+
+                <div className="flex gap-4">
+                    <button onClick={downloadPDF}
+                            disabled={!pdfReady}
+                            className={"px-4 py-2 rounded text-white " + (pdfReady ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gray-300")}>
+                        Last ned PDF
+                    </button>
+                    <button onClick={downloadDOCX}
+                            disabled={!docxReady}
+                            className={"px-4 py-2 rounded text-white " + (docxReady ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300")}>
+                        Last ned DOCX
+                    </button>
+                </div>
+
+                <p className="text-sm text-gray-500">
+                    ⚖️ Merk: Dette er en enkel mal og erstatter ikke juridisk rådgivning. For produksjon: bygg med lokal
+                    toolchain (Vite/CRA), fjern Babel i nettleser, og installer Tailwind som PostCSS-plugin.
+                </p>
+            </div>
+        );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App/>);
+</script>
+</body>
+</html>

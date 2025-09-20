@@ -8,5 +8,7 @@
     <include file="db/changelog/db_changelog-1.0.xml"/>
     <include file="db/changelog/db_changelog-2.1-consultant.xml"/>
     <include file="db/changelog/db_changelog-3.0-embeddings.xml"/>
+    <include file="db/changelog/db_changelog-3.1-indexes.xml"/>
+    <include file="db/changelog/db_changelog-4.0-cv-score.xml"/>
 
 </databaseChangeLog>

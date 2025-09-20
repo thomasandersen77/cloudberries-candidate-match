@@ -89,7 +89,7 @@ fun Cv.toFlatText(): String {
         )
     }
 
-    return parts.filter { !it.isNullOrBlank() }.joinToString(separator = "\n")
+    return parts.filter { it.isNotBlank() }.joinToString(separator = "\n")
 }
 
 /**

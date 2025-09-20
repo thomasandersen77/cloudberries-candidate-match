@@ -9,5 +9,12 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class Main
 
 fun main(args: Array<String>) {
-    SpringApplication.run(Main::class.java, *args)
+    val context = SpringApplication.run(
+        Main::class.java,
+        *args
+    )
+
+    //context.getBean(SyncConsultantService::class.java).syncAll(120)
+    // context.getBean(ScoreCandidateStartupRunner::class.java).run()
+
 }

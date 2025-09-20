@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20250916-01-create-cv-score" author="agent">
+        <createTable tableName="cv_score">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="candidate_user_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="score_percent" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="summary" type="text"/>
+            <column name="strengths" type="jsonb"/>
+            <column name="potential_improvements" type="jsonb"/>
+            <column name="evaluated_at" type="timestamp" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="cv_score" columnNames="candidate_user_id"
+                             constraintName="uk_cv_score_candidate"/>
+        <createIndex tableName="cv_score" indexName="idx_cv_score_candidate">
+            <column name="candidate_user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

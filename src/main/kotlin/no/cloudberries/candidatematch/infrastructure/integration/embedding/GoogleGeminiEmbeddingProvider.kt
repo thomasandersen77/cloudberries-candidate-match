@@ -41,27 +41,28 @@ class GoogleGeminiEmbeddingProvider(
             return DoubleArray(0)
         }
         val model = modelName.ifBlank { "text-embedding-004" }
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/${'$'}model:embedContent"
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:embedContent"
         val mapper = jacksonObjectMapper()
+
+        // KORREKSJON: Legg til "taskType" i payloaden
         val payload: String = mapper.writeValueAsString(
             mapOf(
                 "content" to mapOf(
                     "parts" to listOf(mapOf("text" to text))
-                )
+                ),
+                // Legg til en taskType som passer ditt bruk.
+                // "RETRIEVAL_DOCUMENT" er vanlig for embedding av dokumenter for søk.
+                // Andre vanlige verdier er "RETRIEVAL_QUERY", "SEMANTIC_SIMILARITY".
+                "taskType" to "SEMANTIC_SIMILARITY"
             )
         )
+
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val request = Request.Builder()
             .url(url)
             .post(payload.toRequestBody(mediaType))
-            .addHeader(
-                "Content-Type",
-                "application/json"
-            )
-            .addHeader(
-                "Accept",
-                "application/json"
-            )
+            // Du trenger bare én Content-Type header. toRequestBody(mediaType) fikser dette.
+            // .addHeader("Content-Type", "application/json") // Denne er overflødig
             .addHeader(
                 "x-goog-api-key",
                 geminiConfig.apiKey
@@ -71,7 +72,7 @@ class GoogleGeminiEmbeddingProvider(
         val client = httpClient
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                logger.error { "Gemini embedContent failed: HTTP ${'$'}{response.code} - ${'$'}{response.message}" }
+                logger.error { "Gemini embedContent failed: HTTP ${response.code} - ${response.message}" }
                 return DoubleArray(0)
             }
             val bodyStr = response.body.string()

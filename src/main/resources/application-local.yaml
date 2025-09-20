@@ -7,9 +7,9 @@ openai:
   assistantId: ${OPENAI_ASSISTANT_ID}
 gemini:
   apiKey: ${GEMINI_API_KEY}
-  model: gemini-1.5-pro-latest
+  model: gemini-2.5-pro
 embedding:
-  enabled: true
+  enabled: false
   provider: GEMINI
   model: text-embedding-004
   dimension: 768
@@ -48,4 +48,4 @@ spring:
 
 logging:
   level:
-    no.cloudberries.candidatematch: DEBUG # Setter DEBUG-logging for din kode
+    no.cloudberries.candidatematch: INFO # Setter DEBUG-logging for din kode
