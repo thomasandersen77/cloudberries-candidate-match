@@ -2,7 +2,6 @@ package no.cloudberries.candidatematch.service
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.candidate.Skill
@@ -32,9 +31,9 @@ class ProjectRequestServiceTest {
         val responseDeadline = LocalDateTime.of(2024, 8, 15, 12, 0)
         
         // Mock repository save method to return the same object with an ID
-        val savedRequestSlot = slot<ProjectRequestEntity>()
-        every { projectRequestRepository.save(capture(savedRequestSlot)) } answers {
-            savedRequestSlot.captured.copy(id = 1L)
+        every { projectRequestRepository.save(any()) } answers {
+            val arg0 = this.invocation.args[0] as ProjectRequestEntity
+            arg0.copy(id = 1L)
         }
 
         // Når createProjectRequest kalles
@@ -109,9 +108,9 @@ class ProjectRequestServiceTest {
             0
         )
 
-        val savedRequestSlot = slot<ProjectRequestEntity>()
-        every { projectRequestRepository.save(capture(savedRequestSlot)) } answers {
-            savedRequestSlot.captured.copy(id = 1L)
+        every { projectRequestRepository.save(any()) } answers {
+            val arg0 = this.invocation.args[0] as ProjectRequestEntity
+            arg0.copy(id = 1L)
         }
 
         val request = projectRequestService.createProjectRequest(
@@ -160,10 +159,9 @@ class ProjectRequestServiceTest {
             0
         )
 
-        every {
-            projectRequestRepository.save(any<ProjectRequestEntity>()) as ProjectRequestEntity
-        } answers {
-            firstArg<ProjectRequestEntity>().copy(id = 1L)
+        every { projectRequestRepository.save(any()) } answers {
+            val arg0 = this.invocation.args[0] as ProjectRequestEntity
+            arg0.copy(id = 1L)
         }
 
         val request = projectRequestService.createProjectRequest(

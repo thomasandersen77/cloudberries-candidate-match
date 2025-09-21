@@ -48,8 +48,10 @@ class MatchingController(
     @PostMapping("/by-skills")
     fun findMatchesBySkills(@RequestBody req: SkillsRequest): List<CandidateMatchResponse> {
         val requestText = "Finn konsulenter med ferdighetene: " + req.skills.joinToString(", ")
+        logger.info { "Received match request for: ${requestText.take(150)}..." }
         val results = mutableListOf<CandidateMatchResponse>()
         consultantRepository.findAll().forEach { c ->
+            logger.info { "Processing consultant: ${c.name}" }
             val match = aIService.matchCandidate(
                 aiProvider = AIProvider.GEMINI,
                 cv = c.resumeData.toString(),

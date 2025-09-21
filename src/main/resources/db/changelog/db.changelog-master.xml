@@ -10,5 +10,6 @@
     <include file="db/changelog/db_changelog-3.0-embeddings.xml"/>
     <include file="db/changelog/db_changelog-3.1-indexes.xml"/>
     <include file="db/changelog/db_changelog-4.0-cv-score.xml"/>
+    <include file="db/changelog/db_changelog-5.0-project-request.xml"/>
 
 </databaseChangeLog>

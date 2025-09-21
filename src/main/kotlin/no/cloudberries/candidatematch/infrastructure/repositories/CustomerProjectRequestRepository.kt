@@ -1,0 +1,8 @@
+package no.cloudberries.candidatematch.infrastructure.repositories
+
+import no.cloudberries.candidatematch.infrastructure.entities.CustomerProjectRequestEntity
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+interface CustomerProjectRequestRepository : JpaRepository<CustomerProjectRequestEntity, Long>

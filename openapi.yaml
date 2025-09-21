@@ -328,6 +328,54 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
+  /api/project-requests/upload:
+    post:
+      tags: [ Project Requests ]
+      summary: Upload and analyze a customer project request PDF
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [ file ]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Extracted project request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequestResponseDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/project-requests/{id}:
+    get:
+      tags: [ Project Requests ]
+      summary: Get stored customer project request by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Project request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequestResponseDto'
+        '404':
+          description: Not found
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /api/cv-score/{candidateId}:
     get:
       tags: [ CV Scoring ]
@@ -667,6 +715,38 @@ components:
           type: array
           items:
             type: string
+
+    ProjectRequestResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerName:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        originalFilename:
+          type: string
+        mustRequirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectRequirementDto'
+        shouldRequirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectRequirementDto'
+
+    ProjectRequirementDto:
+      type: object
+      required: [ name ]
+      properties:
+        name:
+          type: string
+        details:
+          type: string
 
     Problem:
       type: object

@@ -27,3 +27,17 @@ fun renderMatchTemplate(template: String, params: MatchParams): String {
         .replace("{{request}}", params.request)
         .replace("{{consultantName}}", params.consultantName)
 }
+
+// Params and renderer for Project Request analysis
+
+data class ProjectRequestParams(
+    val requestText: String,
+)
+
+fun renderProjectRequestTemplate(template: String, params: ProjectRequestParams): String {
+    return template
+        .replace(
+            "{{request_text}}",
+            params.requestText
+        )
+}

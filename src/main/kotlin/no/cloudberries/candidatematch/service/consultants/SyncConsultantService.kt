@@ -113,6 +113,7 @@ class SyncConsultantService(
         Files.write(
             file.toPath(),
             "${mapper.writeValueAsString(saved)}\n".toByteArray(),
+            StandardOpenOption.CREATE,
             StandardOpenOption.APPEND
         )
 
