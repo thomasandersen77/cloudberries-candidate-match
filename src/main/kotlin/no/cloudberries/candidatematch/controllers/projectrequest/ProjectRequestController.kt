@@ -20,11 +20,11 @@ class ProjectRequestController(
     fun uploadAndAnalyze(
         @RequestPart("file") file: MultipartFile
     ): ProjectRequestResponseDto {
-        val domain = analysisService.analyzeAndStore(
+        val projectRequest = analysisService.analyzeAndStore(
             pdfStream = file.inputStream,
             originalFilename = file.originalFilename
         )
-        return domain.toDto()
+        return projectRequest.toDto()
     }
 
     @GetMapping("/{id}")

@@ -9,9 +9,10 @@
     <name>Cloudberries Candidate Matcher</name>
 
     <properties>
-        <kotlin.version>2.2.0</kotlin.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <kotlin.version>2.2.0</kotlin.version>
         <javacv.version>1.5.10</javacv.version>
         <!-- Skip ITs by default; enable with -DskipITs=false -->
         <skipITs>true</skipITs>
@@ -317,6 +318,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <compilerArguments>-Xannotation-default-target=param-property</compilerArguments>
                     <mainClass>no.cloudberries.candidatematch.MainKt</mainClass>
                 </configuration>
             </plugin>
@@ -351,12 +353,36 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
+                    <jvmTarget>21</jvmTarget>
                     <compilerPlugins>
-                        <!-- Or "spring" for the Spring support -->
                         <plugin>spring</plugin>
                         <plugin>all-open</plugin>
+                        <plugin>no-arg</plugin>
                     </compilerPlugins>
+                    <pluginOptions>
+                        <!-- Ensure no-arg constructors for JPA entities -->
+                        <option>no-arg:annotation=jakarta.persistence.Entity</option>
+                        <option>no-arg:annotation=jakarta.persistence.MappedSuperclass</option>
+                        <option>no-arg:annotation=jakarta.persistence.Embeddable</option>
+                    </pluginOptions>
+                    <args>
+                        <arg>-Xannotation-default-target=param-property</arg>
+                    </args>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -364,23 +390,12 @@
                         <artifactId>kotlin-maven-allopen</artifactId>
                         <version>${kotlin.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-noarg</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

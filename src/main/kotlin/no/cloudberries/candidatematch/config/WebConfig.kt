@@ -17,5 +17,22 @@ class WebConfig : WebMvcConfigurer {
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Specify which methods are allowed
             .allowedHeaders("*") // Allow all headers
             .allowCredentials(true) // Allow cookies and credentials
+
+        // Add CORS configuration for Spring Boot Actuator endpoints
+        registry.addMapping("/actuator/**")
+            .allowedOrigins(
+                "http://192.168.0.12:5174",
+                "http://localhost:5174",
+                "http://169.254.189.144:5174"
+            )
+            .allowedMethods(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+            )
+            .allowedHeaders("*")
+            .allowCredentials(true)
     }
 }

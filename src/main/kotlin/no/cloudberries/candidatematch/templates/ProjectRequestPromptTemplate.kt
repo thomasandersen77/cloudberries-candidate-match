@@ -5,7 +5,10 @@ object ProjectRequestPromptTemplate {
     val template: String = """
         # 📄 Kundeforespørsel – Kravuttrekk
 
-        Du er en erfaren løsningsarkitekt og anbudsrådgiver. Du skal analysere en kundeforespørsel (som fritekst) og trekke ut en strukturert liste over krav. Skill tydelig mellom må-krav (obligatoriske) og bør-krav (ønskede). Svaret skal returneres KUN som et gyldig JSON-objekt under root-nøkkelen "project_request".
+        Du er en erfaren løsningsarkitekt og anbudsrådgiver. 
+        Du skal analysere en kundeforespørsel (som fritekst) og trekke ut en strukturert liste over krav. 
+        Skill tydelig mellom må-krav (obligatoriske) og bør-krav (ønskede). 
+        Svaret skal returneres KUN som et gyldig JSON-objekt under root-nøkkelen "project_request".
 
         ## Kundeforespørsel (tekst)
         ```text

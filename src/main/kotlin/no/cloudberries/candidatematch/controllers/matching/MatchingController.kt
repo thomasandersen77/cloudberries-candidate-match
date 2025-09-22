@@ -1,4 +1,5 @@
 package no.cloudberries.candidatematch.controllers.matching
+
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
 import no.cloudberries.candidatematch.domain.ai.AIProvider
@@ -8,6 +9,7 @@ import no.cloudberries.candidatematch.service.consultants.ConsultantReadService
 import no.cloudberries.candidatematch.utils.PdfUtils
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -45,21 +47,37 @@ class MatchingController(
         return listOf(matchResponse)
     }
 
+    @Transactional
     @PostMapping("/by-skills")
     fun findMatchesBySkills(@RequestBody req: SkillsRequest): List<CandidateMatchResponse> {
         val requestText = "Finn konsulenter med ferdighetene: " + req.skills.joinToString(", ")
         logger.info { "Received match request for: ${requestText.take(150)}..." }
+        val requiredSkills = req.skills.map { it.lowercase() }
         val results = mutableListOf<CandidateMatchResponse>()
-        consultantRepository.findAll().forEach { c ->
-            logger.info { "Processing consultant: ${c.name}" }
-            val match = aIService.matchCandidate(
-                aiProvider = AIProvider.GEMINI,
-                cv = c.resumeData.toString(),
-                request = requestText,
-                consultantName = c.name
-            )
-            results.add(match)
-        }
+        consultantRepository.findAll().also { logger.info { "Found ${it.size} candidates" } }
+            //.filter { it.skills.map{ s -> s.name.toString().lowercase()}.containsAll( requiredSkills) }
+            .filter { it.name == "Thomas Andersen" }
+            .forEach { c ->
+                logger.info { "Processing consultant: ${c.name}" }
+                val match = aIService.matchCandidate(
+                    aiProvider = AIProvider.GEMINI,
+                    cv = c.resumeData.toString(),
+                    request = requestText,
+                    consultantName = c.name
+                )
+                results.add(match)
+                logger.info { "Finished processing consultant: ${c.name}" }
+                logger.info {
+                    """ 
+                ${c.name}
+                ${match.totalScore}
+                ${match.summary}
+                ${match.requirements.joinToString("\n")}
+                 ---------------------------
+            """.trimIndent()
+                }
+            }
+
         return results
     }
 

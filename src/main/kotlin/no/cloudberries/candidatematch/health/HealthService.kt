@@ -63,7 +63,7 @@ class HealthService(
         val isDatabaseHealthy = isDatabaseHealthy()
 
         if (isDatabaseHealthy) {
-            logger.info { "Database health check passed." }
+            logger.debug { "Database health check passed." }
         } else {
             logger.error { "Database health check failed." }
         }
@@ -71,19 +71,19 @@ class HealthService(
         if (!areAIConfigured) {
             logger.error { "AI services configuration check failed." }
         } else {
-            logger.info { "AI services configuration check passed." }
+            logger.debug { "AI services configuration check passed." }
         }
 
         if (!isAIOperational) {
             logger.error { "GenAI health check failed. Neither service is operational." }
         } else {
-            logger.info { "GenAI health check passed. Both services are operational." }
+            logger.debug { "GenAI health check passed. Both services are operational." }
         }
 
         if (!isFlowcaseHealthy) {
             logger.error { "Flowcase health check failed." }
         } else {
-            logger.info { "Flowcase health check passed." }
+            logger.debug { "Flowcase health check passed." }
         }
 
         return isFlowcaseHealthy && isAIOperational && isDatabaseHealthy

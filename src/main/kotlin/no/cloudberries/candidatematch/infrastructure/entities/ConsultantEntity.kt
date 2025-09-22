@@ -10,7 +10,7 @@ import org.hibernate.annotations.Type
 
 @Entity
 @Table(name = "consultant")
-open class ConsultantEntity(
+class ConsultantEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

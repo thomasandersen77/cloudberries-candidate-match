@@ -28,7 +28,7 @@ class GeminiHttpClient(
             val response = client.models.generateContent(geminiConfig.model, "are you up? answer yes or no", null)
             response?.text()?.lowercase()?.contains("yes") ?: false // Håndterer null-respons
         }.getOrElse {
-            logger.error(it) { "Gemini connection test failed" }
+            logger.error { "Gemini connection test failed. ${it.message}" }
             false
         }
     }
