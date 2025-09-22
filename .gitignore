@@ -29,3 +29,6 @@ ngrok_recovery_codes.txt
 /tasks/
 /Tasks/
 cvs.txt
+
+# Ignore local archives
+/Archive/
