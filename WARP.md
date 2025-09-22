@@ -1,155 +1,79 @@
-# WARP.md
+# Warp guide for cloudberries-candidate-match-web
 
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
+This document is a lightweight runbook for local development, CI/CD, and smooth handovers. Pair it with the reusable workflows in `warp.mf`.
 
-## Project Overview
-
-Cloudberries Candidate Matcher is a Spring Boot application written in Kotlin that matches candidates to projects using
-AI. It integrates with Flowcase API for candidate data and uses OpenAI/Gemini for intelligent matching and scoring of
-candidates against project requirements.
-
-## Build System & Dependencies
-
-- **Language**: Kotlin 2.2.0 with Java 21
-- **Framework**: Spring Boot 3.3.3 with Maven
-- **Database**: PostgreSQL with Liquibase migrations
-- **AI Integration**: OpenAI and Google Gemini APIs
-- **External APIs**: Flowcase for candidate management
-
-## Development Commands
-
-### Local Development
+## Prerequisites
+- macOS + Warp Terminal
+- Homebrew (installed)
+- Node.js (use the repo's preferred version manager; e.g. nvm)
+- Optional Java tooling (follow team rule):
+  - Install SDKMAN, then JDK and Maven via SDKMAN
 
 ```bash
-# Build the project
-mvn clean compile
-
-# Run all tests
-mvn test
-
-# Run integration tests
-mvn verify
-
-# Package the application
-mvn package
-
-# Run the application locally
-mvn spring-boot:run
+# SDKMAN (optional, for Java-related tooling)
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk install java 21.0.3-tem
+sdk install maven
 ```
 
-### Docker Development
-
+## Getting started
 ```bash
-# Start PostgreSQL and the application
-docker-compose up
+# 1) Install dependencies
+npm install  # replace with yarn/pnpm if the repo uses those
 
-# Start only PostgreSQL for local development
-docker-compose up postgres
+# 2) Run the app locally
+npm run dev
 
-# Rebuild and start
-docker-compose up --build
+# 3) Lint / Test
+npm run lint
+npm test
 
-# Run tests with test database
-docker-compose -f docker-compose-test.yml up
+# 4) Build
+npm run build
 ```
 
-### Testing
+If commands differ in this repo, update scripts in package.json and the workflows in `warp.mf` accordingly.
 
-```bash
-# Run specific test
-mvn test -Dtest=CandidateMatchingServiceTest
+## Common workflows (Warp)
+Use the pre-defined workflows in `warp.mf` from Warp’s command palette:
+- install → install dependencies
+- dev → start dev server
+- lint → run linters
+- test → run tests
+- build → production build
+- docker:build → build a Docker image with {{image_tag}}
+- azdo:pipelines:run → run an Azure DevOps pipeline with {{pipeline_name}} on {{branch}}
 
-# Run integration tests only
-mvn failsafe:integration-test
+## Git and PR workflow
+- Trunk-based: short-lived feature branches, frequent PRs
+- Conventional Commits (e.g. `feat:`, `fix:`, `chore:`)
+- Branch naming: `feature/<ticket-id>-<short-desc>` or `fix/<ticket-id>-<short-desc>`
+- PRs must include: What/Why, test notes, risk/rollback, links to Boards items
+- At least 1–2 reviewers; green CI required before merge
 
-# Run all tests with coverage
-mvn verify
-```
+## CI/CD (Azure DevOps)
+- Org: https://dev.azure.com/cloudberriesas/
+- Typical pipeline stages: install → lint/test → build → (optional) deploy
+- Variables and secrets: use Variable Groups and Key Vault (no secrets in YAML)
+- For infra repos, apply uses approvals via Environments
 
-## Architecture Overview
+## Security and secrets
+- Do not commit secrets. Fetch from secure stores and export into env vars locally
+- For local DB access: use username/password only (no client certificate auth)
 
-The application follows a layered architecture:
+## Handover checklist
+- Small, focused PRs linked to a Board task
+- Update README and this warp.md when behavior or commands change
+- Ensure `npm test` and linting are green locally and in CI
+- Add/adjust `warp.mf` workflows if new commands were introduced
+- Include rollback notes and feature flags if applicable
 
-### Controllers Layer (`/controllers`)
+## Troubleshooting
+- Node version mismatches: check `.nvmrc` or `.tool-versions` if present
+- Clean install: remove node_modules and lockfile, then re-install
+- Verify CI parity: run the same commands locally as in pipelines
 
-- **MatchingController**: Main API endpoint for candidate matching (`/api/matches`)
-- **CvScoreController**: CV scoring endpoints (`/api/score`)
-- **AIController**: AI chat functionality
-- **HealthController**: Health check endpoints
-
-### Service Layer (`/service`)
-
-- **CandidateMatchingService**: Core matching logic using AI providers
-- **ScoreCandidateService**: CV scoring functionality
-- **AIContentAnalysisService**: AI content analysis wrapper
-- **NotificationScheduler**: Scheduled notifications
-
-### Domain Layer (`/domain`)
-
-- **candidate/**: Candidate domain objects and matching logic
-- **consultant/**: Consultant-related domain models
-- **ai/**: AI provider abstractions (AIProvider enum)
-- **event/**: Domain events for consultant matching
-
-### Infrastructure Layer (`/infrastructure`)
-
-- **integration/**: External API clients (Flowcase, OpenAI, Gemini)
-- **repositories/**: JPA repositories for data persistence
-- **adapters/**: Domain-to-infrastructure adapters
-- **entities/**: JPA entity classes
-
-### Key Integration Points
-
-1. **Flowcase Integration**: Syncs consultant data from external Flowcase API
-2. **AI Providers**: Supports both OpenAI and Gemini for candidate matching
-3. **PostgreSQL**: Persistent storage with Liquibase schema management
-4. **Health Monitoring**: Custom health indicators for dependencies
-
-## Database Setup
-
-The application requires PostgreSQL with the schema `candidatematch`. Database migrations are handled by Liquibase.
-
-### Environment Variables
-
-```bash
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/candidatematch
-SPRING_DATASOURCE_USERNAME=candidatematch
-SPRING_DATASOURCE_PASSWORD=candidatematch123
-FLOWCASE_API_KEY=your_api_key
-OPENAI_API_KEY=your_api_key
-GEMINI_API_KEY=your_api_key
-```
-
-## Testing Strategy
-
-- **Unit Tests**: Use MockK for mocking Kotlin classes
-- **Integration Tests**: Use embedded PostgreSQL (Zonky)
-- **AI Testing**: WireMock for external API testing
-- **Test Profiles**: Separate configuration for test environments
-
-## Main Application Flow
-
-1. **Candidate Data Sync**: SyncConsultantService pulls consultant data from Flowcase
-2. **Match Request**: Client sends project requirements to `/api/matches`
-3. **AI Analysis**: CandidateMatchingService uses AI providers to score candidates
-4. **Response**: Returns ranked list of candidate matches with scores and summaries
-5. **Event Publishing**: Domain events are published for successful matches
-
-## Development Notes
-
-- Main class: `no.cloudberries.candidatematch.MainKt`
-- Uses Spring Boot with `@EnableScheduling` for background tasks
-- Kotlin coroutines for async processing
-- Jackson for JSON processing
-- PDF parsing capabilities for CV analysis
-- Rate limiting with Bucket4j
-- Comprehensive logging with kotlin-logging
-
-## CI/CD
-
-GitHub Actions workflow includes:
-
-- Maven build and test
-- Gemini AI code review on pull requests
-- Quality checks with Qodana
-- Automated deployment to Azure Container Apps
+## Useful links
+- Azure DevOps org: https://dev.azure.com/cloudberriesas/
+- Warp Notebooks and Workflows: https://docs.warp.dev/features/warp-drive/

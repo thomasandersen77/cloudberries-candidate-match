@@ -38,28 +38,27 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          PROMPT_TEMPLATE=$(cat .github/prompts/pr_review_prompt.txt)
-          ARCH_PROMPT=$(cat .github/prompts/architecture_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
-
           # Minimal arkitektur-kontekst
           CONTEXT=$(cat <<'EOF'
           System: Candidate-matching app (Spring Boot, Kotlin, JPA, Liquibase, OkHttp, WireMock). DDD-lag: controllers -> services -> domain -> infra/adapters. Embeddings via Google Gemini, lagret i Postgres/pgvector. Teststrategi: JUnit5, MockK, WireMock, Testcontainers (pgvector), Zonky Embedded Postgres. Viktige valg: DIP via interfaces, domene-atferd i aggregates, YAML for config, Liquibase contexts for pgvector.
           EOF
           )
 
-          FULL_PROMPT="$PROMPT_TEMPLATE
+          PROMPT_FILE="$(mktemp)"
+          {
+            cat .github/prompts/pr_review_prompt.txt
+            echo
+            echo '---'
+            echo 'Prosjektkontekst:'
+            printf '%s\n' "$CONTEXT"
+            echo '---'
+            echo
+            cat .github/prompts/architecture_review_prompt.txt
+            echo
+            git diff origin/main...HEAD
+          } > "$PROMPT_FILE"
 
-          ---
-          Prosjektkontekst:
-          $CONTEXT
-          ---
-
-          $ARCH_PROMPT
-
-          $CODE_DIFF"
-
-          JSON_PAYLOAD=$(jq -n --arg text_content "$FULL_PROMPT" '{contents: [{parts: [{text: $text_content}]}]}')
+          jq -n --rawfile text_content "$PROMPT_FILE" '{contents: [{parts: [{text: $text_content}]}]}' > payload_arch.json
 
           # Retry
           MAX_ATTEMPTS=3; RETRY_DELAY=5
@@ -68,7 +67,7 @@ jobs:
             HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
               "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
               -H "Content-Type: application/json" \
-              -d "$JSON_PAYLOAD")
+              --data-binary @payload_arch.json)
             HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
             GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
             if [ "$HTTP_STATUS_CODE" -eq 200 ]; then
@@ -106,13 +105,19 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          PROMPT=$(cat .github/prompts/security_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
-          JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+          PROMPT_FILE="$(mktemp)"
+          {
+            cat .github/prompts/security_review_prompt.txt
+            echo
+            git diff origin/main...HEAD
+          } > "$PROMPT_FILE"
+
+          jq -n --rawfile text_content "$PROMPT_FILE" '{contents: [{parts: [{text: $text_content}]}]}' > payload_sec.json
+
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-            -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
+            -H "Content-Type: application/json" \
+            --data-binary @payload_sec.json)
           HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
           GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
           [ "$HTTP_STATUS_CODE" -eq 200 ] || { echo "$GEMINI_RESPONSE"; exit 1; }
@@ -137,13 +142,19 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          PROMPT=$(cat .github/prompts/readability_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
-          JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+          PROMPT_FILE="$(mktemp)"
+          {
+            cat .github/prompts/readability_review_prompt.txt
+            echo
+            git diff origin/main...HEAD
+          } > "$PROMPT_FILE"
+
+          jq -n --rawfile text_content "$PROMPT_FILE" '{contents: [{parts: [{text: $text_content}]}]}' > payload_readability.json
+
           HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-            -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
+            -H "Content-Type: application/json" \
+            --data-binary @payload_readability.json)
           HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
           GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
           [ "$HTTP_STATUS_CODE" -eq 200 ] || { echo "$GEMINI_RESPONSE"; exit 1; }
