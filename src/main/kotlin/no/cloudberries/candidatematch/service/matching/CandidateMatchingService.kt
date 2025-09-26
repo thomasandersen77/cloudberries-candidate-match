@@ -16,6 +16,7 @@ import no.cloudberries.candidatematch.service.ai.AIService
 import no.cloudberries.candidatematch.templates.MatchParams
 import no.cloudberries.candidatematch.templates.MatchPromptTemplate
 import no.cloudberries.candidatematch.templates.renderMatchTemplate
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -28,6 +29,7 @@ class CandidateMatchingService(
     private val logger = KotlinLogging.logger {}
     private val mapper = jacksonObjectMapper()
 
+    @Timed
     override fun matchCandidate(
         aiProvider: AIProvider,
         cv: String,

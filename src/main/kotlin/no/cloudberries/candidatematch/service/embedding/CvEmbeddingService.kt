@@ -7,6 +7,7 @@ import no.cloudberries.candidatematch.infrastructure.integration.embedding.Embed
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.toDomain
 import no.cloudberries.candidatematch.infrastructure.repositories.embedding.CvEmbeddingRepository
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 
 @Service
@@ -39,6 +40,7 @@ class CvEmbeddingService(
         )
     }
 
+    @Timed
     fun processUserCv(userId: String, cvId: String): Boolean {
         if (!embeddingProvider.isEnabled()) {
             logger.info { "Embedding is disabled; skipping processing for userId=$userId, cvId=$cvId." }

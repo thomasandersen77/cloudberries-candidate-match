@@ -208,3 +208,139 @@ softwareupdate --install-rosetta --agree-to-license
 - Empty embeddings returned: verify GEMINI_API_KEY is set and embedding.enabled=true.
 - Flowcase stubs vs real API: tests stub Flowcase; for local runs ensure FLOWCASE_BASE_URL and FLOWCASE_API_KEY are
   configured for your environment.
+
+---
+
+## Funksjonell oversikt
+
+Tjenesten støtter følgende hovedflyter:
+
+- Synkronisering fra Flowcase
+  - Henter brukere og standard CV-id-er fra Flowcase API
+  - Laster full CV (JSON) per bruker og lagrer i databasen (consultant.resume_data som JSONB)
+  - Avleder og lagrer kompetanser (skills) som relasjoner
+  - Kan generere embeddings for semantisk søk (pgvector) når aktivert
+- Kompetanseoversikt
+  - Aggregerer antall konsulenter per kompetanse og lister konsulenter med kompetansen
+  - Brukes i frontend for filtrering/valg i dropdown
+- Matching
+  - Matcher kandidater fra CV/tekst mot behov (tekst), eller direkte basert på valgte kompetanser
+  - Støtter opplasting av PDF
+- CV-scoring
+  - Skårer CV-er (enkelt-kandidat eller alle) og eksponerer resultater via API
+- Helse
+  - Sammensatt helse-sjekk for databasen, eksterne integrasjoner (Flowcase/GenAI), og konfigurasjon
+
+
+## Intern arkitektur (C4-inspirert)
+
+```mermaid
+flowchart LR
+  %% Aktører / konteinere
+  subgraph Frontend["Frontend (Web)"]
+    FE["Candidate Match Web"]
+  end
+
+  subgraph Backend["Candidate Match Backend (Spring Boot 3, Kotlin)"]
+    C["Controllers\n(Spring MVC, REST JSON)"]
+    S["Tjenestelag\n(Matching, Scoring, Sync, Search)"]
+    I["Integrasjoner\n(OkHttp-klienter)"]
+    P["Persistens\n(JPA/Hibernate 6, Repositories)"]
+  end
+
+  subgraph Integrasjoner["Eksterne integrasjoner"]
+    Flowcase["Flowcase API\nHTTP/JSON"]
+    Gemini["Google Gemini\nHTTP/JSON"]
+    OpenAI["OpenAI\nHTTP/JSON"]
+  end
+
+  subgraph Database["Database"]
+    PG["PostgreSQL\nJSONB + Liquibase"]
+    VEC["pgvector (valgfri)\nfor semantisk søk"]
+  end
+
+  %% Forbindelser og protokoller
+  FE -->|HTTP/JSON| C
+  C --> S
+  S --> I
+  S --> P
+  I -->|HTTP/JSON| Flowcase
+  I -->|HTTP/JSON| Gemini
+  I -->|HTTP/JSON| OpenAI
+  P -->|JDBC| PG
+  PG --- VEC
+```
+
+Teknologier: Kotlin, Spring Boot 3, Spring MVC, Liquibase, Hibernate 6 + Hypersistence (JSON/JSONB), OkHttp, springdoc-openapi,
+PostgreSQL, pgvector (opsjon), Testcontainers/Zonky for tester.
+
+
+## OpenAPI og genererte typer
+
+- OpenAPI-spesifikasjonen ligger i rotmappen: `openapi.yaml`
+- Når appen kjører lokalt, kan spesifikasjonen også hentes fra Springdoc:
+  - JSON: `http://localhost:8080/v3/api-docs`
+  - YAML: `http://localhost:8080/v3/api-docs.yaml`
+  - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+
+Generere TypeScript-typer til frontend (alternativ 1: openapi-typescript):
+
+```bash
+# I frontend-prosjektet (juster sti til openapi.yaml og ønsket output)
+npm i -D openapi-typescript
+npx openapi-typescript ../cloudberries-candidate-match/openapi.yaml -o src/api/types.gen.ts
+```
+
+Generere TypeScript-klient (alternativ 2: OpenAPI Generator):
+
+```bash
+# Installer via Homebrew (eller bruk Docker image openapitools/openapi-generator-cli)
+brew install openapi-generator
+
+# Generer fetch-basert TS-klient (juster output-katalog)
+openapi-generator generate \
+  -i openapi.yaml \
+  -g typescript-fetch \
+  -o generated/typescript-fetch \
+  --additional-properties=supportsES6=true
+```
+
+Generere Kotlin-klient (for interne kall eller andre tjenester):
+
+```bash
+openapi-generator generate \
+  -i openapi.yaml \
+  -g kotlin \
+  -o generated/kotlin-client
+```
+
+Tips:
+- Hold `openapi.yaml` i sync med implementasjonen. Ved behov kan du eksportere ny YAML fra `v3/api-docs.yaml`:
+  `curl -s http://localhost:8080/v3/api-docs.yaml > openapi.yaml`
+- Frontend kan også generere klient direkte fra `http://localhost:8080/v3/api-docs.yaml` i CI.
+
+
+## API-endepunkter (funksjonell oversikt)
+
+| Metode | Path                              | Formål (funksjonelt)                                                | Input (kort)                                 | Output (kort) |
+|-------:|-----------------------------------|---------------------------------------------------------------------|----------------------------------------------|---------------|
+| GET    | /api/skills                       | Aggregerer og lister kompetanser i selskapet                       | query: skill[]=KOTLIN,…                      | Aggregater    |
+| POST   | /api/chatbot/analyze              | Analyserer tekst med AI                                             | JSON: { content }                            | AI-respons    |
+| GET    | /api/consultants                  | Lister konsulenter (paginert, filtrerbart på navn)                 | query: name, page/size/sort                  | Page<Consultant> |
+| POST   | /api/consultants/sync/run         | Kjører synk fra Flowcase                                            | query: batchSize                             | Sammendrag    |
+| POST   | /api/consultants/search           | Relasjonelt søk etter konsulenter                                   | JSON: { name, skillsAll/Any, … } + paging    | Page<Result>  |
+| POST   | /api/consultants/search/semantic  | Semantisk søk (embeddings/pgvector)                                 | JSON: { text, provider?, model?, topK }      | Treffliste    |
+| GET    | /api/cv/{userId}                  | Henter CV-data (JSON) for gitt bruker                               | path: userId                                  | CV JSON       |
+| POST   | /api/embeddings/run/jason         | Demo: generér embeddings for «Jason»                                | –                                            | Resultat      |
+| POST   | /api/embeddings/run               | Generér embeddings for spesifikk bruker/CV                          | query: userId, cvId                           | Resultat      |
+| POST   | /api/embeddings/run/missing       | Generér embeddings for manglende i batch                            | query: batchSize                              | Resultat      |
+| GET    | /api/health                       | Helse-sjekk (aggregert)                                              | –                                            | Status        |
+| POST   | /api/matches                      | Finn matcher fra prosjektbeskrivelse (tekst)                        | JSON: { projectRequestText }                 | Matcher       |
+| POST   | /api/matches/upload               | Last opp CV (PDF) og finn matcher                                   | multipart: file, projectRequestText           | Matcher       |
+| POST   | /api/matches/by-skills            | Finn matcher basert på valgte kompetanser                           | JSON: { skills: [ ... ] }                    | Matcher       |
+| POST   | /api/project-requests/upload      | Last opp og analyser kundeforespørsel (PDF)                         | multipart: file                               | Forespørsel   |
+| GET    | /api/project-requests/{id}        | Hent lagret kundeforespørsel                                        | path: id                                      | Forespørsel   |
+| GET    | /api/cv-score/{candidateId}       | Hent CV-score for kandidat                                          | path: candidateId                             | Score DTO     |
+| POST   | /api/cv-score/{candidateId}/run   | Kjør CV-score for kandidat                                          | path: candidateId                             | Score DTO     |
+| POST   | /api/cv-score/run/all             | Kjør CV-score for alle                                              | –                                            | Sammendrag    |
+| GET    | /api/cv-score/all                 | List alle kandidater (oversikt)                                     | –                                            | Liste         |

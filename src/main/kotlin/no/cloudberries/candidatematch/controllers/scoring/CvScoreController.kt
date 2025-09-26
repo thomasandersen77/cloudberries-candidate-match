@@ -4,16 +4,14 @@ import no.cloudberries.candidatematch.domain.candidate.scoring.CandidateCvScorin
 import no.cloudberries.candidatematch.service.ai.AIService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/cv-score")
 class CvScoreController(
-    val aiService: AIService,
-    val candidateCvScoringService: CandidateCvScoringService,
-    val cvScoreRepository: no.cloudberries.candidatematch.infrastructure.repositories.scoring.CvScoreRepository,
-    val consultantRepository: no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository,
+    private val cvScoreAppService: no.cloudberries.candidatematch.service.scoring.CvScoreAppService,
 ) {
 
     private val logger = mu.KotlinLogging.logger {}
@@ -21,46 +19,31 @@ class CvScoreController(
     @GetMapping("/{candidateId}")
     fun getCvScoreForCandidate(@PathVariable("candidateId") candidateId: String): CvScoreDto {
         logger.info { "Getting cv score for candidate $candidateId" }
-        val score = cvScoreRepository.findByCandidateUserId(candidateId)
-        if (score != null) {
-            val strengths = jsonArrayToList(score.strengths)
-            val improvements = jsonArrayToList(score.potentialImprovements)
-            return CvScoreDto(
-                candidateId = candidateId,
-                scorePercent = score.scorePercent,
-                summary = score.summary ?: "",
-                strengths = strengths,
-                potentialImprovements = improvements
-            )
-        }
-        return CvScoreDto.empty(candidateId)
+        return cvScoreAppService.getScore(candidateId)
     }
 
     @GetMapping("/all")
-    fun getAllCandidates(): List<CandidateDTO> {
-        // Use consultants from DB for immediate response (already synced)
+    fun getAllCandidates(): List<CandidateDTO> = cvScoreAppService.listCandidates()
 
-        return consultantRepository.findAll().map {
-            CandidateDTO(
-                it.userId,
-                it.name,
-                it.resumeData.get("bornYear")?.asInt() ?: 0
-            )
-        }
+    @PostMapping("/{candidateId}/run")
+    fun runScoreForCandidate(@PathVariable("candidateId") candidateId: String): CvScoreDto =
+        cvScoreAppService.scoreCandidate(candidateId)
+
+    @PostMapping("/run/all")
+    fun runScoreForAll(): CvScoringRunResponse {
+        val result = cvScoreAppService.scoreAll()
+        return CvScoringRunResponse(processedCount = result.processedCount)
     }
-
-    private fun jsonArrayToList(node: com.fasterxml.jackson.databind.JsonNode?): List<String> =
-        when {
-            node == null || node.isNull -> emptyList()
-            node.isArray -> node.mapNotNull { it.asText() }
-            else -> emptyList()
-        }
 }
 
 data class CandidateDTO(
     val id: String,
     val name: String,
     val birthYear: Int,
+)
+
+data class CvScoringRunResponse(
+    val processedCount: Int
 )
 
 data class CvScoreDto(

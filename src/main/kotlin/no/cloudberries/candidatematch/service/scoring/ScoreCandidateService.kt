@@ -10,6 +10,7 @@ import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import no.cloudberries.candidatematch.templates.CvReviewParams
 import no.cloudberries.candidatematch.templates.CvReviewPromptTemplate
 import no.cloudberries.candidatematch.templates.renderCvReviewTemplate
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 
 @Service
@@ -28,6 +29,7 @@ class ScoreCandidateService(
             false
         )
 
+    @Timed
     fun performCvScoring(
         aiProvider: AIProvider = AIProvider.GEMINI,
         cv: String,

@@ -22,6 +22,7 @@ Dette dokumentet beskriver alle API-endepunkter i systemet på en funksjonell m�
 | `/api/cv-score/all`                | GET    | -                              | -                                        | Henter en oversikt over alle kandidater med deres grunnleggende informasjon. Gir en rask oversikt over konsulentdatabasen uten detaljerte CV-data.                                          |
 | `/api/project-requests/upload`     | POST   | -                              | Multipart: `file`                        | Laster opp en kundeforespørsel (PDF), trekker ut krav via AI (må/bør), lagrer og returnerer resultatet.                                                                                     |
 | `/api/project-requests/{id}`       | GET    | -                              | -                                        | Henter en tidligere lagret kundeforespørsel med kravlistene (må/bør).                                                                                                                       |
+| `/api/skills`                      | GET    | `skill` (repeater)             | -                                        | Henter aggregert oversikt over ferdigheter i selskapet, inkl. antall konsulenter og liste over konsulenter pr. ferdighet.                                                                   |
 
 ## Request Body Schemas
 

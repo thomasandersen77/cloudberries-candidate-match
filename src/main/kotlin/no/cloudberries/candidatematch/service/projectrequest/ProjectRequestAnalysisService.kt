@@ -16,6 +16,7 @@ import no.cloudberries.candidatematch.templates.ProjectRequestParams
 import no.cloudberries.candidatematch.templates.ProjectRequestPromptTemplate
 import no.cloudberries.candidatematch.templates.renderProjectRequestTemplate
 import no.cloudberries.candidatematch.utils.PdfUtils
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.InputStream
@@ -28,6 +29,7 @@ class ProjectRequestAnalysisService(
     private val logger = KotlinLogging.logger {}
     private val mapper = jacksonObjectMapper()
 
+    @Timed
     @Transactional
     fun analyzeAndStore(
         pdfStream: InputStream,

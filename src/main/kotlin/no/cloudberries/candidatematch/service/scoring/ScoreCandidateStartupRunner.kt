@@ -10,6 +10,7 @@ import no.cloudberries.candidatematch.health.HealthService
 import no.cloudberries.candidatematch.infrastructure.entities.scoring.CvScoreEntity
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.scoring.CvScoreRepository
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
@@ -25,6 +26,7 @@ class ScoreCandidateStartupRunner(
     private val logger = KotlinLogging.logger {}
     private val mapper: ObjectMapper = jacksonObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 
+    @Timed
     fun run() {
         // Only run if AI is configured; otherwise skip silently
         if (!healthService.areAIConfigured()) {
@@ -39,7 +41,7 @@ class ScoreCandidateStartupRunner(
             try {
                 // skip if already scored
                 val existing = cvScoreRepository.findByCandidateUserId(entity.userId)
-                if (existing != null) {
+                if (existing != null && existing.scorePercent > 0.0) {
                     return@forEach
                 }
 

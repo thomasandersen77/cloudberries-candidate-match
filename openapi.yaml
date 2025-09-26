@@ -15,6 +15,8 @@ servers:
 tags:
   - name: Chat
     description: AI content analysis
+  - name: Skills
+    description: Company skills overview
   - name: Consultants
     description: Consultant search and sync
   - name: CV
@@ -29,6 +31,32 @@ tags:
     description: CV scoring utilities
 
 paths:
+  /api/skills:
+    get:
+      tags: [ Skills ]
+      summary: List skills across consultants
+      parameters:
+        - in: query
+          name: skill
+          description: Optional skill filter (repeat to filter by multiple)
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Skill aggregates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SkillInCompanyDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /api/chatbot/analyze:
     post:
       tags: [ Chat ]
@@ -395,6 +423,39 @@ paths:
                 $ref: '#/components/schemas/CvScoreDto'
         default:
           $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags: [ CV Scoring ]
+      summary: Trigger scoring for single candidate
+      description: Runs CV scoring for the specified candidate and stores/returns the latest score.
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Updated candidate CV score
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvScoreDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/cv-score/run/all:
+    post:
+      tags: [ CV Scoring ]
+      summary: Trigger scoring for all consultants
+      responses:
+        '200':
+          description: Scoring summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvScoringRunResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
 
   /api/cv-score/all:
     get:
@@ -538,6 +599,20 @@ components:
     Skill:
       type: string
       enum: [ BACKEND, FRONTEND, JAVA, KOTLIN, REACT, TYPESCRIPT, ARCHITECTURE ]
+
+    SkillInCompanyDto:
+      type: object
+      required: [ name, konsulenterMedSkill, konsulenter ]
+      properties:
+        name:
+          type: string
+        konsulenterMedSkill:
+          type: integer
+          description: Number of consultants with this skill
+        konsulenter:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsultantSummaryDto'
 
     AIAnalysisRequest:
       type: object
@@ -715,6 +790,13 @@ components:
           type: array
           items:
             type: string
+
+    CvScoringRunResponse:
+      type: object
+      required: [ processedCount ]
+      properties:
+        processedCount:
+          type: integer
 
     ProjectRequestResponseDto:
       type: object
