@@ -213,7 +213,20 @@
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk-jvm</artifactId>
-            <version>1.14.4</version>
+            <version>1.13.13</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Force modern Byte Buddy compatible with newer JDKs -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.15.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.15.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -340,9 +353,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.3.0</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+                        --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                        -Djdk.attach.allowAttachSelf=true
+                        -XX:+EnableDynamicAgentLoading
+                    </argLine>
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*Test.kt</include>
@@ -430,9 +450,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.3.0</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+                        --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                        -Djdk.attach.allowAttachSelf=true
+                        -XX:+EnableDynamicAgentLoading
+                    </argLine>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
                         <include>**/*IntegrationTest.kt</include>
