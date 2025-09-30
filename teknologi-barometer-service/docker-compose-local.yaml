@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres-local:
+    image: pgvector/pgvector:pg15
+    container_name: tech-barometer-postgres-local
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: barometer_db
+      POSTGRES_USER: barometer
+      POSTGRES_PASSWORD: barometer123
+    ports:
+      - "5434:5432" # Bruker port 5433 for å unngå konflikt med andre instillinger
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_local_data:
+    driver: local

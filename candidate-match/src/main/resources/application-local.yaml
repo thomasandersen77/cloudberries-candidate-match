@@ -1,0 +1,90 @@
+flowcase:
+  apiKey: ${FLOWCASE_API_KEY}
+  baseUrl: ${FLOWCASE_BASE_URL}
+openai:
+  apiKey: ${OPENAI_API_KEY}
+  model: gpt-5
+  assistantId: ${OPENAI_ASSISTANT_ID}
+gemini:
+  apiKey: ${GEMINI_API_KEY}
+  model: gemini-2.5-pro
+embedding:
+  enabled: true
+  provider: GEMINI
+  model: text-embedding-004
+  dimension: 768
+ai:
+  provider: GEMINI
+  models:
+    interpretation: gemini-2.5-flash
+    generation_default: gemini-2.5-flash
+    generation_quality: gemini-2.5-pro
+    embeddings: text-embedding-004
+  timeouts:
+    interpretation: 1500  # 1.5s for fast query classification
+    generation: 3000     # 3s for answer generation
+    retrieval: 150       # 150ms for vector retrieval
+  rag:
+    enabled: true
+    chunk_size: 700
+    chunk_overlap: 100
+    top_k_chunks: 8
+  semantic:
+    enabled: true
+  hybrid:
+    enabled: true
+    semantic_weight: 0.6
+    quality_weight: 0.4
+  streaming:
+    enabled: false  # Enable later when UI supports it
+  ollama:
+    base-url: http://localhost:11434
+    model: llama3.2:1b
+    connect-timeout-seconds: 5
+    read-timeout-seconds: 120
+    write-timeout-seconds: 10
+projectrequest:
+  analysis:
+    ai-enabled: true
+    provider: GEMINI
+sync:
+  consultants:
+    on-startup: true
+
+spring:
+  liquibase:
+    change-log: classpath*:/db/changelog/db.changelog-master.xml
+    contexts: pgvector
+  datasource:
+    url: jdbc:postgresql://localhost:5433/candidatematch
+    username: ${POSTGRES_USER:candidatematch}
+    password: ${POSTGRES_PASSWORD:candidatematch123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000 # 5 minxutes
+      connection-timeout: 5000 # 5 seconds
+      schema: public
+      data-source-properties:
+        sslmode: disable
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+    open-in-view: false
+  sql:
+    init:
+      schema-locations: classpath:/db/changelog/schema.sql
+
+logging:
+  level:
+    no.cloudberries.candidatematch: INFO # Setter DEBUG-logging for din kode

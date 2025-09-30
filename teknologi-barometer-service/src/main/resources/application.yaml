@@ -1,0 +1,96 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: teknologi-barometer-service
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5434/barometer_db
+    username: barometer
+    password: barometer123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000 # 5 minutes
+      connection-timeout: 5000 # 5 seconds
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 25
+    open-in-view: false
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.1
+      embedding:
+        options:
+          model: text-embedding-3-small
+          dimensions: 1536
+    
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        schema-name: public
+        table-name: barometer_vector_store
+        distance-type: COSINE_DISTANCE
+
+# Teknologi Barometer specific configuration
+barometer:
+  gmail:
+    enabled: ${GMAIL_ENABLED:false}
+    user: ${GMAIL_USER:intake@cloudberries.no}
+    credentials-path: ${GMAIL_CREDENTIALS_PATH:secrets/gmail_credentials.json}
+    token-path: ${GMAIL_TOKEN_PATH:secrets/gmail_token.json}
+    labels: ${GMAIL_LABELS:Emagine,Verama,Knowit}
+    query: ${GMAIL_QUERY:to:intake@cloudberries.no newer_than:30d}
+    max-messages: ${GMAIL_MAX_MESSAGES:100}
+  
+  extraction:
+    provider: ${LLM_PROVIDER:openai}
+    parallel-processing: true
+    retry-failed: true
+    max-retries: 3
+  
+  matching:
+    source: ${MATCHING_SOURCE:candidate-match-api}
+    candidate-match-url: ${CANDIDATE_MATCH_URL:http://localhost:8080}
+    top-k: 20
+    min-score: 0.5
+  
+  scheduling:
+    ingestion:
+      enabled: ${SCHEDULED_INGESTION:false}
+      cron: ${INGESTION_CRON:0 */15 * * * *} # Every 15 minutes
+    aggregation:
+      enabled: ${SCHEDULED_AGGREGATION:true}
+      cron: ${AGGREGATION_CRON:0 0 */4 * * *} # Every 4 hours
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    no.cloudberries.barometer: INFO
+    org.springframework.ai: INFO
+    org.liquibase: INFO

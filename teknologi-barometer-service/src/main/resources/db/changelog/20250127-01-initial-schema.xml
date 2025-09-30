@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Enable pgvector extension -->
+    <changeSet id="20250127-01-enable-pgvector" author="barometer">
+        <sql>CREATE EXTENSION IF NOT EXISTS vector;</sql>
+    </changeSet>
+
+    <!-- BRONZE LAYER - Raw email intake -->
+    <changeSet id="20250127-02-create-bronze-email" author="barometer">
+        <createTable tableName="bronze_email">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="gmail_message_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message_id_header" type="text"/>
+            <column name="sha256" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="thread_id" type="varchar(255)"/>
+            <column name="history_id" type="bigint"/>
+            <column name="label_ids" type="text[]"/>
+            <column name="portal_label" type="varchar(100)"/>
+            <column name="from_email" type="varchar(255)"/>
+            <column name="to_emails" type="text[]"/>
+            <column name="cc_emails" type="text[]"/>
+            <column name="subject" type="text"/>
+            <column name="received_at" type="timestamptz"/>
+            <column name="snippet" type="text"/>
+            <column name="body_text" type="text"/>
+            <column name="body_html" type="text"/>
+            <column name="attachments_count" type="int" defaultValue="0"/>
+            <column name="has_attachments" type="boolean" defaultValue="false"/>
+            <column name="raw_json" type="jsonb"/>
+            <column name="created_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <!-- Unique constraints for deduplication -->
+        <addUniqueConstraint tableName="bronze_email"
+                             columnNames="gmail_message_id"
+                             constraintName="uk_bronze_email_gmail_message_id"/>
+        
+        <addUniqueConstraint tableName="bronze_email"
+                             columnNames="sha256"
+                             constraintName="uk_bronze_email_sha256"/>
+
+        <!-- Indexes for efficient queries -->
+        <createIndex tableName="bronze_email" indexName="idx_bronze_email_portal_label">
+            <column name="portal_label"/>
+        </createIndex>
+        
+        <createIndex tableName="bronze_email" indexName="idx_bronze_email_received_at">
+            <column name="received_at" descending="true"/>
+        </createIndex>
+        
+        <createIndex tableName="bronze_email" indexName="idx_bronze_email_created_at">
+            <column name="created_at" descending="true"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Bronze attachments table -->
+    <changeSet id="20250127-03-create-bronze-attachment" author="barometer">
+        <createTable tableName="bronze_attachment">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="bronze_email_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="filename" type="varchar(500)"/>
+            <column name="mime_type" type="varchar(100)"/>
+            <column name="size_bytes" type="bigint"/>
+            <column name="content" type="bytea"/>
+            <column name="storage_url" type="varchar(1000)"/>
+            <column name="sha256" type="varchar(64)"/>
+            <column name="created_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="bronze_attachment"
+                                 baseColumnNames="bronze_email_id"
+                                 constraintName="fk_bronze_attachment_email"
+                                 referencedTableName="bronze_email"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="bronze_attachment" indexName="idx_bronze_attachment_email_id">
+            <column name="bronze_email_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- SILVER LAYER - Extracted structured data -->
+    <changeSet id="20250127-04-create-silver-technology-demand" author="barometer">
+        <createTable tableName="silver_technology_demand">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_type" type="varchar(50)" defaultValue="email">
+                <constraints nullable="false"/>
+            </column>
+            <column name="technologies" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="requirements_text" type="text"/>
+            <column name="embedding" type="vector(1536)"/>
+            <column name="llm_provider" type="varchar(50)"/>
+            <column name="llm_model" type="varchar(100)"/>
+            <column name="status" type="varchar(20)" defaultValue="extracted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="text"/>
+            <column name="created_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="silver_technology_demand"
+                                 baseColumnNames="source_id"
+                                 constraintName="fk_tech_demand_bronze_email"
+                                 referencedTableName="bronze_email"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <!-- Indexes -->
+        <createIndex tableName="silver_technology_demand" indexName="idx_tech_demand_source_id">
+            <column name="source_id"/>
+        </createIndex>
+        
+        <createIndex tableName="silver_technology_demand" indexName="idx_tech_demand_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="silver_technology_demand" indexName="idx_tech_demand_created_at">
+            <column name="created_at" descending="true"/>
+        </createIndex>
+
+        <!-- Vector similarity index -->
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_tech_demand_embedding_cosine
+                ON silver_technology_demand USING hnsw (embedding vector_cosine_ops);
+        </sql>
+    </changeSet>
+
+    <changeSet id="20250127-05-create-silver-profile-demand" author="barometer">
+        <createTable tableName="silver_profile_demand">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_type" type="varchar(50)" defaultValue="email">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_data" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="requirements_text" type="text"/>
+            <column name="embedding" type="vector(1536)"/>
+            <column name="llm_provider" type="varchar(50)"/>
+            <column name="llm_model" type="varchar(100)"/>
+            <column name="status" type="varchar(20)" defaultValue="extracted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="text"/>
+            <column name="created_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="silver_profile_demand"
+                                 baseColumnNames="source_id"
+                                 constraintName="fk_profile_demand_bronze_email"
+                                 referencedTableName="bronze_email"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <!-- Indexes -->
+        <createIndex tableName="silver_profile_demand" indexName="idx_profile_demand_source_id">
+            <column name="source_id"/>
+        </createIndex>
+        
+        <createIndex tableName="silver_profile_demand" indexName="idx_profile_demand_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="silver_profile_demand" indexName="idx_profile_demand_created_at">
+            <column name="created_at" descending="true"/>
+        </createIndex>
+
+        <!-- Vector similarity index -->
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_profile_demand_embedding_cosine
+                ON silver_profile_demand USING hnsw (embedding vector_cosine_ops);
+        </sql>
+    </changeSet>
+
+    <changeSet id="20250127-06-create-silver-competency-demand" author="barometer">
+        <createTable tableName="silver_competency_demand">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_type" type="varchar(50)" defaultValue="email">
+                <constraints nullable="false"/>
+            </column>
+            <column name="competency_data" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="requirements_text" type="text"/>
+            <column name="embedding" type="vector(1536)"/>
+            <column name="llm_provider" type="varchar(50)"/>
+            <column name="llm_model" type="varchar(100)"/>
+            <column name="status" type="varchar(20)" defaultValue="extracted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="text"/>
+            <column name="created_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="silver_competency_demand"
+                                 baseColumnNames="source_id"
+                                 constraintName="fk_competency_demand_bronze_email"
+                                 referencedTableName="bronze_email"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <!-- Indexes -->
+        <createIndex tableName="silver_competency_demand" indexName="idx_competency_demand_source_id">
+            <column name="source_id"/>
+        </createIndex>
+        
+        <createIndex tableName="silver_competency_demand" indexName="idx_competency_demand_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="silver_competency_demand" indexName="idx_competency_demand_created_at">
+            <column name="created_at" descending="true"/>
+        </createIndex>
+
+        <!-- Vector similarity index -->
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_competency_demand_embedding_cosine
+                ON silver_competency_demand USING hnsw (embedding vector_cosine_ops);
+        </sql>
+    </changeSet>
+
+    <!-- GOLD LAYER - Aggregated insights and trends -->
+    <changeSet id="20250127-07-create-gold-technology-trend" author="barometer">
+        <createTable tableName="gold_technology_trend">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="technology" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="varchar(100)"/>
+            <column name="demand_count" type="int" defaultValue="0"/>
+            <column name="critical_count" type="int" defaultValue="0"/>
+            <column name="high_count" type="int" defaultValue="0"/>
+            <column name="medium_count" type="int" defaultValue="0"/>
+            <column name="nice_to_have_count" type="int" defaultValue="0"/>
+            <column name="trend_direction" type="varchar(20)"/> <!-- UP, DOWN, STABLE -->
+            <column name="weekly_growth" type="decimal(5,2)"/>
+            <column name="monthly_growth" type="decimal(5,2)"/>
+            <column name="top_portal_sources" type="text[]"/>
+            <column name="average_priority" type="varchar(20)"/>
+            <column name="period_start" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="period_end" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="calculated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <!-- Unique constraint for technology per period -->
+        <addUniqueConstraint tableName="gold_technology_trend"
+                             columnNames="technology, period_start, period_end"
+                             constraintName="uk_tech_trend_period"/>
+
+        <createIndex tableName="gold_technology_trend" indexName="idx_tech_trend_technology">
+            <column name="technology"/>
+        </createIndex>
+        
+        <createIndex tableName="gold_technology_trend" indexName="idx_tech_trend_demand_count">
+            <column name="demand_count" descending="true"/>
+        </createIndex>
+        
+        <createIndex tableName="gold_technology_trend" indexName="idx_tech_trend_period">
+            <column name="period_start"/>
+            <column name="period_end"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20250127-08-create-gold-profile-trend" author="barometer">
+        <createTable tableName="gold_profile_trend">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_name" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seniority_level" type="varchar(50)"/> <!-- JUNIOR, MID, SENIOR, PRINCIPAL -->
+            <column name="role_type" type="varchar(50)"/> <!-- DEVELOPER, ARCHITECT, LEAD, MANAGER -->
+            <column name="domain_area" type="varchar(100)"/> <!-- FinTech, HealthTech, etc -->
+            <column name="demand_count" type="int" defaultValue="0"/>
+            <column name="remote_count" type="int" defaultValue="0"/>
+            <column name="hybrid_count" type="int" defaultValue="0"/>
+            <column name="onsite_count" type="int" defaultValue="0"/>
+            <column name="trend_direction" type="varchar(20)"/> <!-- UP, DOWN, STABLE -->
+            <column name="weekly_growth" type="decimal(5,2)"/>
+            <column name="monthly_growth" type="decimal(5,2)"/>
+            <column name="top_portal_sources" type="text[]"/>
+            <column name="period_start" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="period_end" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="calculated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <!-- Unique constraint for role per period -->
+        <addUniqueConstraint tableName="gold_profile_trend"
+                             columnNames="role_name, seniority_level, period_start, period_end"
+                             constraintName="uk_profile_trend_period"/>
+
+        <createIndex tableName="gold_profile_trend" indexName="idx_profile_trend_role">
+            <column name="role_name"/>
+        </createIndex>
+        
+        <createIndex tableName="gold_profile_trend" indexName="idx_profile_trend_seniority">
+            <column name="seniority_level"/>
+        </createIndex>
+        
+        <createIndex tableName="gold_profile_trend" indexName="idx_profile_trend_demand_count">
+            <column name="demand_count" descending="true"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20250127-09-create-gold-competency-trend" author="barometer">
+        <createTable tableName="gold_competency_trend">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="competency_name" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="competency_area" type="varchar(50)"/> <!-- TECHNICAL, DOMAIN, METHODOLOGICAL, LEADERSHIP -->
+            <column name="demand_count" type="int" defaultValue="0"/>
+            <column name="critical_count" type="int" defaultValue="0"/>
+            <column name="high_count" type="int" defaultValue="0"/>
+            <column name="medium_count" type="int" defaultValue="0"/>
+            <column name="nice_to_have_count" type="int" defaultValue="0"/>
+            <column name="trend_direction" type="varchar(20)"/> <!-- UP, DOWN, STABLE -->
+            <column name="weekly_growth" type="decimal(5,2)"/>
+            <column name="monthly_growth" type="decimal(5,2)"/>
+            <column name="top_portal_sources" type="text[]"/>
+            <column name="average_priority" type="varchar(20)"/>
+            <column name="period_start" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="period_end" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="calculated_at" type="timestamptz" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <!-- Unique constraint for competency per period -->
+        <addUniqueConstraint tableName="gold_competency_trend"
+                             columnNames="competency_name, competency_area, period_start, period_end"
+                             constraintName="uk_competency_trend_period"/>
+
+        <createIndex tableName="gold_competency_trend" indexName="idx_competency_trend_name">
+            <column name="competency_name"/>
+        </createIndex>
+        
+        <createIndex tableName="gold_competency_trend" indexName="idx_competency_trend_area">
+            <column name="competency_area"/>
+        </createIndex>
+        
+        <createIndex tableName="gold_competency_trend" indexName="idx_competency_trend_demand_count">
+            <column name="demand_count" descending="true"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- GIN indexes for JSON queries -->
+    <changeSet id="20250127-10-create-json-indexes" author="barometer">
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_tech_demand_technologies_gin 
+                ON silver_technology_demand USING gin (technologies);
+        </sql>
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_profile_demand_data_gin 
+                ON silver_profile_demand USING gin (profile_data);
+        </sql>
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_competency_demand_data_gin 
+                ON silver_competency_demand USING gin (competency_data);
+        </sql>
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_bronze_email_raw_json_gin 
+                ON bronze_email USING gin (raw_json);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

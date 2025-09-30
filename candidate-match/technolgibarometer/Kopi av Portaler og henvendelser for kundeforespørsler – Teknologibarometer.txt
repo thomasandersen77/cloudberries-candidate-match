@@ -1,0 +1,210 @@
+﻿Portal
+	Aktiv bruk
+	Mottak
+	Personavhengig
+	Kommentar
+	Emagine
+	Ja
+	Varsler på egen epost. Flere på salg er registrert. 
+Lenke: https://portal.emagine.org/jobs/all
+
+
+	Nei, men knyttet opp mot personlig jobb-epost
+	Nettside. Flere er registrert.
+	Ework Verama
+	Ja
+	Varsler på egen epost. Flere på salg er registrert. 
+Må være registrert for å få tilgang til lenke. 
+	Nei, men knyttet opp mot personlig jobb-epost
+	Nettside. Flere har registrert seg
+	Flextribe Knowit
+	Ja
+	politiet@cloudberries.no
+	Nei
+	Kommer inn på politiet@ mailen
+	Rammeavtale Politiet via Knowit:  
+	
+
+	salg@cloudberries.no
+	Nei
+	Kommer inn på salg@ mailen fra Proj-Politiet-Rammeavtale@knowitgroup.com
+	Flextribe Overhuset
+	Ja
+	Hilde & Anders
+	Ja
+	Kommer direkte til H og A. Ikke satt opp på felles epost.
+	Flextribe ITC
+	Ja
+	salg@cloudberries.no
+	Nei
+	Kommer inn på salg@ mailen
+	Mercell → Cobrief
+	Ja
+	Ukjent (byttet system nylig). Hilde, Per-C, 
+	Nei, usikkert
+	Byttet til Cobrief nå. Ikke alle har tilgang.
+	Eu Supply
+	Usikker
+	Ikke spesifisert
+	Usikkert
+	Trenger avklaring på aktiv bruk og mottak.
+	Witted
+	Ja
+	Hilde (pt.)
+	Ja
+	Ser ut til at kun Hilde er registrert der.
+	Experis
+	Ja
+	Hilde, Kjetil
+	Delvis
+	Ikke alle på salg har tilgang.
+	Tendsign
+	Mulig
+	Ikke spesifisert
+	Usikkert
+	Trenger videre avklaring.
+	Dovre
+	Mulig
+	Kan sette opp automatisk varsel med eget filter. Morten har varsel med Stavanger som filter. Ukjent med resterende selgere.
+	Ja
+	Trenger videre avklaring.
+	Uniconsult
+	Ja
+	Per-C
+	Delvis
+	Teams - flere har fått invite 
+	MDE Group
+	Ja
+	Ikke spesifisert
+	Nei
+	Kun nettside - Rogaland primært
+	Omega365
+	Ja
+	Ikke spesifisert
+	Nei
+	Kun nettside - Rogaland primært
+	Generelle direktehenvendelser på e-post/SMS
+	
+
+	Ikke spesifisert
+	Ja
+	Kommer direkte til ulike selgere
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thomas Andersenarkitektoniske sine vurderinger ifbm candidate match
+Hva er “portalen” og kan Candidate-match integreres?
+Nedenfor tolker jeg “portalen” som hver innkommende kilde for forespørsler (anbud/oppdrag): noen er rene nettsteder som sender varsler på e-post; noen er lukkede plattformer (krever innlogging); noen sender direkte e-post/SMS til salg.
+Tommelfinger:
+* Har portalen API/webhook → lag adapter.
+
+* Sender portalen e-postvarsler → parse e-post + vedlegg (PDF/HTML) og normaliser.
+
+* Kun nettgrensesnitt uten API → bruk e-post, eller manuell eksport (CSV/PDF) som lastes opp og prosesseres.
+
+Kanaler – rask integrasjonsvurdering
+   * Emagine (varsler på egen e-post + må være registrert + lenke) → E-post-adapter (header/HTML parsing) for å hente tittel, frister, kompetansekrav + lagre lenke til saken. API mulig hvis de tilbyr.
+
+   * Ework/Verama (varsler på e-post; må være registrert) → E-post-adapter først. API evt. senere hvis tilgjengelig via partnerkonto.
+
+   * Flextribe/Knowit (går til politiet@… ) → E-post-adapter med postkasse-routing (distribuer til riktig “kunde”/kontrakt).
+
+   * Rammeavtale Politiet via Knowit (til salg@… fra dedikert avs.) → E-post-adapter + whitelist av avsenderdomene for presis tagging.
+
+   * Flextribe Overhuset (til personer direkte) → Personlig e-post-adapter (bruk “videresend til bot-adresse” eller delt postkasse).
+
+   * Flextribe ITC (til salg@…) → E-post-adapter.
+
+   * Mercell → Cobrief (byttet system; tilgang uavklart) → Start med e-post-adapter hvis de sender varsler; ellers undersøk API. Sett “manuell import” som fallback.
+
+   * EU Supply (usikker bruk) → Inntil avklart: manuell import/ e-post.
+
+   * Witted (Hilde registrert) → Personlig e-post-adapter + videresending/alias.
+
+   * Experis (delvis tilgang) → E-post-adapter; vurder API ved full tilgang.
+
+   * Tendsign (mulig) → Start e-post-adapter; sjekk API senere.
+
+   * Dovre (kan sette varsel med filter) → E-post-adapter (filtrerte varsler = enklere parsing).
+
+   * Uniconsult (Teams-invites) → Teams webhook/ e-post-routing (via kanal-epost eller Graph webhook) til Candidate-match.
+
+   * MDE Group / Omega365 (kun nettside – Rogaland) → Ingen passiv feed → manuell eksport (PDF/CSV) og opplasting til Candidate-match til å begynne med.
+
+   * Generelle henvendelser på e-post/SMS (direkte til selgere) → E-post/SMS-adapter (inbound e-post-adresse + Twilio/Teams SMS-webhook hvis aktuelt).
+
+Forslått MVP-arkitektur (plugges rett inn i Candidate-match)
+      1. Inngest-lag (kanaler)
+
+         * IMAP/Graph-listener for salg@… og andre delte postkasser.
+
+         * Valgfritt: dedikert inbound@candidate-match.cloudberries.no og be folk videresende varsler dit.
+
+         * (Senere) Webhooks/API-klienter per portal.
+
+            2. Parser & Normalisering
+
+               * HTML/PDF-parser → trekk ut felter: tittel, kunde, frist, varighet, sted (onsite/remote), stillingstype, kompetansekrav (fritekst), must-/should-haves, språk/clearance, kontaktinfo, lenker, vedlegg.
+
+               * Normaliser til et internt Opportunity-schema (JSON) som Candidate-match allerede kan sende til AI for vurdering.
+
+                  3. Berikelse & Matching
+
+                     * Kjør embedding på kravtekst → semantisk match mot konsulent-vektorene (Google embeddings/pgvector).
+
+                     * La AI-vurderer lage “fit-score” + begrunnelse, og foreslå toppliste med must-have-dekning.
+
+                        4. Ruting & Varsling
+
+                           * Opprett Sak i Candidate-match med status.
+
+                           * Slack/Teams varsel med: topp 5 kandidater + score + “åpne i app”.
+
+                              5. Sikkerhet & Revisjon
+
+                                 * Hvitlist avsendere, signer/valider vedlegg (PDF hash), logg datakilde og parserversjon per sak.
+
+Implementerbart nå (konkret rekkefølge)
+                                    1. E-post-adapter for salg@… | politiet@… | inbound@… (IMAP/Graph).
+
+                                    2. Parser for Emagine/Ework-mailmalene (de to største) + generisk HTML/PDF-fallback.
+
+                                    3. Opportunity-schema + koble på eksisterende matchingløp (embeddings+OpenAI/Gemini).
+
+                                    4. Slack-varsel (først) → senere Teams webhook for Uniconsult.
+
+                                    5. Konfig per portal (feature-flag): aktiver etter hvert som tilgang/bruk avklares (Mercell/Cobrief, EU Supply, Tendsign…).
+
+Risiko/avklaringer (kort)
+                                       * Tilgang & vilkår: Noen portaler forbyr scraping; e-postbasert ingest + offisielle APIer er “safe path”.
+
+                                       * Persondata: Begrens lagring til det som trengs; logg samtykke/kontraktsgrunnlag (BD/forhandlingsfase).
+
+                                       * Kvalitet: Bygg golden-tests per e-postmal; fall tilbake til manuell justering hvis parser usikker.
+
+                                       * Skalerbarhet: Kø (SQS/Redis) for parsing; idempotent opprettelse av saker.
