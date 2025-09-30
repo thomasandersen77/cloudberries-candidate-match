@@ -3,9 +3,11 @@
 name: Java CI with Maven and Gemini PR Review
 
 on:
+  workflow_dispatch:
   pull_request:
     # Kjører kun når en pull request mot main opprettes eller oppdateres
     branches: [ "main" ]
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [ "ci/move-github-workflows-to-root" ]  # For testing workflow changes
 
