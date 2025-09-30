@@ -1,0 +1,45 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: ${CM_DB_URL}
+    username: ${CM_DB_USERNAME}
+    password: ${CM_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: gpt-4o-mini
+      embedding:
+        options:
+          model: text-embedding-3-small
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        schema-name: public
+        table-name: vector_store
+        distance-type: COSINE_DISTANCE
+        # dimensions: will be inferred from the EmbeddingModel
+
+rag:
+  ingest:
+    # Run DB ingestion automatically on startup (optional)
+    on-start: false
+    # Provide a SQL query that returns three columns: candidate_id, candidate_name, cv_text
+    # Adjust to your real schema/table/columns:
+    sql: |
+      SELECT c.id AS candidate_id,
+             c.name AS candidate_name,
+             cv.text AS cv_text
+      FROM consultants c
+      JOIN cvs cv ON cv.consultant_id = c.id
+      WHERE cv.text IS NOT NULL AND cv.text <> ''
+    id-column: candidate_id
+    name-column: candidate_name
+    text-column: cv_text
+    chunk:
+      max-tokens: 400
+      overlap-tokens: 50

@@ -1,0 +1,35 @@
+.env
+.codebuddy/
+candidate-matcher.iml
+.idea/
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse m2e generated files
+# Eclipse Core
+.project
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+.DS_Store
+**.DS_Store
+.DS_Store
+.env
+ngrok_recovery_codes.txt
+
+# Ignore task docs
+/tasks/
+/Tasks/
+
+# Google Cloud service account keys
+weighty-list-422011-p4-2c71c334f4ae.json
+
+cloudberries-candidate-match.2025-06-29.private-key.pem
