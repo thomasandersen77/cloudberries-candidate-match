@@ -98,12 +98,13 @@ jobs:
 
       - name: Comment Architecture Review on PR
         if: ${{ success() && github.event_name == 'pull_request' }}
-        working-directory: .
         uses: actions/github-script@v6
         with:
           script: |
             const fs = require('fs');
-            const review = fs.readFileSync('gemini_review_arch.txt', 'utf8');
+            const path = require('path');
+            const fullPath = path.join(process.env.GITHUB_WORKSPACE, 'gemini_review_arch.txt');
+            const review = fs.readFileSync(fullPath, 'utf8');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -131,12 +132,13 @@ jobs:
 
       - name: Comment Security Review on PR
         if: ${{ success() && github.event_name == 'pull_request' }}
-        working-directory: .
         uses: actions/github-script@v6
         with:
           script: |
             const fs = require('fs');
-            const review = fs.readFileSync('gemini_review_sec.txt', 'utf8');
+            const path = require('path');
+            const fullPath = path.join(process.env.GITHUB_WORKSPACE, 'gemini_review_sec.txt');
+            const review = fs.readFileSync(fullPath, 'utf8');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -164,12 +166,13 @@ jobs:
 
       - name: Comment Readability Review on PR
         if: ${{ success() && github.event_name == 'pull_request' }}
-        working-directory: .
         uses: actions/github-script@v6
         with:
           script: |
             const fs = require('fs');
-            const review = fs.readFileSync('gemini_review_readability.txt', 'utf8');
+            const path = require('path');
+            const fullPath = path.join(process.env.GITHUB_WORKSPACE, 'gemini_review_readability.txt');
+            const review = fs.readFileSync(fullPath, 'utf8');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
