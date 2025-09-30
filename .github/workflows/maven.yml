@@ -6,6 +6,8 @@ on:
   pull_request:
     # Kjører kun når en pull request mot main opprettes eller oppdateres
     branches: [ "main" ]
+  push:
+    branches: [ "ci/move-github-workflows-to-root" ]  # For testing workflow changes
 
 jobs:
   build_and_review:
