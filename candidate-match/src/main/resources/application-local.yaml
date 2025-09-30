@@ -54,7 +54,7 @@ sync:
 spring:
   liquibase:
     change-log: classpath*:/db/changelog/db.changelog-master.xml
-    contexts: pgvector
+    contexts: "pgvector"
   datasource:
     url: jdbc:postgresql://localhost:5433/candidatematch
     username: ${POSTGRES_USER:candidatematch}

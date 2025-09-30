@@ -72,7 +72,7 @@ class ConsultantSearchRepository(
                 // Group by consultant and ensure all required skills are present
                 val groupByClause = "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.quality_score, cc.active"
                 val havingClause = "HAVING COUNT(DISTINCT UPPER(csic_all.name)) >= ?"
-                parameters.add(matchingSkills.size)
+                parameters.add(matchingSkills.size - 1)
 
                 return executePagedQuery(
                     baseSelect,
@@ -175,8 +175,7 @@ class ConsultantSearchRepository(
 
         return jdbcTemplate.query(
             finalSql,
-            parameters.toTypedArray()
-        ) { rs, _ ->
+            { rs, _ ->
             SemanticSearchResult(
                 id = rs.getLong("id"),
                 userId = rs.getString("user_id"),
@@ -185,7 +184,7 @@ class ConsultantSearchRepository(
                 qualityScore = rs.getInt("quality_score"),
                 distance = rs.getDouble("distance")
             )
-        }
+        }, *parameters.toTypedArray()).toList()
     }
 
     /**
@@ -199,11 +198,9 @@ class ConsultantSearchRepository(
         val upperCaseNames = skillNames.map { it.uppercase() }
 
         return jdbcTemplate.query(
-            sql,
-            upperCaseNames.toTypedArray()
-        ) { rs, _ ->
+            sql, { rs, _ ->
             rs.getString("name")
-        }
+        }, *upperCaseNames.toTypedArray()).toList()
     }
 
     /**
@@ -300,8 +297,8 @@ class ConsultantSearchRepository(
         logger.info { "About to execute count query: $countSql with parameters: $parameters" }
         val totalElements = jdbcTemplate.queryForObject(
             countSql,
-            parameters.toTypedArray(),
-            Long::class.java
+            Long::class.java,
+            *parameters.toTypedArray()
         ) ?: 0L
         logger.info { "Count query returned: $totalElements" }
         return totalElements
@@ -330,15 +327,14 @@ class ConsultantSearchRepository(
         logger.info { "About to execute data query: $dataSql with parameters: $dataParameters" }
         return jdbcTemplate.query(
             dataSql,
-            dataParameters.toTypedArray()
-        ) { rs, _ ->
+         { rs, _ ->
             ConsultantFlatViewImpl(
                 id = rs.getLong("id"),
                 userId = rs.getString("user_id"),
                 name = rs.getString("name"),
                 cvId = rs.getString("cv_id")
             )
-        } ?: emptyList()
+        }, *dataParameters.toTypedArray()).toList()
     }
 }
 

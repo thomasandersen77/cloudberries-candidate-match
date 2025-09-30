@@ -14,8 +14,8 @@
     <name>Cloudberries Candidate Matcher</name>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>2.2.0</kotlin.version>
         <javacv.version>1.5.10</javacv.version>
@@ -216,19 +216,6 @@
             <version>1.13.13</version>
             <scope>test</scope>
         </dependency>
-        <!-- Force modern Byte Buddy compatible with newer JDKs -->
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.15.10</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>1.15.10</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-test</artifactId>
@@ -360,6 +347,7 @@
                         --add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.lang.invoke=ALL-UNNAMED
                         --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                        --enable-native-access=ALL-UNNAMED
                         -Djdk.attach.allowAttachSelf=true
                         -XX:+EnableDynamicAgentLoading
                     </argLine>

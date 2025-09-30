@@ -29,6 +29,8 @@ tags:
     description: Candidate matching
   - name: CV Scoring
     description: CV scoring utilities
+  - name: Project Requests
+    description: Customer project request management and analysis
 
 paths:
   /api/skills:
@@ -536,6 +538,13 @@ paths:
     post:
       tags: [ Project Requests ]
       summary: Upload and analyze a customer project request PDF
+      description: |
+        Uploads a PDF document and uses AI to extract structured information including:
+        - Customer name from the document
+        - Project summary and requirements
+        - MUST vs SHOULD requirements categorization
+        - Project deadline (if mentioned)
+        - Upload timestamp tracking
       requestBody:
         required: true
         content:
@@ -549,11 +558,33 @@ paths:
                   format: binary
       responses:
         '200':
-          description: Extracted project request
+          description: Extracted project request with AI-analyzed structure
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectRequestResponseDto'
+              example:
+                id: 123
+                customerName: "Acme Corporation AS"
+                title: "Senior Kotlin Developer - Mobile Platform"
+                summary: "Project for developing a new mobile banking application using Kotlin and modern Android architecture. Requires experienced developer with strong backend integration skills."
+                originalFilename: "project-request-acme-mobile.pdf"
+                uploadedAt: "2024-10-01T10:30:00Z"
+                deadlineDate: "2024-12-15T00:00:00Z"
+                mustRequirements:
+                  - name: "5+ years experience with Kotlin/Android development"
+                    details: null
+                  - name: "Experience with REST API integration"
+                    details: null
+                  - name: "Knowledge of Material Design principles"
+                    details: null
+                shouldRequirements:
+                  - name: "Experience with Jetpack Compose"
+                    details: null
+                  - name: "Familiarity with CI/CD pipelines"
+                    details: null
+                  - name: "Previous fintech application experience"
+                    details: null
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -1227,20 +1258,34 @@ components:
           format: int64
         customerName:
           type: string
+          description: Customer name extracted from the document
         title:
           type: string
+          description: Title/subject derived from the document
         summary:
           type: string
+          description: AI-generated summary of the project request
         originalFilename:
           type: string
+          description: Original filename of the uploaded PDF
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the document was uploaded
+        deadlineDate:
+          type: string
+          format: date-time
+          description: Project deadline extracted from the document (if available)
         mustRequirements:
           type: array
           items:
             $ref: '#/components/schemas/ProjectRequirementDto'
+          description: Critical requirements that must be met
         shouldRequirements:
           type: array
           items:
             $ref: '#/components/schemas/ProjectRequirementDto'
+          description: Preferred requirements that would be beneficial
 
     ProjectRequirementDto:
       type: object

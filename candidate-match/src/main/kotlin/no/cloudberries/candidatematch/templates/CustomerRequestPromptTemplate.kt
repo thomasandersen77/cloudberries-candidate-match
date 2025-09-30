@@ -7,17 +7,39 @@ object AnalyzeCustomerRequestPromptTemplate {
 
     Du er en ekspert på å analysere kundeforespørsler og identifisere krav til konsulenter.
     Oppgaven er å:
-    1) Oppsummere forespørselen kortfattet (3–6 setninger)
-    2) Liste krav som MÅ (MUST)
-    3) Liste krav som BØR (SHOULD)
+    1) Identifisere kundenavn fra dokumentet
+    2) Oppsummere forespørselen kortfattet (3–6 setninger)
+    3) Liste krav som MÅ (MUST)
+    4) Liste krav som BØR (SHOULD)
+    5) Identifisere deadline hvis oppgitt
 
     Inndata (kundeforespørsel):
     {{request_text}}
 
-    Returner på norsk, i ren tekst (ikke JSON), med tydelige seksjoner:
-    - Oppsummering:
-    - MUST-krav:
-    - SHOULD-krav:
+    Returner kun ren JSON uten ekstra tekst. Strukturen skal være:
+    - Customer Name: Kundens navn ekstrahert fra dokumentet
+    - Summary: Kortfattet oppsummering (3-6 setninger)
+    - Requirements: Krav organisert som MUST og SHOULD lister
+    - Deadline Date: Deadline hvis nevnt i dokumentet (format: YYYY-MM-DD)
+    
+    Eksempel JSON:   
+    {
+        "Customer Name": "Acme Corporation",
+        "Summary": "Prosjekt for utvikling av ny mobilapp med focus på brukeropplevelse og skalbarhet. Trenger erfarne utviklere.",
+        "Deadline Date": "2024-12-15",
+        "Requirements": {
+            "MUST": [
+                "5+ års erfaring med Kotlin/Android utvikling",
+                "Erfaring med REST API integrasjon",
+                "Kjennskap til Material Design"
+            ],
+            "SHOULD": [
+                "Erfaring med Jetpack Compose",
+                "Kjennskap til CI/CD pipelines",
+                "Tidligere erfaring med fintech applikasjoner"
+            ]
+        }
+    }
     """.trimIndent()
 }
 

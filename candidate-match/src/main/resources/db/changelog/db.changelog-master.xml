@@ -16,5 +16,6 @@
     <include file="db/changelog/db_changelog-8.0-consultant-skills.xml"/>
     <include file="db/changelog/005-refactor-skills-structure.sql"/>
     <include file="db/changelog/db_changelog-9.0-add_missing_duration_column.xml" />
+    <include file="db/changelog/db_changelog-10.0-add-upload-deadline-fields.xml" />
 
 </databaseChangeLog>
