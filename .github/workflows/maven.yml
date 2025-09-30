@@ -8,26 +8,19 @@ on:
     # Kjører kun når en pull request mot main opprettes eller oppdateres
     branches: [ "main" ]
     types: [opened, synchronize, reopened, ready_for_review]
-  push:
-    branches: [ "ci/move-github-workflows-to-root" ]  # For testing workflow changes
 
 jobs:
-  build_and_review:
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    
     defaults:
       run:
         working-directory: candidate-match
-
     steps:
-      # --- Steg 1: Kode-oppsett ---
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Henter hele historikken for å kunne sammenligne branches
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -36,146 +29,62 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # --- Steg 2: Bygg og test ---
       - name: Build and Test with Maven
         run: mvn -B verify
 
-      # --- Steg 3: Kall Gemini API for kode-review ---
-      - name: Perform Architecture Review with Gemini
-        if: ${{ success() }}
-        working-directory: .
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          PROMPT_TEMPLATE=$(cat .github/prompts/pr_review_prompt.txt)
-          ARCH_PROMPT=$(cat .github/prompts/architecture_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
+  review:
+    name: Perform Gemini Code Reviews
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: candidate-match
+    strategy:
+      matrix:
+        review_type: [architecture, security, readability]
+        include:
+          - review_type: architecture
+            prompt_file: .github/prompts/architecture_review_prompt.txt
+            output_file: gemini_review_arch.txt
+          - review_type: security
+            prompt_file: .github/prompts/security_review_prompt.txt
+            output_file: gemini_review_sec.txt
+          - review_type: readability
+            prompt_file: .github/prompts/readability_review_prompt.txt
+            output_file: gemini_review_readability.txt
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-          # Minimal arkitektur-kontekst
-          CONTEXT=$(cat <<'EOF'
-          System: Candidate-matching app (Spring Boot, Kotlin, JPA, Liquibase, OkHttp, WireMock). DDD-lag: controllers -> services -> domain -> infra/adapters. Embeddings via Google Gemini, lagret i Postgres/pgvector. Teststrategi: JUnit5, MockK, WireMock, Testcontainers (pgvector), Zonky Embedded Postgres. Viktige valg: DIP via interfaces, domene-atferd i aggregates, YAML for config, Liquibase contexts for pgvector.
-          EOF
-          )
+      - name: Run ${{ matrix.review_type }} review
+        uses: ./.github/actions/gemini-review
+        with:
+          review_type: ${{ matrix.review_type }}
+          prompt_file: ${{ matrix.prompt_file }}
+          output_file: ${{ matrix.output_file }}
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
 
-          FULL_PROMPT="$PROMPT_TEMPLATE
-
-          ---
-          Prosjektkontekst:
-          $CONTEXT
-          ---
-
-          $ARCH_PROMPT
-
-          $CODE_DIFF"
-
-          JSON_PAYLOAD=$(jq -n --arg text_content "$FULL_PROMPT" '{contents: [{parts: [{text: $text_content}]}]}')
-
-          # Retry
-          MAX_ATTEMPTS=3; RETRY_DELAY=5
-          for ((i=1; i<=MAX_ATTEMPTS; i++)); do
-            echo "::notice::Forsøk $i av $MAX_ATTEMPTS på å kalle Gemini API..."
-            HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
-              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-              -H "Content-Type: application/json" \
-              -d "$JSON_PAYLOAD")
-            HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
-            GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
-            if [ "$HTTP_STATUS_CODE" -eq 200 ]; then
-              echo "::notice::Suksess fra Gemini API."; break
-            elif [ "$i" -lt "$MAX_ATTEMPTS" ]; then
-              echo "::warning::Mottok HTTP status $HTTP_STATUS_CODE. Prøver igjen om $RETRY_DELAY sekunder..."; sleep $RETRY_DELAY
-            else
-              echo "::error::Feil fra Gemini API etter $MAX_ATTEMPTS forsøk. HTTP status: $HTTP_STATUS_CODE"; echo "$GEMINI_RESPONSE"; exit 1
-            fi
-          done
-
-          if echo "$GEMINI_RESPONSE" | jq -e '.error' > /dev/null; then
-            echo "::error::Gemini API returnerte en feilmelding:"; echo "$GEMINI_RESPONSE"; exit 1
-          fi
-
-          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review_arch.txt
-          echo "Gemini arkitektur-review lagret i gemini_review_arch.txt"
-
-      - name: Comment Architecture Review on PR
+      - name: Post ${{ matrix.review_type }} review comment
         if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v6
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const fullPath = path.join(process.env.GITHUB_WORKSPACE, 'gemini_review_arch.txt');
-            const review = fs.readFileSync(fullPath, 'utf8');
+            const reviewPath = path.join(process.env.GITHUB_WORKSPACE, 'candidate-match', '${{ matrix.output_file }}');
+            if (!fs.existsSync(reviewPath)) {
+              core.info('Review file not found, skipping comment.');
+              return;
+            }
+            const review = fs.readFileSync(reviewPath, 'utf8');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `### 🏛️ Gemini Architecture Review\n\n${review}`
-            });
-
-      - name: Perform Security Review with Gemini
-        if: ${{ success() }}
-        working-directory: .
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          PROMPT=$(cat .github/prompts/security_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
-          JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
-          HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-            -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
-          HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
-          GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
-          [ "$HTTP_STATUS_CODE" -eq 200 ] || { echo "$GEMINI_RESPONSE"; exit 1; }
-          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review_sec.txt
-
-      - name: Comment Security Review on PR
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const fullPath = path.join(process.env.GITHUB_WORKSPACE, 'gemini_review_sec.txt');
-            const review = fs.readFileSync(fullPath, 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### 🔒 Gemini Security Review\n\n${review}`
-            });
-
-      - name: Perform Readability Review with Gemini
-        if: ${{ success() }}
-        working-directory: .
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          PROMPT=$(cat .github/prompts/readability_review_prompt.txt)
-          CODE_DIFF=$(git diff origin/main...HEAD | sed 's/[`$"\\]/\\&/g')
-          JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
-          $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
-          HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-            -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
-          HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
-          GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
-          [ "$HTTP_STATUS_CODE" -eq 200 ] || { echo "$GEMINI_RESPONSE"; exit 1; }
-          echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > gemini_review_readability.txt
-
-      - name: Comment Readability Review on PR
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const fullPath = path.join(process.env.GITHUB_WORKSPACE, 'gemini_review_readability.txt');
-            const review = fs.readFileSync(fullPath, 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### ✍️ Gemini Readability Review\n\n${review}`
+              body: `### 🤖 Gemini ${{ matrix.review_type }} Review\n\n${review}`
             });
