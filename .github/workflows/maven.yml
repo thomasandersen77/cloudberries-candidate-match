@@ -39,6 +39,7 @@ jobs:
       # --- Steg 3: Kall Gemini API for kode-review ---
       - name: Perform Architecture Review with Gemini
         if: ${{ success() }}
+        working-directory: .
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -93,6 +94,7 @@ jobs:
 
       - name: Comment Architecture Review on PR
         if: ${{ success() && github.event_name == 'pull_request' }}
+        working-directory: .
         uses: actions/github-script@v6
         with:
           script: |
@@ -107,6 +109,7 @@ jobs:
 
       - name: Perform Security Review with Gemini
         if: ${{ success() }}
+        working-directory: .
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -124,6 +127,7 @@ jobs:
 
       - name: Comment Security Review on PR
         if: ${{ success() && github.event_name == 'pull_request' }}
+        working-directory: .
         uses: actions/github-script@v6
         with:
           script: |
@@ -138,6 +142,7 @@ jobs:
 
       - name: Perform Readability Review with Gemini
         if: ${{ success() }}
+        working-directory: .
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -155,6 +160,7 @@ jobs:
 
       - name: Comment Readability Review on PR
         if: ${{ success() && github.event_name == 'pull_request' }}
+        working-directory: .
         uses: actions/github-script@v6
         with:
           script: |
