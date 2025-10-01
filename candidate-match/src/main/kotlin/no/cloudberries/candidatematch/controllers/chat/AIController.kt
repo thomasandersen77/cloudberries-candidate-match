@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/chatbot")
-@Tag(name = "AI Chat", description = "AI-powered consultant search and analysis")
+@Tag(
+    name = "AI Chat",
+    description = "AI-powered consultant search and analysis"
+)
 class AIController(
     private val aiAnalysisService: AIAnalysisService,
     private val searchOrchestrator: AISearchOrchestrator
@@ -24,7 +27,10 @@ class AIController(
 
     @PostMapping("/analyze")
     @Timed
-    @Operation(summary = "Analyze content with AI", description = "Legacy endpoint for AI content analysis")
+    @Operation(
+        summary = "Analyze content with AI",
+        description = "Legacy endpoint for AI content analysis"
+    )
     fun analyzeContent(
         @RequestBody request: AIAnalysisRequest,
     ): AIResponse {
@@ -35,25 +41,28 @@ class AIController(
             AIProvider.GEMINI
         )
     }
-    
+
     @PostMapping("/search")
     @Timed
     @Operation(
-        summary = "AI-powered consultant search", 
-        description = "Search consultants using natural language with intelligent routing to structured, semantic, hybrid, or RAG search modes"
+        summary = "AI-powered consultant search",
+        description = """
+                Search consultants using natural language with intelligent routing to :
+                "STRUCTURED, SEMANTIC, HYBRID, or RAG search modes
+                """
     )
     fun searchChat(
         @RequestBody request: ChatSearchRequest
     ): ResponseEntity<ChatSearchResponse> {
         logger.info { "POST /api/chatbot/search: '${request.text}' (topK=${request.topK})" }
-        
+
         // Validate request
         val validationErrors = request.validate()
         if (validationErrors.isNotEmpty()) {
             logger.warn { "Invalid search request: ${validationErrors.joinToString(", ")}" }
             return ResponseEntity.badRequest().build()
         }
-        
+
         val response = searchOrchestrator.searchChat(request)
         return ResponseEntity.ok(response)
     }

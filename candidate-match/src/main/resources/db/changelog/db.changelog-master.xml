@@ -17,5 +17,7 @@
     <include file="db/changelog/005-refactor-skills-structure.sql"/>
     <include file="db/changelog/db_changelog-9.0-add_missing_duration_column.xml" />
     <include file="db/changelog/db_changelog-10.0-add-upload-deadline-fields.xml" />
+    <include file="db/changelog/db_changelog-11.0-ai-rag.xml" />
+    <include file="db/changelog/db_changelog-12.0-industry.xml" />
 
 </databaseChangeLog>

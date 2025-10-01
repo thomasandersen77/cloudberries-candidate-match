@@ -51,7 +51,8 @@ class ProjectRequestAnalysisServiceTest {
         val ai = mockk<AIAnalysisService>()
         val cfg = ProjectRequestAnalysisConfig(aiEnabled = true, provider = AIProvider.GEMINI)
 
-        val service = ProjectRequestAnalysisService(customerRepo, reqRepo, parser, ai, cfg)
+        val aiResponseParser = mockk<AIResponseParser>()
+        val service = ProjectRequestAnalysisService(customerRepo, reqRepo, parser, ai, cfg, aiResponseParser)
 
         val pdfBytes = createPdfWithText(
             "Project Req\nMUST: Kotlin\nSHOULD: React"
@@ -76,6 +77,16 @@ class ProjectRequestAnalysisServiceTest {
         // AI returns summary content
         every { ai.analyzeContent(any(), AIProvider.GEMINI) } returns no.cloudberries.candidatematch.domain.ai.AIResponse(
             content = "AI SUMMARY", modelUsed = "GEMINI"
+        )
+        
+        // AI response parser returns processed response
+        every { aiResponseParser.parseAIResponse(any(), any(), any()) } returns ProcessedAIResponse(
+            customerName = "Test Customer",
+            summary = "AI SUMMARY",
+            mustRequirements = listOf("Kotlin developer"),
+            shouldRequirements = listOf("React experience"),
+            uploadedAt = java.time.LocalDateTime.now(),
+            deadlineDate = null
         )
 
         // Act

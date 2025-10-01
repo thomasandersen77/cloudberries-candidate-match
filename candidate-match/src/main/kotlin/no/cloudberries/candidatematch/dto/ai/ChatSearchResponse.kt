@@ -28,7 +28,10 @@ data class ChatSearchResponse(
     val debug: DebugInfo? = null,
     
     @Schema(description = "Conversation ID for follow-up queries")
-    val conversationId: String? = null
+    val conversationId: String? = null,
+
+    @Schema(description = "Scoring info for HYBRID responses (weights and formula)")
+    val scoring: ScoringInfo? = null
 )
 
 /**
@@ -89,4 +92,14 @@ data class DebugInfo(
     
     @Schema(description = "Additional debug data")
     val extra: Map<String, Any>? = null
+)
+
+@Schema(description = "HYBRID scoring weights and formula")
+data class ScoringInfo(
+    @Schema(description = "Weight applied to semantic similarity", example = "0.7")
+    val semanticWeight: Double,
+    @Schema(description = "Weight applied to CV quality score", example = "0.3")
+    val qualityWeight: Double,
+    @Schema(description = "Formula used to compute final score", example = "combined = semanticWeight * semanticScore + qualityWeight * qualityScore")
+    val formula: String = "combined = semanticWeight * semanticScore + qualityWeight * qualityScore"
 )

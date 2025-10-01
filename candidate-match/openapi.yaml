@@ -33,6 +33,26 @@ tags:
     description: Customer project request management and analysis
 
 paths:
+  /api/industries/backfill:
+    post:
+      tags: [ Admin ]
+      summary: Backfill industry tags for all CVs
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Backfill processed count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
   /api/skills:
     get:
       tags: [ Skills ]
@@ -83,7 +103,7 @@ paths:
     post:
       tags: [ Chat ]
       summary: AI-powered consultant search
-      description: Search consultants using natural language with intelligent routing to structured, semantic, hybrid, or RAG search modes
+      description: Search consultants using natural language with intelligent routing to STRUCTURED, SEMANTIC, HYBRID, or RAG search modes
       requestBody:
         required: true
         content:
@@ -105,13 +125,21 @@ paths:
                 summary: Forced mode example
                 value:
                   text: "Java developer"
-                  forceMode: "semantic"
+                  forceMode: "SEMANTIC"
                   topK: 3
               rag:
                 summary: RAG search example
                 value:
                   text: "Tell me about Thomas Andersen's experience with React"
                   topK: 5
+              targeted:
+                summary: Target a specific consultant and CV
+                value:
+                  consultantId: "thomas.andersen"
+                  cvId: "default"
+                  text: "Summarize key React experience and recent roles"
+                  forceMode: "RAG"
+                  topK: 3
       responses:
         '200':
           description: Search results with AI interpretation
@@ -191,6 +219,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PageConsultantWithCvDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/consultants/{userId}/cvs:
+    get:
+      tags: [ Consultants ]
+      summary: List CVs for a consultant by userId
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: onlyActiveCv
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: If true, include only the active CV
+      responses:
+        '200':
+          description: Consultant CVs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsultantCvDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/consultants/{userId}:
+    get:
+      tags: [ Consultants ]
+      summary: Get consultant summary by userId
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Consultant summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultantSummaryDto'
+        '404':
+          description: Not found
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -470,6 +549,57 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CandidateMatchResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/matches/requests:
+    get:
+      tags: [ Matches ]
+      summary: List project requests (uploaded customer documents) with coverage info
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 0, minimum: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+        - in: query
+          name: sort
+          schema: { type: string, default: "uploadedAt,desc" }
+      responses:
+        '200':
+          description: Paged list of requests with coverage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedMatchesListDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/matches/requests/{id}/top-consultants:
+    get:
+      tags: [ Matches ]
+      summary: Get top consultants for a request (AI-enriched)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, default: 5, minimum: 1, maximum: 10 }
+      responses:
+        '200':
+          description: Top consultants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchConsultantDto'
+        '404':
+          description: Project request not found
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -790,6 +920,66 @@ components:
             $ref: '#/components/schemas/Problem'
 
   schemas:
+    CoverageStatus:
+      type: string
+      enum: [ GREEN, YELLOW, RED, NEUTRAL ]
+
+    MatchesListItemDto:
+      type: object
+      required: [ id, hitCount, coverageStatus, coverageLabel ]
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        customerName:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        deadlineDate:
+          type: string
+          format: date-time
+          nullable: true
+        hitCount:
+          type: integer
+          format: int64
+        coverageStatus:
+          $ref: '#/components/schemas/CoverageStatus'
+        coverageLabel:
+          type: string
+
+    PagedMatchesListDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: '#/components/schemas/MatchesListItemDto' }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer }
+        currentPage: { type: integer }
+        pageSize: { type: integer }
+        hasNext: { type: boolean }
+        hasPrevious: { type: boolean }
+
+    MatchConsultantDto:
+      type: object
+      required: [ userId, name, cvId, relevanceScore ]
+      properties:
+        userId: { type: string }
+        name: { type: string }
+        cvId: { type: string }
+        relevanceScore:
+          type: number
+          format: double
+        justification:
+          type: string
+          nullable: true
+
     RelationalSearchRequest:
       type: object
       properties:
@@ -1016,6 +1206,10 @@ components:
         attachments:
           type: array
           items: { $ref: '#/components/schemas/AttachmentDto' }
+        industries:
+          type: array
+          items:
+            type: string
 
     KeyQualificationDto:
       type: object
@@ -1459,15 +1653,23 @@ components:
           type: string
           description: Optional conversation ID to maintain context
           example: "conv-123"
+        consultantId:
+          type: string
+          description: Optional consultant userId to target the query (used to bias or provide RAG context)
+          example: "thomas.andersen"
+        cvId:
+          type: string
+          description: Optional CV/resume id for the selected consultant; used to include CV JSON as context to the AI
+          example: "default"
         text:
           type: string
           description: Natural language search text
           example: "Find consultants who know Kotlin and Spring"
         forceMode:
           type: string
-          enum: [structured, semantic, hybrid, rag]
+          enum: ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
           description: Force a specific search mode
-          example: "structured"
+          example: "STRUCTURED"
         topK:
           type: integer
           minimum: 1
@@ -1484,9 +1686,9 @@ components:
       properties:
         mode:
           type: string
-          enum: [structured, semantic, hybrid, rag]
+          enum: ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
           description: Search mode used
-          example: "structured"
+          example: "STRUCTURED"
         results:
           type: array
           items:
@@ -1511,6 +1713,8 @@ components:
         conversationId:
           type: string
           description: Conversation ID for follow-up queries
+        scoring:
+          $ref: '#/components/schemas/ScoringInfo'
 
     SearchResult:
       type: object
@@ -1593,6 +1797,22 @@ components:
           additionalProperties: true
           description: Additional debug data
 
+    ScoringInfo:
+      type: object
+      description: HYBRID scoring weights and formula
+      properties:
+        semanticWeight:
+          type: number
+          format: double
+          example: 0.7
+        qualityWeight:
+          type: number
+          format: double
+          example: 0.3
+        formula:
+          type: string
+          example: "combined = semanticWeight * semanticScore + qualityWeight * qualityScore"
+
     QueryInterpretation:
       type: object
       required:
@@ -1601,9 +1821,9 @@ components:
       properties:
         route:
           type: string
-          enum: [structured, semantic, hybrid, rag]
+          enum: ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
           description: Determined search route
-          example: "structured"
+          example: "STRUCTURED"
         structured:
           $ref: '#/components/schemas/StructuredCriteria'
           description: Extracted structured search criteria

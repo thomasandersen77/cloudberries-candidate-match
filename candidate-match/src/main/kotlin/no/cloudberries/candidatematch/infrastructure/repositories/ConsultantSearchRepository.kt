@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Repository
 class ConsultantSearchRepository(
-    private val jdbcTemplate: JdbcTemplate
+    private val jdbcTemplate: JdbcTemplate,
+    private val lexicon: no.cloudberries.candidatematch.config.SearchLexicon
 ) {
     private val logger = KotlinLogging.logger { }
 
@@ -37,6 +38,7 @@ class ConsultantSearchRepository(
         """.trimIndent()
 
         var joinClause = ""
+        var needsPeJoin = false
 
         // Handle name search
         if (!criteria.name.isNullOrBlank()) {
@@ -57,6 +59,60 @@ class ConsultantSearchRepository(
 
         // Handle skills filtering - using cv_skill_in_category through consultant_cv
         var needsSkillJoins = false
+
+        // Handle public sector and customer terms by joining project experiences
+        val publicSectorTerms = lexicon.publicSectorTokens
+
+        if (criteria.publicSector == true) {
+            joinClause += """
+                JOIN cv_project_experience pe ON cc.id = pe.cv_id
+            """.trimIndent()
+            needsPeJoin = true
+            // Build OR conditions for public sector tokens
+            val ors = mutableListOf<String>()
+            publicSectorTerms.forEach { _ ->
+                ors.add("LOWER(pe.customer) LIKE ?")
+                ors.add("LOWER(pe.description) LIKE ?")
+                ors.add("LOWER(pe.long_description) LIKE ?")
+            }
+            whereConditions.add("(" + ors.joinToString(" OR ") + ")")
+            publicSectorTerms.forEach { t ->
+                val pat = "%${t.lowercase()}%"
+                parameters.add(pat); parameters.add(pat); parameters.add(pat)
+            }
+        }
+
+        if (criteria.customersAny.isNotEmpty()) {
+            if (!needsPeJoin) {
+                joinClause += """
+                    JOIN cv_project_experience pe ON cc.id = pe.cv_id
+                """.trimIndent()
+                needsPeJoin = true
+            }
+            val ors = mutableListOf<String>()
+            criteria.customersAny.forEach { _ ->
+                ors.add("LOWER(pe.customer) LIKE ?")
+            }
+            whereConditions.add("(" + ors.joinToString(" OR ") + ")")
+            val expandedTerms = criteria.customersAny.flatMap { lexicon.expandCustomerTerm(it) }
+            expandedTerms.forEach { t -> parameters.add("%${t.lowercase()}%") }
+        }
+
+        // Normalized industry filter via mapping table
+        if (criteria.industriesAny.isNotEmpty()) {
+            if (!needsPeJoin) {
+                joinClause += """
+                    JOIN cv_project_experience pe ON cc.id = pe.cv_id
+                """.trimIndent()
+                needsPeJoin = true
+            }
+            joinClause += """
+                JOIN cv_project_experience_industry cpei ON pe.id = cpei.project_experience_id
+                JOIN industry i ON cpei.industry_id = i.id
+            """.trimIndent()
+            whereConditions.add("LOWER(i.name) IN (" + criteria.industriesAny.joinToString(",") { "?" } + ")")
+            criteria.industriesAny.forEach { parameters.add(it.lowercase()) }
+        }
 
         // Skills that must ALL be present (AND condition)
         if (criteria.skillsAll.isNotEmpty()) {
@@ -185,6 +241,46 @@ class ConsultantSearchRepository(
                 distance = rs.getDouble("distance")
             )
         }, *parameters.toTypedArray()).toList()
+    }
+
+    /**
+     * Hybrid re-ranking: restrict semantic similarity to a specific candidate list (userId, cvId pairs)
+     */
+    @Timed
+    @Transactional(readOnly = true)
+    fun reRankBySemanticSimilarity(
+        embedding: DoubleArray,
+        provider: String,
+        model: String,
+        allowedPairs: List<Pair<String, String>>, // (userId, cvId)
+        topK: Int
+    ): List<SemanticSearchResult> {
+        if (allowedPairs.isEmpty()) return emptyList()
+        val embeddingVector = embedding.joinToString(prefix = "[", postfix = "]") { it.toString() }
+        // Build tuple list: (user_id, cv_id) IN ((?, ?), ...)
+        val tuplePlaceholders = allowedPairs.joinToString(",") { "(?, ?)" }
+        val sql = """
+            SELECT DISTINCT c.id, c.user_id, c.name, c.cv_id, cc.quality_score, ce.embedding <-> ?::vector as distance
+            FROM consultant c
+            JOIN consultant_cv cc ON c.id = cc.consultant_id
+            JOIN cv_embedding ce ON c.user_id = ce.user_id AND c.cv_id = ce.cv_id
+            WHERE ce.provider = ? AND ce.model = ? AND (c.user_id, c.cv_id) IN ($tuplePlaceholders)
+            ORDER BY distance ASC
+            LIMIT ?
+        """.trimIndent()
+        val params = mutableListOf<Any>(embeddingVector, provider, model)
+        allowedPairs.forEach { params.add(it.first); params.add(it.second) }
+        params.add(topK)
+        return jdbcTemplate.query(sql, { rs, _ ->
+            SemanticSearchResult(
+                id = rs.getLong("id"),
+                userId = rs.getString("user_id"),
+                name = rs.getString("name"),
+                cvId = rs.getString("cv_id"),
+                qualityScore = rs.getInt("quality_score"),
+                distance = rs.getDouble("distance")
+            )
+        }, *params.toTypedArray()).toList()
     }
 
     /**

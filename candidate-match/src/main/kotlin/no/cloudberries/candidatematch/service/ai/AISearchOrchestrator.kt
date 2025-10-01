@@ -3,6 +3,7 @@ package no.cloudberries.candidatematch.service.ai
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.config.AIChatConfig
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
+import no.cloudberries.candidatematch.domain.consultant.SemanticSearchCriteria
 import no.cloudberries.candidatematch.dto.ai.*
 import no.cloudberries.candidatematch.service.consultants.ConsultantSearchService
 import no.cloudberries.candidatematch.utils.Timed
@@ -16,9 +17,8 @@ import kotlin.system.measureTimeMillis
 class AISearchOrchestrator(
     private val interpretationService: AIQueryInterpretationService,
     private val consultantSearchService: ConsultantSearchService,
-    private val config: AIChatConfig
-    // TODO: Add RAGContextService when implemented
-    // TODO: Add AIGenerationService when implemented
+    private val config: AIChatConfig,
+    private val ragService: RAGService
 ) {
     private val logger = KotlinLogging.logger { }
 
@@ -162,7 +162,7 @@ class AISearchOrchestrator(
         }
 
         // Create semantic search criteria
-        val semanticCriteria = no.cloudberries.candidatematch.domain.consultant.SemanticSearchCriteria(
+        val semanticCriteria = SemanticSearchCriteria(
             text = interpretation.semanticText,
             provider = "GOOGLE_GEMINI", // Use configured provider
             model = config.models.embeddings,
@@ -247,16 +247,49 @@ class AISearchOrchestrator(
             emptyList()
         }
 
-        // Phase 2: Re-rank with semantic similarity (TODO: implement)
-        logger.warn { "Hybrid re-ranking not yet implemented, using structured results only" }
+        // Phase 2: Re-rank with semantic similarity restricted to structured candidate set
+        val allowedPairs = structuredResults.map { it.userId to it.cvId }
+        val reRanked = if (allowedPairs.isNotEmpty()) {
+            consultantSearchService.reRankWithinCandidates(
+                queryText = interpretation.semanticText ?: request.text,
+                allowedPairs = allowedPairs,
+                topK = request.topK
+            )
+        } else emptyList()
 
-        val searchResults = structuredResults.take(request.topK).map { consultant ->
+        val semanticWeight = config.hybrid.semanticWeight
+        val qualityWeight = config.hybrid.qualityWeight
+
+        val finalRanked = if (reRanked.isNotEmpty()) {
+            reRanked.map { r ->
+                val quality = calculateQualityScore(r.dto)
+                val combined = semanticWeight * r.semanticScore + qualityWeight * quality
+                val meta: Map<String, Any> = mapOf(
+                    "hybrid" to true,
+                    "semanticScore" to r.semanticScore,
+                    "qualityScore" to quality
+                )
+                Triple(r.dto, combined, meta)
+            }.sortedByDescending { it.second } // highest combined first
+                .take(request.topK)
+        } else {
+            structuredResults.take(request.topK).map { dto ->
+                val quality = calculateQualityScore(dto)
+                val meta: Map<String, Any> = mapOf(
+                    "hybrid" to true,
+                    "qualityScore" to quality
+                )
+                Triple(dto, quality, meta)
+            }
+        }
+
+        val searchResults = finalRanked.map { (dto, combined, meta) ->
             SearchResult(
-                consultantId = UUID.fromString(consultant.userId),
-                name = consultant.name,
-                score = calculateQualityScore(consultant),
+                consultantId = UUID.fromString(dto.userId),
+                name = dto.name,
+                score = combined,
                 highlights = null,
-                meta = mapOf("hybrid" to true)
+                meta = meta
             )
         }
 
@@ -270,7 +303,11 @@ class AISearchOrchestrator(
                 interpretation,
                 timings
             ),
-            conversationId = request.conversationId
+            conversationId = request.conversationId,
+            scoring = ScoringInfo(
+                semanticWeight = semanticWeight,
+                qualityWeight = qualityWeight
+            )
         )
     }
 
@@ -290,20 +327,59 @@ class AISearchOrchestrator(
             )
         }
 
-        // TODO: Implement RAG search when RAGContextService and AIGenerationService are ready
-        logger.warn { "RAG search not yet implemented, using fallback" }
-        return ChatSearchResponse(
-            mode = SearchMode.RAG,
-            results = null,
-            answer = "RAG functionality is not yet implemented. Please try a different search approach.",
-            sources = null,
-            latencyMs = timings.values.sum(),
-            debug = createDebugInfo(
+        // Check if we have consultant targeting information
+        if (request.consultantId.isNullOrBlank()) {
+            logger.warn { "RAG search requires consultantId, falling back to semantic search" }
+            return executeSemanticSearch(
                 interpretation,
+                request,
                 timings
-            ),
-            conversationId = request.conversationId
-        )
+            )
+        }
+
+        val cvId = request.cvId
+        val question = interpretation.question ?: request.text
+
+        return try {
+            var ragResult: RAGService.RAGResult? = null
+            val ragTime = measureTimeMillis {
+                ragResult = ragService.processRAGQuery(
+                    consultantId = request.consultantId,
+                    cvId = cvId,
+                    question = question,
+                    conversationId = request.conversationId
+                )
+            }
+            timings["rag"] = ragTime
+
+            ChatSearchResponse(
+                mode = SearchMode.RAG,
+                results = null,
+                answer = ragResult!!.answer,
+                sources = ragResult!!.sources,
+                latencyMs = timings.values.sum(),
+                debug = createDebugInfo(
+                    interpretation,
+                    timings
+                ),
+                conversationId = ragResult!!.conversationId
+            )
+        } catch (e: Exception) {
+            logger.error(e) { "RAG search failed for consultant ${request.consultantId}: ${e.message}" }
+            ChatSearchResponse(
+                mode = SearchMode.RAG,
+                results = null,
+                answer = "I encountered an error while processing your question about this consultant. Please try rephrasing your question or try again later.",
+                sources = null,
+                latencyMs = timings.values.sum(),
+                debug = createDebugInfo(
+                    interpretation,
+                    timings,
+                    mapOf("error" to e.message)
+                ),
+                conversationId = request.conversationId
+            )
+        }
     }
 
     private fun executeFallbackSearch(
@@ -399,17 +475,20 @@ class AISearchOrchestrator(
 
     private fun createDebugInfo(
         interpretation: QueryInterpretation,
-        timings: Map<String, Long>
+        timings: Map<String, Long>,
+        extraParams: Map<String, Any?> = emptyMap()
     ): DebugInfo {
+        val baseExtra = mapOf(
+            "configProvider" to config.provider,
+            "ragEnabled" to config.rag.enabled,
+            "semanticEnabled" to config.semantic.enabled,
+            "hybridEnabled" to config.hybrid.enabled
+        )
+        
         return DebugInfo(
             interpretation = interpretation,
             timings = timings,
-            extra = mapOf(
-                "configProvider" to config.provider,
-                "ragEnabled" to config.rag.enabled,
-                "semanticEnabled" to config.semantic.enabled,
-                "hybridEnabled" to config.hybrid.enabled
-            )
+            extra = baseExtra + extraParams.filterValues { it != null } as Map<String, Any>
         )
     }
 }

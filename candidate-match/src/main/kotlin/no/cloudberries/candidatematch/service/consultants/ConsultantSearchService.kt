@@ -81,6 +81,48 @@ class ConsultantSearchService(
     }
 
     /**
+     * Re-rank a restricted candidate set by semantic similarity using pgvector
+     */
+    data class ReRankedConsultant(
+        val dto: ConsultantWithCvDto,
+        val semanticScore: Double, // 0..1 where 1 is best
+        val distance: Double
+    )
+
+    fun reRankWithinCandidates(
+        queryText: String,
+        allowedPairs: List<Pair<String, String>>,
+        topK: Int
+    ): List<ReRankedConsultant> {
+        if (!embeddingProvider.isEnabled() || allowedPairs.isEmpty()) return emptyList()
+        val queryEmbedding = embeddingProvider.embed(queryText)
+        if (queryEmbedding.isEmpty()) return emptyList()
+        val results = consultantSearchRepository.reRankBySemanticSimilarity(
+            embedding = queryEmbedding,
+            provider = embeddingProvider.providerName,
+            model = embeddingProvider.modelName,
+            allowedPairs = allowedPairs,
+            topK = topK
+        )
+        if (results.isEmpty()) return emptyList()
+        val consultantIds = results.map { it.id }
+        val cvDataByConsultant = cvDataAggregationService.aggregateCvData(consultantIds, true)
+        return results.map { r ->
+            val dto = ConsultantWithCvDto(
+                id = r.id,
+                userId = r.userId,
+                name = r.name,
+                cvId = r.cvId,
+                skills = emptyList(),
+                cvs = cvDataByConsultant[r.id] ?: emptyList()
+            )
+            // Convert pgvector distance to similarity score in [0,1]
+            val sim = 1.0 / (1.0 + r.distance)
+            ReRankedConsultant(dto = dto, semanticScore = sim, distance = r.distance)
+        }
+    }
+
+    /**
      * Performs semantic search for consultants using embeddings and natural language
      */
     @Timed

@@ -25,6 +25,8 @@ class CvDataAggregationService(
     private val cvSkillCategoryRepository: CvSkillCategoryRepository,
     private val cvSkillInCategoryRepository: CvSkillInCategoryRepository,
     private val cvAttachmentRepository: CvAttachmentRepository,
+    private val industryRepo: no.cloudberries.candidatematch.infrastructure.repositories.industry.IndustryRepository,
+    private val cpeiRepo: no.cloudberries.candidatematch.infrastructure.repositories.industry.CvProjectExperienceIndustryRepository,
     private val skillService: SkillService
 ) {
 
@@ -62,6 +64,17 @@ class CvDataAggregationService(
             if (projectExperienceIds.isEmpty()) emptyMap()
             else cvProjectExperienceSkillRepository.findByProjectExperienceIdIn(projectExperienceIds).groupBy { it.projectExperienceId }
 
+        // Industry mapping: fetch all links then resolve names
+        val cpei = if (projectExperienceIds.isEmpty()) emptyList() else cpeiRepo.findByProjectExperienceIdIn(projectExperienceIds)
+        val industryIds = cpei.map { it.industryId }.toSet()
+        val industriesById = if (industryIds.isEmpty()) emptyMap() else industryRepo.findAllById(industryIds).associateBy { it.id }
+        // build industries per cv id
+        val industriesByCv: Map<Long?, List<String>> = projectExperiences.groupBy { it.cvId }.mapValues { (_, pes) ->
+            pes.flatMap { pe ->
+                cpei.filter { it.projectExperienceId == pe.id }.mapNotNull { link -> industriesById[link.industryId]?.name }
+            }.distinct()
+        }
+
         return CvDataBundle(
             keyQualificationsByCv = cvKeyQualificationRepository.findByCvIdIn(cvIds).groupBy { it.cvId },
             educationByCv = cvEducationRepository.findByCvIdIn(cvIds).groupBy { it.cvId },
@@ -75,7 +88,8 @@ class CvDataAggregationService(
             languagesByCv = cvLanguageRepository.findByCvIdIn(cvIds).groupBy { it.cvId },
             skillCategoriesByCv = cvSkillCategoryRepository.findByCvIdIn(cvIds).groupBy { it.cvId },
             skillInCategoriesByCategory = loadSkillInCategories(cvIds).mapKeys { it.key as Long? },
-            attachmentsByCv = cvAttachmentRepository.findByCvIdIn(cvIds).groupBy { it.cvId }
+            attachmentsByCv = cvAttachmentRepository.findByCvIdIn(cvIds).groupBy { it.cvId },
+            industriesByCv = industriesByCv
         )
     }
 
@@ -103,7 +117,8 @@ class CvDataAggregationService(
             courses = cvData.coursesByCv[cv.id]?.map { it.toDto() } ?: emptyList(),
             languages = cvData.languagesByCv[cv.id]?.map { it.toDto() } ?: emptyList(),
             skillCategories = buildSkillCategoriesDto(cv.id!!, cvData),
-            attachments = cvData.attachmentsByCv[cv.id]?.map { it.toDto() } ?: emptyList()
+            attachments = cvData.attachmentsByCv[cv.id]?.map { it.toDto() } ?: emptyList(),
+            industries = cvData.industriesByCv[cv.id] ?: emptyList()
         )
     }
 
@@ -149,7 +164,8 @@ private data class CvDataBundle(
     val languagesByCv: Map<Long?, List<CvLanguageEntity>>,
     val skillCategoriesByCv: Map<Long?, List<CvSkillCategoryEntity>>,
     val skillInCategoriesByCategory: Map<Long?, List<CvSkillInCategoryEntity>>,
-    val attachmentsByCv: Map<Long?, List<CvAttachmentEntity>>
+    val attachmentsByCv: Map<Long?, List<CvAttachmentEntity>>,
+    val industriesByCv: Map<Long?, List<String>>
 )
 
 // Extension functions for DTO conversion
