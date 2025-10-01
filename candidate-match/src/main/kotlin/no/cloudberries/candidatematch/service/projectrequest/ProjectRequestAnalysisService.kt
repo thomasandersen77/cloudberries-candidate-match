@@ -41,6 +41,7 @@ class ProjectRequestAnalysisService(
         pdfStream: InputStream,
         originalFilename: String? = null,
     ): Aggregate {
+
         val text = PdfUtils.extractText(pdfStream).trim()
         val (title, fallbackSummary) = deriveTitleAndSummary(text)
 

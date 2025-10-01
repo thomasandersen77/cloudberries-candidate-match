@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
 import no.cloudberries.candidatematch.infrastructure.integration.embedding.EmbeddingConfig
-import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseCvDto
+import no.cloudberries.candidatematch.domain.consultant.Cv
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.embedding.CvEmbeddingRepository
 import no.cloudberries.candidatematch.service.embedding.FlowcaseCvTextFlattener
@@ -65,15 +65,15 @@ class CvEmbeddingService(
             return false
         }
         
-        // Convert JsonNode resumeData to FlowcaseCvDto for text extraction
-        val flowcaseCvDto = try {
-            objectMapper.treeToValue(consultant.resumeData, FlowcaseCvDto::class.java)
+// Convert JsonNode resumeData (stored as domain Cv JSON) back to domain Cv
+        val domainCv = try {
+            objectMapper.treeToValue(consultant.resumeData, Cv::class.java)
         } catch (e: Exception) {
             logger.warn(e) { "Failed to parse resume_data for userId=$userId: ${e.message}" }
             return false
         }
         
-        val text = FlowcaseCvTextFlattener.toText(flowcaseCvDto)
+        val text = DomainCvTextFlattener.toText(domainCv)
         val vec = embeddingProvider.embed(text)
         if (vec.isEmpty()) {
             logger.warn { "Embedding provider returned empty vector for userId=$userId, cvId=$cvId. Skipping save." }
@@ -110,9 +110,9 @@ class CvEmbeddingService(
                 )
             ) {
                 try {
-                    // Convert JsonNode resumeData to FlowcaseCvDto for text extraction
-                    val flowcaseCvDto = objectMapper.treeToValue(consultant.resumeData, FlowcaseCvDto::class.java)
-                    val text = FlowcaseCvTextFlattener.toText(flowcaseCvDto)
+// Convert JsonNode resumeData (stored as domain Cv JSON) back to domain Cv
+                    val domainCv = objectMapper.treeToValue(consultant.resumeData, Cv::class.java)
+                    val text = DomainCvTextFlattener.toText(domainCv)
                     val vec = embeddingProvider.embed(text)
                     
                     if (vec.isNotEmpty()) {
@@ -124,7 +124,7 @@ class CvEmbeddingService(
                             vec
                         )
                         processed++
-                        logger.debug { "Generated embedding for consultant=${consultant.name}, userId=${consultant.userId}" }
+                        logger.info { "Generated embedding for consultant=${consultant.name}, userId=${consultant.userId}" }
                     } else {
                         logger.warn { "Empty embedding vector for consultant=${consultant.name}, userId=${consultant.userId}" }
                     }

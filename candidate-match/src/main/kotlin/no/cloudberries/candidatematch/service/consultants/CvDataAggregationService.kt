@@ -27,6 +27,8 @@ class CvDataAggregationService(
     private val cvAttachmentRepository: CvAttachmentRepository,
     private val industryRepo: no.cloudberries.candidatematch.infrastructure.repositories.industry.IndustryRepository,
     private val cpeiRepo: no.cloudberries.candidatematch.infrastructure.repositories.industry.CvProjectExperienceIndustryRepository,
+    private val consultantRepository: no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository,
+    private val cvScoreRepository: no.cloudberries.candidatematch.infrastructure.repositories.scoring.CvScoreRepository,
     private val skillService: SkillService
 ) {
 
@@ -48,11 +50,20 @@ class CvDataAggregationService(
         val cvIds = cvs.mapNotNull { it.id }
         val cvData = loadCvData(cvIds)
 
+        // Prepare map of consultantId -> cv_score.score_percent (nullable if missing)
+        val consultants = consultantRepository.findAllById(consultantIds)
+        val userIdByConsultantId: Map<Long, String> = consultants.associate { it.id!! to it.userId }
+        val userIds = userIdByConsultantId.values.toSet()
+        val scoreByUserId: Map<String, Int> = if (userIds.isEmpty()) emptyMap() else
+            cvScoreRepository.findByCandidateUserIdIn(userIds).associate { it.candidateUserId to it.scorePercent }
+        val scoreByConsultantId: Map<Long, Int?> = userIdByConsultantId.mapValues { (_, userId) -> scoreByUserId[userId] }
+
         // Group CVs by consultant and build DTOs
         val cvByConsultant: Map<Long, List<ConsultantCvEntity>> = cvs.groupBy { it.consultantId }
         return consultantIds.associateWith { consultantId ->
             val consultantCvs = cvByConsultant[consultantId] ?: emptyList()
-            consultantCvs.map { buildConsultantCvDto(it, cvData) }
+            val quality = scoreByConsultantId[consultantId]
+            consultantCvs.map { buildConsultantCvDto(it, cvData, quality) }
         }
     }
 
@@ -101,13 +112,14 @@ class CvDataAggregationService(
                 .groupBy { it.skillCategoryId }
     }
 
-    private fun buildConsultantCvDto(cv: ConsultantCvEntity, cvData: CvDataBundle): ConsultantCvDto {
+    private fun buildConsultantCvDto(cv: ConsultantCvEntity, cvData: CvDataBundle, qualityFromCvScore: Int?): ConsultantCvDto {
         val projectExperiences = cvData.projectExperiencesByCv[cv.id] ?: emptyList()
 
         return ConsultantCvDto(
             id = cv.id,
             versionTag = cv.versionTag,
-            qualityScore = cv.qualityScore,
+            // Unified quality source: cv_score.score_percent (null when missing)
+            qualityScore = qualityFromCvScore,
             active = cv.active,
             keyQualifications = cvData.keyQualificationsByCv[cv.id]?.map { it.toDto() } ?: emptyList(),
             education = cvData.educationByCv[cv.id]?.map { it.toDto() } ?: emptyList(),

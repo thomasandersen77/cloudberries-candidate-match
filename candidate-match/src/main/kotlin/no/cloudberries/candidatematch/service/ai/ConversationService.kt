@@ -1,6 +1,7 @@
 package no.cloudberries.candidatematch.service.ai
 
 import mu.KotlinLogging
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -8,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class ConversationService(
-    private val jdbcTemplate: org.springframework.jdbc.core.JdbcTemplate
+    private val jdbcTemplate: JdbcTemplate
 ) {
     private val logger = KotlinLogging.logger { }
     

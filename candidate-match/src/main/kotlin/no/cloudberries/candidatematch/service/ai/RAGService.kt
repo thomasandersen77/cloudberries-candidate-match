@@ -78,12 +78,12 @@ class RAGService(
         conversationService.addToConversation(actualConversationId, question, aiResponse.content)
         
         // Create source information
-        val sources = if (chunks.isNotEmpty()) {
+val sources = if (chunks.isNotEmpty()) {
             chunks.map { c ->
                 RAGSource(
-                    consultantId = generateConsistentUUID(consultantId),
+                    consultantId = consultantId,
                     consultantName = consultant.name,
-                    chunkId = generateConsistentUUID("${consultantId}-${resolvedCvId}-${c.index}"),
+                    chunkId = "${consultantId}-${resolvedCvId}-${c.index}",
                     text = c.text.take(200),
                     score = c.score,
                     location = "CV chunk #${c.index}"
@@ -92,9 +92,9 @@ class RAGService(
         } else {
             listOf(
                 RAGSource(
-                    consultantId = generateConsistentUUID(consultantId),
+                    consultantId = consultantId,
                     consultantName = consultant.name,
-                    chunkId = generateConsistentUUID(resolvedCvId),
+                    chunkId = resolvedCvId,
                     text = "CV data for ${consultant.name}",
                     score = 1.0,
                     location = "Complete CV"
@@ -158,14 +158,5 @@ class RAGService(
         """.trimIndent()
     }
     
-    private fun generateConsistentUUID(input: String): UUID {
-        // Generate a consistent UUID based on string input
-        return try {
-            UUID.fromString(input)
-        } catch (e: IllegalArgumentException) {
-            // If input is not a valid UUID, create a deterministic one from the hash
-            val hash = input.hashCode().toString().padStart(8, '0')
-            UUID.fromString("$hash-0000-0000-0000-000000000000")
-        }
-    }
+// NOTE: Previously we generated synthetic UUIDs for IDs, but the API now returns plain string IDs.
 }

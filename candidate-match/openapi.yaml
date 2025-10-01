@@ -1000,7 +1000,7 @@ components:
           type: integer
           minimum: 0
           maximum: 100
-          description: Minimum CV quality score
+          description: "Minimum CV quality score (0–100). Candidates without a score are treated as 0 for filtering."
         onlyActiveCv:
           type: boolean
           default: false
@@ -1033,7 +1033,7 @@ components:
           type: integer
           minimum: 0
           maximum: 100
-          description: Minimum CV quality score
+          description: "Minimum CV quality score (0–100). Candidates without a score are treated as 0 for filtering."
         onlyActiveCv:
           type: boolean
           default: false
@@ -1177,6 +1177,9 @@ components:
         qualityScore:
           type: integer
           nullable: true
+          minimum: 0
+          maximum: 100
+          description: "CV quality score (0–100); populated from cv_score.score_percent. May be null when no score exists."
         active:
           type: boolean
         keyQualifications:
@@ -1725,8 +1728,7 @@ components:
       properties:
         consultantId:
           type: string
-          format: uuid
-          description: Consultant ID
+          description: Consultant userId
         name:
           type: string
           description: Consultant name
@@ -1759,15 +1761,13 @@ components:
       properties:
         consultantId:
           type: string
-          format: uuid
-          description: Consultant ID
+          description: Consultant userId
         consultantName:
           type: string
           description: Consultant name
         chunkId:
           type: string
-          format: uuid
-          description: Chunk ID
+          description: Chunk identifier
         text:
           type: string
           description: Source text excerpt

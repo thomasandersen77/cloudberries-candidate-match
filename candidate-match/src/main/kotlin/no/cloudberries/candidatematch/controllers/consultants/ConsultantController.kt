@@ -7,6 +7,7 @@ import no.cloudberries.candidatematch.service.consultants.EmbeddingProviderInfo
 import no.cloudberries.candidatematch.domain.consultant.RelationalSearchCriteria
 import no.cloudberries.candidatematch.domain.consultant.SemanticSearchCriteria
 import no.cloudberries.candidatematch.dto.consultants.ConsultantSummaryDto
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.PageRequest
@@ -25,7 +26,7 @@ class ConsultantController(
     private val logger = KotlinLogging.logger { }
 
     @GetMapping
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun list(
         @RequestParam(required = false) name: String?,
         pageable: Pageable
@@ -41,7 +42,7 @@ class ConsultantController(
      * Relational search for consultants based on structured criteria
      */
     @PostMapping("/search")
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun searchRelational(
         @RequestBody request: RelationalSearchRequest,
     ): ResponseEntity<Page<ConsultantWithCvDto>> {
@@ -70,7 +71,7 @@ class ConsultantController(
      * Semantic search for consultants using natural language
      */
     @PostMapping("/search/semantic")
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun searchSemantic(
         @RequestBody request: SemanticSearchRequest,
     ): ResponseEntity<Page<ConsultantWithCvDto>> {
@@ -103,7 +104,7 @@ class ConsultantController(
      * Gets information about the available embedding provider
      */
     @GetMapping("/search/embedding-info")
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun getEmbeddingInfo(): EmbeddingProviderInfo {
         logger.info { "GET /api/consultants/search/embedding-info" }
         return consultantSearchService.getEmbeddingProviderInfo()

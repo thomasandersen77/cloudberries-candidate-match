@@ -2,7 +2,6 @@ package no.cloudberries.candidatematch.dto.ai
 
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * Response from AI consultant search
@@ -39,8 +38,8 @@ data class ChatSearchResponse(
  */
 @Schema(description = "Search result for a consultant")
 data class SearchResult(
-    @Schema(description = "Consultant ID")
-    val consultantId: UUID,
+    @Schema(description = "Consultant ID (userId)")
+    val consultantId: String,
     
     @Schema(description = "Consultant name", example = "Thomas Andersen")
     val name: String,
@@ -60,14 +59,14 @@ data class SearchResult(
  */
 @Schema(description = "Source citation for RAG answers")
 data class RAGSource(
-    @Schema(description = "Consultant ID")
-    val consultantId: UUID,
+    @Schema(description = "Consultant ID (userId)")
+    val consultantId: String,
     
     @Schema(description = "Consultant name")
     val consultantName: String,
     
     @Schema(description = "Chunk ID")
-    val chunkId: UUID,
+    val chunkId: String,
     
     @Schema(description = "Source text excerpt")
     val text: String,

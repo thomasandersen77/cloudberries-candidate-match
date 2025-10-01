@@ -37,7 +37,9 @@ class ConsultantSearchRepository(
             JOIN consultant_cv cc ON c.id = cc.consultant_id
         """.trimIndent()
 
-        var joinClause = ""
+        var joinClause = """
+            LEFT JOIN cv_score cs ON cs.candidate_user_id = c.user_id
+        """.trimIndent() + "\n"
         var needsPeJoin = false
 
         // Handle name search
@@ -46,9 +48,9 @@ class ConsultantSearchRepository(
             parameters.add("%${criteria.name}%")
         }
 
-        // Handle quality score filter
+        // Handle quality score filter (from cv_score.score_percent; missing treated as 0)
         if (criteria.minQualityScore != null) {
-            whereConditions.add("cc.quality_score IS NOT NULL AND cc.quality_score >= ?")
+            whereConditions.add("COALESCE(cs.score_percent, 0) >= ?")
             parameters.add(criteria.minQualityScore)
         }
 
@@ -126,9 +128,10 @@ class ConsultantSearchRepository(
                 parameters.addAll(matchingSkills.map { it.uppercase() })
 
                 // Group by consultant and ensure all required skills are present
-                val groupByClause = "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.quality_score, cc.active"
+                val groupByClause = "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.active"
                 val havingClause = "HAVING COUNT(DISTINCT UPPER(csic_all.name)) >= ?"
-                parameters.add(matchingSkills.size - 1)
+                val requiredDistinctSkills = matchingSkills.map { it.uppercase() }.toSet().size
+                parameters.add(requiredDistinctSkills)
 
                 return executePagedQuery(
                     baseSelect,
@@ -158,7 +161,7 @@ class ConsultantSearchRepository(
 
         // If we have skills filtering, we need to use DISTINCT to avoid duplicates
         val finalGroupBy =
-            if (needsSkillJoins) "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.quality_score, cc.active" else ""
+            if (needsSkillJoins) "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.active" else ""
 
         logger.info { "About to execute paged query with joinClause='$joinClause', whereConditions=$whereConditions, groupBy='$finalGroupBy'" }
         return executePagedQuery(
@@ -201,11 +204,12 @@ class ConsultantSearchRepository(
                 c.user_id,
                 c.name,
                 c.cv_id,
-                cc.quality_score,
+                COALESCE(cs.score_percent, 0) AS quality_score,
                 ce.embedding <-> ?::vector as distance
             FROM consultant c
             JOIN consultant_cv cc ON c.id = cc.consultant_id
             JOIN cv_embedding ce ON c.user_id = ce.user_id AND c.cv_id = ce.cv_id
+            LEFT JOIN cv_score cs ON c.user_id = cs.candidate_user_id
             WHERE ce.provider = ? AND ce.model = ?
         """.trimIndent()
 
@@ -215,7 +219,7 @@ class ConsultantSearchRepository(
 
         // Add optional filters
         if (minQualityScore != null) {
-            whereConditions.add("cc.quality_score IS NOT NULL AND cc.quality_score >= ?")
+            whereConditions.add("COALESCE(cs.score_percent, 0) >= ?")
             parameters.add(minQualityScore)
         }
 
@@ -260,10 +264,11 @@ class ConsultantSearchRepository(
         // Build tuple list: (user_id, cv_id) IN ((?, ?), ...)
         val tuplePlaceholders = allowedPairs.joinToString(",") { "(?, ?)" }
         val sql = """
-            SELECT DISTINCT c.id, c.user_id, c.name, c.cv_id, cc.quality_score, ce.embedding <-> ?::vector as distance
+            SELECT DISTINCT c.id, c.user_id, c.name, c.cv_id, COALESCE(cs.score_percent, 0) AS quality_score, ce.embedding <-> ?::vector as distance
             FROM consultant c
             JOIN consultant_cv cc ON c.id = cc.consultant_id
             JOIN cv_embedding ce ON c.user_id = ce.user_id AND c.cv_id = ce.cv_id
+            LEFT JOIN cv_score cs ON c.user_id = cs.candidate_user_id
             WHERE ce.provider = ? AND ce.model = ? AND (c.user_id, c.cv_id) IN ($tuplePlaceholders)
             ORDER BY distance ASC
             LIMIT ?
@@ -336,12 +341,16 @@ class ConsultantSearchRepository(
             baseSelect,
             joinClause,
             sqlClauses,
+            groupByClause,
+            havingClause,
             parameters
         )
         val consultants = executeDataQuery(
             baseSelect,
             joinClause,
             sqlClauses,
+            groupByClause,
+            havingClause,
             parameters,
             pageable
         )
@@ -380,6 +389,8 @@ class ConsultantSearchRepository(
         baseSelect: String,
         joinClause: String,
         sqlClauses: SqlClauses,
+        groupByClause: String,
+        havingClause: String,
         parameters: List<Any>
     ): Long {
         val countSql = """
@@ -387,6 +398,8 @@ class ConsultantSearchRepository(
             $baseSelect 
             $joinClause 
             ${sqlClauses.whereClause}
+            $groupByClause
+            $havingClause
         ) as counted
     """.trimIndent()
 
@@ -404,6 +417,8 @@ class ConsultantSearchRepository(
         baseSelect: String,
         joinClause: String,
         sqlClauses: SqlClauses,
+        groupByClause: String,
+        havingClause: String,
         parameters: List<Any>,
         pageable: Pageable
     ): List<ConsultantFlatView> {
@@ -411,6 +426,8 @@ class ConsultantSearchRepository(
         $baseSelect 
         $joinClause 
         ${sqlClauses.whereClause}
+        $groupByClause
+        $havingClause
         ${sqlClauses.orderByClause}
         LIMIT ? OFFSET ?
     """.trimIndent()

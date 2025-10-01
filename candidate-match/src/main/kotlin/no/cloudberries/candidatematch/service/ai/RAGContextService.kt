@@ -7,8 +7,8 @@ import no.cloudberries.candidatematch.infrastructure.integration.embedding.Embed
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.embedding.CvChunkEmbeddingRepository
 import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
-import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseCvDto
-import no.cloudberries.candidatematch.service.embedding.FlowcaseCvTextFlattener
+import no.cloudberries.candidatematch.domain.consultant.Cv
+import no.cloudberries.candidatematch.service.embedding.DomainCvTextFlattener
 import org.springframework.stereotype.Service
 
 @Service
@@ -39,9 +39,9 @@ class RAGContextService(
         val consultant = consultantRepository.findByUserId(userId)
             ?: throw IllegalArgumentException("Consultant not found: $userId")
 
-        // Flatten resume JSON to plain text
-        val flowcase = objectMapper.treeToValue(consultant.resumeData, FlowcaseCvDto::class.java)
-        val fullText = FlowcaseCvTextFlattener.toText(flowcase)
+// Flatten resume JSON to plain text using domain CV
+        val domainCv = objectMapper.treeToValue(consultant.resumeData, Cv::class.java)
+        val fullText = DomainCvTextFlattener.toText(domainCv)
         val chunks = chunkText(fullText, aiChatConfig.rag.chunkSize, aiChatConfig.rag.chunkOverlap)
 
         chunks.forEachIndexed { idx, chunk ->

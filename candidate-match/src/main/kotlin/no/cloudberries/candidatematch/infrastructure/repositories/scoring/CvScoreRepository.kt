@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CvScoreRepository : JpaRepository<CvScoreEntity, Long> {
     fun findByCandidateUserId(candidateUserId: String): CvScoreEntity?
+    fun findByCandidateUserIdIn(candidateUserIds: Collection<String>): List<CvScoreEntity>
 }
