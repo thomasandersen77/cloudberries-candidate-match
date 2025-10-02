@@ -8,7 +8,10 @@ data class RelationalSearchCriteria(
     val skillsAll: List<String> = emptyList(),
     val skillsAny: List<String> = emptyList(),
     val minQualityScore: Int? = null,
-    val onlyActiveCv: Boolean = false
+    val onlyActiveCv: Boolean = false,
+    val publicSector: Boolean? = null,
+    val customersAny: List<String> = emptyList(),
+    val industriesAny: List<String> = emptyList()
 ) {
     /**
      * Validates the search criteria
@@ -23,6 +26,12 @@ data class RelationalSearchCriteria(
         val allSkills = skillsAll + skillsAny
         if (allSkills.any { it.isBlank() }) {
             errors.add("Skills cannot be blank")
+        }
+        if (customersAny.any { it.isBlank() }) {
+            errors.add("Customer terms cannot be blank")
+        }
+        if (industriesAny.any { it.isBlank() }) {
+            errors.add("Industry terms cannot be blank")
         }
         
         return errors

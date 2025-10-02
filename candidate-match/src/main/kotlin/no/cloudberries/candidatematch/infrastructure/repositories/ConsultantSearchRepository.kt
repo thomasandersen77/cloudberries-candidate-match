@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Repository
 class ConsultantSearchRepository(
-    private val jdbcTemplate: JdbcTemplate
+    private val jdbcTemplate: JdbcTemplate,
+    private val lexicon: no.cloudberries.candidatematch.config.SearchLexicon
 ) {
     private val logger = KotlinLogging.logger { }
 
@@ -36,7 +37,10 @@ class ConsultantSearchRepository(
             JOIN consultant_cv cc ON c.id = cc.consultant_id
         """.trimIndent()
 
-        var joinClause = ""
+        var joinClause = """
+            LEFT JOIN cv_score cs ON cs.candidate_user_id = c.user_id
+        """.trimIndent() + "\n"
+        var needsPeJoin = false
 
         // Handle name search
         if (!criteria.name.isNullOrBlank()) {
@@ -44,9 +48,9 @@ class ConsultantSearchRepository(
             parameters.add("%${criteria.name}%")
         }
 
-        // Handle quality score filter
+        // Handle quality score filter (from cv_score.score_percent; missing treated as 0)
         if (criteria.minQualityScore != null) {
-            whereConditions.add("cc.quality_score IS NOT NULL AND cc.quality_score >= ?")
+            whereConditions.add("COALESCE(cs.score_percent, 0) >= ?")
             parameters.add(criteria.minQualityScore)
         }
 
@@ -57,6 +61,60 @@ class ConsultantSearchRepository(
 
         // Handle skills filtering - using cv_skill_in_category through consultant_cv
         var needsSkillJoins = false
+
+        // Handle public sector and customer terms by joining project experiences
+        val publicSectorTerms = lexicon.publicSectorTokens
+
+        if (criteria.publicSector == true) {
+            joinClause += """
+                JOIN cv_project_experience pe ON cc.id = pe.cv_id
+            """.trimIndent()
+            needsPeJoin = true
+            // Build OR conditions for public sector tokens
+            val ors = mutableListOf<String>()
+            publicSectorTerms.forEach { _ ->
+                ors.add("LOWER(pe.customer) LIKE ?")
+                ors.add("LOWER(pe.description) LIKE ?")
+                ors.add("LOWER(pe.long_description) LIKE ?")
+            }
+            whereConditions.add("(" + ors.joinToString(" OR ") + ")")
+            publicSectorTerms.forEach { t ->
+                val pat = "%${t.lowercase()}%"
+                parameters.add(pat); parameters.add(pat); parameters.add(pat)
+            }
+        }
+
+        if (criteria.customersAny.isNotEmpty()) {
+            if (!needsPeJoin) {
+                joinClause += """
+                    JOIN cv_project_experience pe ON cc.id = pe.cv_id
+                """.trimIndent()
+                needsPeJoin = true
+            }
+            val ors = mutableListOf<String>()
+            criteria.customersAny.forEach { _ ->
+                ors.add("LOWER(pe.customer) LIKE ?")
+            }
+            whereConditions.add("(" + ors.joinToString(" OR ") + ")")
+            val expandedTerms = criteria.customersAny.flatMap { lexicon.expandCustomerTerm(it) }
+            expandedTerms.forEach { t -> parameters.add("%${t.lowercase()}%") }
+        }
+
+        // Normalized industry filter via mapping table
+        if (criteria.industriesAny.isNotEmpty()) {
+            if (!needsPeJoin) {
+                joinClause += """
+                    JOIN cv_project_experience pe ON cc.id = pe.cv_id
+                """.trimIndent()
+                needsPeJoin = true
+            }
+            joinClause += """
+                JOIN cv_project_experience_industry cpei ON pe.id = cpei.project_experience_id
+                JOIN industry i ON cpei.industry_id = i.id
+            """.trimIndent()
+            whereConditions.add("LOWER(i.name) IN (" + criteria.industriesAny.joinToString(",") { "?" } + ")")
+            criteria.industriesAny.forEach { parameters.add(it.lowercase()) }
+        }
 
         // Skills that must ALL be present (AND condition)
         if (criteria.skillsAll.isNotEmpty()) {
@@ -70,9 +128,10 @@ class ConsultantSearchRepository(
                 parameters.addAll(matchingSkills.map { it.uppercase() })
 
                 // Group by consultant and ensure all required skills are present
-                val groupByClause = "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.quality_score, cc.active"
+                val groupByClause = "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.active"
                 val havingClause = "HAVING COUNT(DISTINCT UPPER(csic_all.name)) >= ?"
-                parameters.add(matchingSkills.size)
+                val requiredDistinctSkills = matchingSkills.map { it.uppercase() }.toSet().size
+                parameters.add(requiredDistinctSkills)
 
                 return executePagedQuery(
                     baseSelect,
@@ -102,7 +161,7 @@ class ConsultantSearchRepository(
 
         // If we have skills filtering, we need to use DISTINCT to avoid duplicates
         val finalGroupBy =
-            if (needsSkillJoins) "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.quality_score, cc.active" else ""
+            if (needsSkillJoins) "GROUP BY c.id, c.user_id, c.name, c.cv_id, cc.active" else ""
 
         logger.info { "About to execute paged query with joinClause='$joinClause', whereConditions=$whereConditions, groupBy='$finalGroupBy'" }
         return executePagedQuery(
@@ -145,11 +204,12 @@ class ConsultantSearchRepository(
                 c.user_id,
                 c.name,
                 c.cv_id,
-                cc.quality_score,
+                COALESCE(cs.score_percent, 0) AS quality_score,
                 ce.embedding <-> ?::vector as distance
             FROM consultant c
             JOIN consultant_cv cc ON c.id = cc.consultant_id
             JOIN cv_embedding ce ON c.user_id = ce.user_id AND c.cv_id = ce.cv_id
+            LEFT JOIN cv_score cs ON c.user_id = cs.candidate_user_id
             WHERE ce.provider = ? AND ce.model = ?
         """.trimIndent()
 
@@ -159,7 +219,7 @@ class ConsultantSearchRepository(
 
         // Add optional filters
         if (minQualityScore != null) {
-            whereConditions.add("cc.quality_score IS NOT NULL AND cc.quality_score >= ?")
+            whereConditions.add("COALESCE(cs.score_percent, 0) >= ?")
             parameters.add(minQualityScore)
         }
 
@@ -175,8 +235,7 @@ class ConsultantSearchRepository(
 
         return jdbcTemplate.query(
             finalSql,
-            parameters.toTypedArray()
-        ) { rs, _ ->
+            { rs, _ ->
             SemanticSearchResult(
                 id = rs.getLong("id"),
                 userId = rs.getString("user_id"),
@@ -185,7 +244,48 @@ class ConsultantSearchRepository(
                 qualityScore = rs.getInt("quality_score"),
                 distance = rs.getDouble("distance")
             )
-        }
+        }, *parameters.toTypedArray()).toList()
+    }
+
+    /**
+     * Hybrid re-ranking: restrict semantic similarity to a specific candidate list (userId, cvId pairs)
+     */
+    @Timed
+    @Transactional(readOnly = true)
+    fun reRankBySemanticSimilarity(
+        embedding: DoubleArray,
+        provider: String,
+        model: String,
+        allowedPairs: List<Pair<String, String>>, // (userId, cvId)
+        topK: Int
+    ): List<SemanticSearchResult> {
+        if (allowedPairs.isEmpty()) return emptyList()
+        val embeddingVector = embedding.joinToString(prefix = "[", postfix = "]") { it.toString() }
+        // Build tuple list: (user_id, cv_id) IN ((?, ?), ...)
+        val tuplePlaceholders = allowedPairs.joinToString(",") { "(?, ?)" }
+        val sql = """
+            SELECT DISTINCT c.id, c.user_id, c.name, c.cv_id, COALESCE(cs.score_percent, 0) AS quality_score, ce.embedding <-> ?::vector as distance
+            FROM consultant c
+            JOIN consultant_cv cc ON c.id = cc.consultant_id
+            JOIN cv_embedding ce ON c.user_id = ce.user_id AND c.cv_id = ce.cv_id
+            LEFT JOIN cv_score cs ON c.user_id = cs.candidate_user_id
+            WHERE ce.provider = ? AND ce.model = ? AND (c.user_id, c.cv_id) IN ($tuplePlaceholders)
+            ORDER BY distance ASC
+            LIMIT ?
+        """.trimIndent()
+        val params = mutableListOf<Any>(embeddingVector, provider, model)
+        allowedPairs.forEach { params.add(it.first); params.add(it.second) }
+        params.add(topK)
+        return jdbcTemplate.query(sql, { rs, _ ->
+            SemanticSearchResult(
+                id = rs.getLong("id"),
+                userId = rs.getString("user_id"),
+                name = rs.getString("name"),
+                cvId = rs.getString("cv_id"),
+                qualityScore = rs.getInt("quality_score"),
+                distance = rs.getDouble("distance")
+            )
+        }, *params.toTypedArray()).toList()
     }
 
     /**
@@ -199,11 +299,9 @@ class ConsultantSearchRepository(
         val upperCaseNames = skillNames.map { it.uppercase() }
 
         return jdbcTemplate.query(
-            sql,
-            upperCaseNames.toTypedArray()
-        ) { rs, _ ->
+            sql, { rs, _ ->
             rs.getString("name")
-        }
+        }, *upperCaseNames.toTypedArray()).toList()
     }
 
     /**
@@ -243,12 +341,16 @@ class ConsultantSearchRepository(
             baseSelect,
             joinClause,
             sqlClauses,
+            groupByClause,
+            havingClause,
             parameters
         )
         val consultants = executeDataQuery(
             baseSelect,
             joinClause,
             sqlClauses,
+            groupByClause,
+            havingClause,
             parameters,
             pageable
         )
@@ -287,6 +389,8 @@ class ConsultantSearchRepository(
         baseSelect: String,
         joinClause: String,
         sqlClauses: SqlClauses,
+        groupByClause: String,
+        havingClause: String,
         parameters: List<Any>
     ): Long {
         val countSql = """
@@ -294,14 +398,16 @@ class ConsultantSearchRepository(
             $baseSelect 
             $joinClause 
             ${sqlClauses.whereClause}
+            $groupByClause
+            $havingClause
         ) as counted
     """.trimIndent()
 
         logger.info { "About to execute count query: $countSql with parameters: $parameters" }
         val totalElements = jdbcTemplate.queryForObject(
             countSql,
-            parameters.toTypedArray(),
-            Long::class.java
+            Long::class.java,
+            *parameters.toTypedArray()
         ) ?: 0L
         logger.info { "Count query returned: $totalElements" }
         return totalElements
@@ -311,6 +417,8 @@ class ConsultantSearchRepository(
         baseSelect: String,
         joinClause: String,
         sqlClauses: SqlClauses,
+        groupByClause: String,
+        havingClause: String,
         parameters: List<Any>,
         pageable: Pageable
     ): List<ConsultantFlatView> {
@@ -318,6 +426,8 @@ class ConsultantSearchRepository(
         $baseSelect 
         $joinClause 
         ${sqlClauses.whereClause}
+        $groupByClause
+        $havingClause
         ${sqlClauses.orderByClause}
         LIMIT ? OFFSET ?
     """.trimIndent()
@@ -330,15 +440,14 @@ class ConsultantSearchRepository(
         logger.info { "About to execute data query: $dataSql with parameters: $dataParameters" }
         return jdbcTemplate.query(
             dataSql,
-            dataParameters.toTypedArray()
-        ) { rs, _ ->
+         { rs, _ ->
             ConsultantFlatViewImpl(
                 id = rs.getLong("id"),
                 userId = rs.getString("user_id"),
                 name = rs.getString("name"),
                 cvId = rs.getString("cv_id")
             )
-        } ?: emptyList()
+        }, *dataParameters.toTypedArray()).toList()
     }
 }
 

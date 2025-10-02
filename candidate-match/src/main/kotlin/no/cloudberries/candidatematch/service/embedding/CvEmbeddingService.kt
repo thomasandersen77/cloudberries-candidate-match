@@ -1,21 +1,23 @@
 package no.cloudberries.candidatematch.service.embedding
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.domain.consultant.toFlatText
 import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
 import no.cloudberries.candidatematch.infrastructure.integration.embedding.EmbeddingConfig
-import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
-import no.cloudberries.candidatematch.infrastructure.integration.flowcase.toDomain
+import no.cloudberries.candidatematch.domain.consultant.Cv
+import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.embedding.CvEmbeddingRepository
+import no.cloudberries.candidatematch.service.embedding.FlowcaseCvTextFlattener
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 
 @Service
 class CvEmbeddingService(
-    private val flowcaseHttpClient: FlowcaseHttpClient,
+    private val consultantRepository: ConsultantRepository,
     private val embeddingProvider: EmbeddingProvider,
     private val repository: CvEmbeddingRepository,
     private val embeddingConfig: EmbeddingConfig,
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = KotlinLogging.logger { }
 
@@ -24,14 +26,14 @@ class CvEmbeddingService(
             logger.info { "Embedding is disabled; skipping Jason processing." }
             return false
         }
-        val users = flowcaseHttpClient.fetchAllUsers().flowcaseUserDTOs
-        val jason = users.firstOrNull {
+        val consultants = consultantRepository.findAll()
+        val jason = consultants.firstOrNull {
             it.name.equals(
                 "Jason",
                 ignoreCase = true
             )
         } ?: run {
-            logger.warn { "No user named 'Jason' found from Flowcase." }
+            logger.warn { "No consultant named 'Jason' found in database." }
             return false
         }
         return processUserCv(
@@ -56,11 +58,22 @@ class CvEmbeddingService(
             logger.info { "Embedding already exists for userId=$userId, cvId=$cvId." }
             return false
         }
-        val cvDomain = flowcaseHttpClient.fetchCompleteCv(
-            userId,
-            cvId
-        ).toDomain()
-        val text = cvDomain.toFlatText()
+        
+        // Fetch consultant from database
+        val consultant = consultantRepository.findByUserId(userId) ?: run {
+            logger.warn { "No consultant found with userId=$userId" }
+            return false
+        }
+        
+// Convert JsonNode resumeData (stored as domain Cv JSON) back to domain Cv
+        val domainCv = try {
+            objectMapper.treeToValue(consultant.resumeData, Cv::class.java)
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to parse resume_data for userId=$userId: ${e.message}" }
+            return false
+        }
+        
+        val text = DomainCvTextFlattener.toText(domainCv)
         val vec = embeddingProvider.embed(text)
         if (vec.isEmpty()) {
             logger.warn { "Embedding provider returned empty vector for userId=$userId, cvId=$cvId. Skipping save." }
@@ -77,41 +90,50 @@ class CvEmbeddingService(
         return true
     }
 
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun processMissingEmbeddings(batchSize: Int = 50): Int {
         if (!embeddingProvider.isEnabled()) {
             logger.info { "Embedding disabled; skipping scheduled processing." }
             return 0
         }
-        val users = flowcaseHttpClient.fetchAllUsers().flowcaseUserDTOs.take(batchSize)
+        
+        // Fetch consultants from database (limit by batchSize)
+        val consultants = consultantRepository.findAll().take(batchSize)
         var processed = 0
-        users.forEach { u ->
+        
+        consultants.forEach { consultant ->
             if (!repository.exists(
-                    u.userId,
-                    u.cvId,
+                    consultant.userId,
+                    consultant.cvId,
                     embeddingProvider.providerName,
                     embeddingProvider.modelName
                 )
             ) {
-                val cvDomain = flowcaseHttpClient.fetchCompleteCv(
-                    u.userId,
-                    u.cvId
-                ).toDomain()
-                val text = cvDomain.toFlatText()
-                val vec = embeddingProvider.embed(text)
-                if (vec.isNotEmpty()) {
-                    repository.save(
-                        u.userId,
-                        u.cvId,
-                        embeddingProvider.providerName,
-                        embeddingProvider.modelName,
-                        vec
-                    )
-                    processed++
+                try {
+// Convert JsonNode resumeData (stored as domain Cv JSON) back to domain Cv
+                    val domainCv = objectMapper.treeToValue(consultant.resumeData, Cv::class.java)
+                    val text = DomainCvTextFlattener.toText(domainCv)
+                    val vec = embeddingProvider.embed(text)
+                    
+                    if (vec.isNotEmpty()) {
+                        repository.save(
+                            consultant.userId,
+                            consultant.cvId,
+                            embeddingProvider.providerName,
+                            embeddingProvider.modelName,
+                            vec
+                        )
+                        processed++
+                        logger.info { "Generated embedding for consultant=${consultant.name}, userId=${consultant.userId}" }
+                    } else {
+                        logger.warn { "Empty embedding vector for consultant=${consultant.name}, userId=${consultant.userId}" }
+                    }
+                } catch (e: Exception) {
+                    logger.warn(e) { "Failed to process consultant=${consultant.name}, userId=${consultant.userId}: ${e.message}" }
                 }
             }
         }
-        logger.info { "Processed $processed embeddings in this run." }
+        logger.info { "Processed $processed embeddings in this run from ${consultants.size} consultants." }
         return processed
     }
 }

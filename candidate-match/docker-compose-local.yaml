@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres-local:
     image: pgvector/pgvector:pg15

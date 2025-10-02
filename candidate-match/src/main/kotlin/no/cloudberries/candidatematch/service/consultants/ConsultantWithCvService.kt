@@ -2,6 +2,7 @@ package no.cloudberries.candidatematch.service.consultants
 
 import no.cloudberries.candidatematch.controllers.consultants.*
 import no.cloudberries.candidatematch.domain.candidate.SkillService
+import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantFlatView
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.data.domain.Page
@@ -36,6 +37,16 @@ class ConsultantWithCvService(
         
         val dtos = buildConsultantDtos(page.content, onlyActiveCv)
         return PageImpl(dtos, pageable, page.totalElements)
+    }
+
+    /**
+     * Returns the list of CVs for a given consultant userId.
+     */
+    @Timed
+    fun getCvsByUserId(userId: String, onlyActiveCv: Boolean = false): List<ConsultantCvDto> {
+        val consultant = consultantRepository.findByUserId(userId) ?: return emptyList()
+        val result = cvDataAggregationService.aggregateCvData(listOf(consultant.id!!), onlyActiveCv)
+        return result[consultant.id] ?: emptyList()
     }
 
     /**
@@ -78,7 +89,7 @@ class ConsultantWithCvService(
     }
 
     private fun buildConsultantDtos(
-        consultantFlats: List<no.cloudberries.candidatematch.infrastructure.repositories.ConsultantFlatView>,
+        consultantFlats: List<ConsultantFlatView>,
         onlyActiveCv: Boolean
     ): List<ConsultantWithCvDto> {
         val consultantIds = consultantFlats.map { it.getId() }

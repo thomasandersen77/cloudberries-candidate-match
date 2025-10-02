@@ -2,9 +2,11 @@ package no.cloudberries.candidatematch.controllers.embedding
 
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.service.embedding.CvEmbeddingService
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -15,7 +17,7 @@ class EmbeddingController(
     private val logger = KotlinLogging.logger { }
 
     @PostMapping("/run/jason")
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun runJason(): ResponseEntity<Map<String, Any>> {
         logger.info { "POST /api/embeddings/run/jason" }
         val result = cvEmbeddingService.processJason()
@@ -23,10 +25,10 @@ class EmbeddingController(
     }
 
     @PostMapping("/run")
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun runForUserCv(
-        @org.springframework.web.bind.annotation.RequestParam("userId") userId: String,
-        @org.springframework.web.bind.annotation.RequestParam("cvId") cvId: String,
+        @RequestParam("userId") userId: String,
+        @RequestParam("cvId") cvId: String,
     ): ResponseEntity<Map<String, Any>> {
         logger.info { "POST /api/embeddings/run userId=$userId cvId=$cvId" }
         val processed = cvEmbeddingService.processUserCv(
@@ -43,9 +45,9 @@ class EmbeddingController(
     }
 
     @PostMapping("/run/missing")
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     fun runMissing(
-        @org.springframework.web.bind.annotation.RequestParam(
+        @RequestParam(
             name = "batchSize",
             defaultValue = "50"
         ) batchSize: Int

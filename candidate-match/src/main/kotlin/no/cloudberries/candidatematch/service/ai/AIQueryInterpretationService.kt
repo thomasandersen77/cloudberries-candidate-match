@@ -89,7 +89,10 @@ Analyze this user query and respond with ONLY a valid JSON object following this
     "roles": ["role1"],
     "minQualityScore": 85,
     "locations": [],
-    "availability": null
+    "availability": null,
+    "publicSector": true,
+    "customersAny": ["sparebank1", "bank"],
+    "industries": ["finance", "public"]
   },
   "semanticText": "search description",
   "consultantName": "name if mentioned",
@@ -105,6 +108,11 @@ Classification rules:
 2. SEMANTIC: Descriptive qualities (e.g., "experienced mentor who can guide juniors") 
 3. HYBRID: Both specific skills AND descriptive qualities
 4. RAG: Asking about a specific consultant by name
+
+Industry & customer extraction:
+- Detect if query targets public sector (keywords: kommune, etat, nav, skatt, stat, offentlig, departement, direktorat)
+- Detect customer/org hints (e.g., "sparebank1", "bank", "finans", "helse") and set customersAny/industries accordingly
+- Keep skills normalized to lowercase
 
 Skills normalization:
 - Use lowercase, consistent naming
@@ -258,7 +266,10 @@ private data class StructuredCriteriaResponse(
     val roles: List<String>?,
     val minQualityScore: Int?,
     val locations: List<String>?,
-    val availability: String?
+    val availability: String?,
+    val publicSector: Boolean?,
+    val customersAny: List<String>?,
+    val industries: List<String>?
 ) {
     fun toDomain(): StructuredCriteria {
         return StructuredCriteria(
@@ -267,7 +278,10 @@ private data class StructuredCriteriaResponse(
             roles = roles ?: emptyList(),
             minQualityScore = minQualityScore,
             locations = locations ?: emptyList(),
-            availability = availability
+            availability = availability,
+            publicSector = publicSector,
+            customersAny = customersAny ?: emptyList(),
+            industries = industries ?: emptyList()
         )
     }
 }

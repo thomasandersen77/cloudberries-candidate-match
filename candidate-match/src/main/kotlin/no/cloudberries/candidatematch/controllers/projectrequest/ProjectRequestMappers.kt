@@ -22,6 +22,8 @@ fun ProjectRequestAnalysisService.Aggregate.toDto(): ProjectRequestResponseDto {
         mustRequirements = must,
         shouldRequirements = should,
         originalFilename = this.request.originalFilename,
+        uploadedAt = this.request.uploadedAt,
+        deadlineDate = this.request.deadlineDate,
     )
 }
 

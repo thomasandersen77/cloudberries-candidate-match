@@ -76,7 +76,24 @@ data class StructuredCriteria(
         description = "Availability requirements",
         example = "available"
     )
-    val availability: String? = null
+    val availability: String? = null,
+
+    @Schema(
+        description = "True if the customer/employer context should be public sector",
+        example = "true"
+    )
+    val publicSector: Boolean? = null,
+
+    @Schema(
+        description = "Keywords for target customers/industries (e.g., ['sparebank1','bank'])"
+    )
+    val customersAny: List<String> = emptyList(),
+
+    @Schema(
+        description = "Industry keywords (optional; for future use)",
+        example = "[\"finance\", \"public\"]"
+    )
+    val industries: List<String> = emptyList()
 ) {
     /**
      * Convert to existing RelationalSearchCriteria for compatibility
@@ -87,7 +104,10 @@ data class StructuredCriteria(
             skillsAll = skillsAll,
             skillsAny = skillsAny,
             minQualityScore = minQualityScore,
-            onlyActiveCv = true
+            onlyActiveCv = true,
+            publicSector = publicSector,
+            customersAny = customersAny,
+            industriesAny = industries
         )
     }
 }

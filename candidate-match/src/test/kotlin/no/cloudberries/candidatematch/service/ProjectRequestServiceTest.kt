@@ -260,9 +260,7 @@ class ProjectRequestServiceTest {
         every { validationService.validateEmail("pc@cloudberries.no") } returns "pc@cloudberries.no"
         every { consultantService.getTopConsultantsBySkills(any(), any()) } returns emptyList()
 
-        every {
-            projectRequestRepository.save(any<ProjectRequestEntity>()) as ProjectRequestEntity
-        } answers {
+        every { projectRequestRepository.save(any<ProjectRequestEntity>()) } answers {
             firstArg<ProjectRequestEntity>().copy(id = 1L)
         }
 

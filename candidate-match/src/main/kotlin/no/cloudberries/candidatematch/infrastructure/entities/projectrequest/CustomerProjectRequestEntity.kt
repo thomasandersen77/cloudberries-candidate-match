@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import org.hibernate.annotations.CreationTimestamp
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "customer_project_request")
@@ -31,6 +33,13 @@ data class CustomerProjectRequestEntity(
 
     @Column(name = "original_text", columnDefinition = "text")
     val originalText: String? = null,
+
+    @CreationTimestamp
+    @Column(name = "uploaded_at", nullable = false, updatable = false)
+    val uploadedAt: LocalDateTime? = null,
+
+    @Column(name = "deadline_date")
+    val deadlineDate: LocalDateTime? = null,
 
     @OneToMany(mappedBy = "projectRequest", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     val requirements: List<ProjectRequestRequirementEntity> = emptyList(),

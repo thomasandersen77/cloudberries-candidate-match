@@ -7,15 +7,15 @@
         <groupId>no.cloudberries</groupId>
         <artifactId>cloudberries-candidate-match-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>candidate-matcher</artifactId>
     <name>Cloudberries Candidate Matcher</name>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>2.2.0</kotlin.version>
         <javacv.version>1.5.10</javacv.version>
@@ -213,7 +213,7 @@
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk-jvm</artifactId>
-            <version>1.14.4</version>
+            <version>1.13.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -340,9 +340,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.3.0</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+                        --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                        --enable-native-access=ALL-UNNAMED
+                        -Djdk.attach.allowAttachSelf=true
+                        -XX:+EnableDynamicAgentLoading
+                    </argLine>
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*Test.kt</include>
@@ -423,16 +431,22 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <release>25</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.3.0</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+                        --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                        -Djdk.attach.allowAttachSelf=true
+                        -XX:+EnableDynamicAgentLoading
+                    </argLine>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
                         <include>**/*IntegrationTest.kt</include>

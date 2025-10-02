@@ -26,7 +26,10 @@ class CvScoreAppService(
     fun getScore(candidateId: String): CvScoreDto {
         val entity = cvScoreRepository.findByCandidateUserId(candidateId)
             ?: return CvScoreDto.empty(candidateId)
-        return entityToDto(candidateId, entity)
+        return entityToDto(
+            candidateId,
+            entity
+        )
     }
 
     fun listCandidates(): List<CandidateDTO> = consultantRepository.findAll().map {
@@ -40,17 +43,18 @@ class CvScoreAppService(
     fun scoreCandidate(candidateId: String, aiProvider: AIProvider = AIProvider.GEMINI): CvScoreDto {
         val consultant = consultantRepository.findByUserId(candidateId)
             ?: throw IllegalArgumentException("Consultant with userId=$candidateId not found")
-logger.info { "Scoring CV for userId=$candidateId" }
+        logger.info { "Scoring CV for userId=$candidateId" }
 
-val cv = consultant.resumeData.toString()
-val evaluation: CVEvaluation = scoreCandidateService.performCvScoring(
-    aiProvider = aiProvider,
-    cv = cv,
-    consultantName = consultant.name
-)
-logger.info { "Finished scoring CV for userId=$candidateId with score: ${evaluation.scorePercentage}" }
+        val cv = consultant.resumeData.toString()
+        val evaluation: CVEvaluation = scoreCandidateService.performCvScoring(
+            aiProvider = aiProvider,
+            cv = cv,
+            consultantName = consultant.name
+        )
+        logger.info { "Finished scoring CV for userId=$candidateId with score: ${evaluation.scorePercentage}" }
         val strengthsNode = mapper.readTree(mapper.writeValueAsString(evaluation.strengths ?: emptyList<String>()))
-        val improvementsNode = mapper.readTree(mapper.writeValueAsString(evaluation.improvements ?: emptyList<String>()))
+        val improvementsNode =
+            mapper.readTree(mapper.writeValueAsString(evaluation.improvements ?: emptyList<String>()))
 
         val existing = cvScoreRepository.findByCandidateUserId(candidateId)
         val saved = cvScoreRepository.save(
@@ -65,7 +69,10 @@ logger.info { "Finished scoring CV for userId=$candidateId with score: ${evaluat
             )
         )
         logger.info { "Stored CV score for ${consultant.name} (${saved.id})" }
-        return entityToDto(candidateId, saved)
+        return entityToDto(
+            candidateId,
+            saved
+        )
     }
 
     data class ScoreAllResult(val processedCount: Int)
@@ -75,7 +82,10 @@ logger.info { "Finished scoring CV for userId=$candidateId with score: ${evaluat
         var processed = 0
         consultants.forEach { entity ->
             try {
-                val dto = scoreCandidate(entity.userId, aiProvider)
+                val dto = scoreCandidate(
+                    entity.userId,
+                    aiProvider
+                )
                 if (dto.scorePercent > 0) processed++
             } catch (e: Exception) {
                 logger.error(e) { "Failed to score consultant ${entity.name}" }

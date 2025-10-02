@@ -1,6 +1,7 @@
 package no.cloudberries.candidatematch.controllers.skills
 
 import mu.KotlinLogging
+import no.cloudberries.candidatematch.controllers.skills.dto.SkillInCompanyDto
 import no.cloudberries.candidatematch.service.skills.SkillsService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,12 +20,12 @@ class SkillsController(
     @no.cloudberries.candidatematch.utils.Timed
     fun listSkills(
         @RequestParam(name = "skill", required = false) skillFilters: List<String>?
-    ): ResponseEntity<List<no.cloudberries.candidatematch.controllers.skills.dto.SkillInCompanyDto>> {
+    ): ResponseEntity<List<SkillInCompanyDto>> {
         val filterCount = skillFilters?.size ?: 0
         logger.info { "List skills request received with filters=$filterCount" }
         val result = skillsService.listSkills(skillFilters)
         return ResponseEntity.ok(result.map { s ->
-            no.cloudberries.candidatematch.controllers.skills.dto.SkillInCompanyDto(
+            SkillInCompanyDto(
                 name = s.name,
                 consultantCount = s.konsulenter.size,
                 konsulenterMedSkill = s.konsulenter.size,

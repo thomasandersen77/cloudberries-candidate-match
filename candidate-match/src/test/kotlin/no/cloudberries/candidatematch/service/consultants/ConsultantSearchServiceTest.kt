@@ -64,7 +64,8 @@ class ConsultantSearchServiceTest {
                     courses = emptyList(),
                     languages = emptyList(),
                     skillCategories = emptyList(),
-                    attachments = emptyList()
+                    attachments = emptyList(),
+                    industries = emptyList()
                 )
             )
         )
@@ -143,7 +144,8 @@ class ConsultantSearchServiceTest {
                     courses = emptyList(),
                     languages = emptyList(),
                     skillCategories = emptyList(),
-                    attachments = emptyList()
+                    attachments = emptyList(),
+                    industries = emptyList()
                 )
             )
         )

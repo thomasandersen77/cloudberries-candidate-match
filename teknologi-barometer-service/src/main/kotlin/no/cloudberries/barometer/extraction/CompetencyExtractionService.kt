@@ -1,4 +1,4 @@
-package no.cloudberries.barometer.extraction
+    package no.cloudberries.barometer.extraction
 
 import no.cloudberries.barometer.domain.CompetencyArea
 import no.cloudberries.barometer.domain.CompetencyItem

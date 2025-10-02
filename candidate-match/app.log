@@ -1,0 +1,128 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< no.cloudberries:candidate-matcher >------------------
+[INFO] Building Cloudberries Candidate Matcher 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.3.3:run (default-cli) > test-compile @ candidate-matcher >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ candidate-matcher ---
+[INFO] Copying 18 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ candidate-matcher ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- kotlin:2.2.0:compile (compile) @ candidate-matcher ---
+[INFO] Applied plugin: 'spring'
+[INFO] Applied plugin: 'all-open'
+[INFO] Applied plugin: 'no-arg'
+[WARNING] file:///Users/tandersen/git/cloudberries-candidate-match/candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/AISearchOrchestrator.kt:454:73 Unchecked cast of 'Map<String, Any?>' to 'Map<String, Any>'.
+[WARNING] file:///Users/tandersen/git/cloudberries-candidate-match/candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/RAGService.kt:48:13 Condition is always 'false'.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ candidate-matcher ---
+[INFO] Copying 15 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ candidate-matcher ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] 
+[INFO] --- kotlin:2.2.0:test-compile (test-compile) @ candidate-matcher ---
+[INFO] Applied plugin: 'spring'
+[INFO] Applied plugin: 'all-open'
+[INFO] Applied plugin: 'no-arg'
+[INFO] 
+[INFO] <<< spring-boot:3.3.3:run (default-cli) < test-compile @ candidate-matcher <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.3.3:run (default-cli) @ candidate-matcher ---
+[INFO] Attaching agents: []
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.3)
+
+[30m2025-10-01 02:36:10,769 INFO  [main] [] o.s.b.StartupInfoLogger.logStarting:50: Starting MainKt using Java 21.0.7 with PID 96333 (/Users/tandersen/git/cloudberries-candidate-match/candidate-match/target/classes started by tandersen in /Users/tandersen/git/cloudberries-candidate-match/candidate-match)
+[0;39m[30m2025-10-01 02:36:10,771 INFO  [main] [] o.s.b.SpringApplication.logStartupProfileInfo:660: The following 1 profile is active: "local"
+[0;39m[30m2025-10-01 02:36:11,268 INFO  [main] [] o.s.d.r.c.RepositoryConfigurationDelegate.registerRepositoriesIn:143: Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[0;39m[30m2025-10-01 02:36:11,362 INFO  [main] [] o.s.d.r.c.RepositoryConfigurationDelegate.registerRepositoriesIn:211: Finished Spring Data repository scanning in 91 ms. Found 22 JPA repository interfaces.
+[0;39m[30m2025-10-01 02:36:11,695 INFO  [main] [] o.s.b.w.e.t.TomcatWebServer.initialize:111: Tomcat initialized with port 8080 (http)
+[0;39m[30m2025-10-01 02:36:11,699 INFO  [main] [] o.a.j.l.DirectJDKLog.log:173: Initializing ProtocolHandler ["http-nio-8080"]
+[0;39m[30m2025-10-01 02:36:11,701 INFO  [main] [] o.a.j.l.DirectJDKLog.log:173: Starting service [Tomcat]
+[0;39m[30m2025-10-01 02:36:11,701 INFO  [main] [] o.a.j.l.DirectJDKLog.log:173: Starting Servlet engine: [Apache Tomcat/10.1.28]
+[0;39m[30m2025-10-01 02:36:11,725 INFO  [main] [] o.a.j.l.DirectJDKLog.log:173: Initializing Spring embedded WebApplicationContext
+[0;39m[30m2025-10-01 02:36:11,726 INFO  [main] [] o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext:296: Root WebApplicationContext: initialization completed in 936 ms
+[0;39mStandard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+[30m2025-10-01 02:36:11,848 INFO  [main] [] c.z.h.HikariDataSource.getConnection:109: HikariPool-1 - Starting...
+[0;39m[30m2025-10-01 02:36:11,933 INFO  [main] [] c.z.h.p.HikariPool.checkFailFast:554: HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@ef85567
+[0;39m[30m2025-10-01 02:36:11,934 INFO  [main] [] c.z.h.HikariDataSource.getConnection:122: HikariPool-1 - Start completed.
+[0;39m[30m2025-10-01 02:36:11,996 INFO  [main] [] l.l.c.JavaLogger.log:37: Set default schema name to public
+[0;39m[30m2025-10-01 02:36:12,232 INFO  [main] [] l.l.c.JavaLogger.log:37: Reading from public.databasechangelog
+[0;39m[30m2025-10-01 02:36:12,270 INFO  [main] [] l.l.c.JavaLogger.log:37: Database is up to date, no changesets to execute
+[0;39m[30m2025-10-01 02:36:12,271 INFO  [main] [] l.l.c.JavaLogger.log:37: Reading from public.databasechangelog
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: UPDATE SUMMARY
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: Run:                          0
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: Previously run:              18
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: Filtered out:                 0
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: -------------------------------
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: Total change sets:           18
+[0;39m[30m2025-10-01 02:36:12,276 INFO  [main] [] l.l.c.JavaLogger.log:37: Update summary generated
+[0;39m[30m2025-10-01 02:36:12,288 INFO  [main] [] l.l.c.JavaLogger.log:37: Successfully released change log lock
+[0;39m[30m2025-10-01 02:36:12,289 INFO  [main] [] l.l.c.JavaLogger.log:37: Command execution complete
+[0;39m[30m2025-10-01 02:36:12,344 INFO  [main] [] o.h.j.i.u.LogHelper.logPersistenceUnitInformation:31: HHH000204: Processing PersistenceUnitInfo [name: default]
+[0;39m[30m2025-10-01 02:36:12,376 INFO  [main] [] o.h.Version.logVersion:44: HHH000412: Hibernate ORM core version 6.6.2.Final
+[0;39m[30m2025-10-01 02:36:12,394 INFO  [main] [] o.h.c.i.RegionFactoryInitiator.initiateService:50: HHH000026: Second-level cache disabled
+[0;39m[33m2025-10-01 02:36:12,461 WARN  [main] [] o.h.e.j.d.i.DialectFactoryImpl.constructDialect:153: HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+[0;39m[30m2025-10-01 02:36:12,469 INFO  [main] [] o.h.e.j.e.i.JdbcEnvironmentInitiator.initiateService:157: HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 15.14
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[0;39m[30m2025-10-01 02:36:12,594 INFO  [main] [] o.s.o.j.p.SpringPersistenceUnitInfo.addTransformer:87: No LoadTimeWeaver setup: ignoring JPA class transformer
+[0;39m[30m2025-10-01 02:36:13,173 INFO  [main] [] o.h.e.t.j.p.i.JtaPlatformInitiator.initiateService:59: HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[0;39m[30m2025-10-01 02:36:13,207 INFO  [main] [] o.s.o.j.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory:437: Initialized JPA EntityManagerFactory for persistence unit 'default'
+[0;39m[30m2025-10-01 02:36:13,747 INFO  [main] [] o.s.d.j.r.q.QueryEnhancerFactory.<clinit>:49: Hibernate is in classpath; If applicable, HQL parser will be used.
+[0;39m[30m2025-10-01 02:36:14,798 INFO  [main] [] o.s.b.a.e.w.EndpointLinksResolver.<init>:60: Exposing 1 endpoint beneath base path '/actuator'
+[0;39m[30m2025-10-01 02:36:14,839 INFO  [main] [] o.a.j.l.DirectJDKLog.log:173: Starting ProtocolHandler ["http-nio-8080"]
+[0;39m[33m2025-10-01 02:36:14,843 WARN  [main] [] o.s.c.s.AbstractApplicationContext.refresh:633: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+[0;39m[30m2025-10-01 02:36:14,846 INFO  [main] [] o.s.o.j.AbstractEntityManagerFactoryBean.destroy:650: Closing JPA EntityManagerFactory for persistence unit 'default'
+[0;39m[30m2025-10-01 02:36:14,847 INFO  [main] [] c.z.h.HikariDataSource.close:349: HikariPool-1 - Shutdown initiated...
+[0;39m[30m2025-10-01 02:36:14,849 INFO  [main] [] c.z.h.HikariDataSource.close:351: HikariPool-1 - Shutdown completed.
+[0;39m[30m2025-10-01 02:36:14,857 INFO  [main] [] o.s.b.a.l.ConditionEvaluationReportLogger.logMessage:82: 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+[0;39m[31m2025-10-01 02:36:14,864 ERROR [main] [] o.s.b.d.LoggingFailureAnalysisReporter.report:40: 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+[0;39m[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.438 s
+[INFO] Finished at: 2025-10-01T02:36:14+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.3.3:run (default-cli) on project candidate-matcher: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

@@ -29,8 +29,30 @@ tags:
     description: Candidate matching
   - name: CV Scoring
     description: CV scoring utilities
+  - name: Project Requests
+    description: Customer project request management and analysis
 
 paths:
+  /api/industries/backfill:
+    post:
+      tags: [ Admin ]
+      summary: Backfill industry tags for all CVs
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Backfill processed count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
   /api/skills:
     get:
       tags: [ Skills ]
@@ -81,7 +103,7 @@ paths:
     post:
       tags: [ Chat ]
       summary: AI-powered consultant search
-      description: Search consultants using natural language with intelligent routing to structured, semantic, hybrid, or RAG search modes
+      description: Search consultants using natural language with intelligent routing to STRUCTURED, SEMANTIC, HYBRID, or RAG search modes
       requestBody:
         required: true
         content:
@@ -103,13 +125,21 @@ paths:
                 summary: Forced mode example
                 value:
                   text: "Java developer"
-                  forceMode: "semantic"
+                  forceMode: "SEMANTIC"
                   topK: 3
               rag:
                 summary: RAG search example
                 value:
                   text: "Tell me about Thomas Andersen's experience with React"
                   topK: 5
+              targeted:
+                summary: Target a specific consultant and CV
+                value:
+                  consultantId: "thomas.andersen"
+                  cvId: "default"
+                  text: "Summarize key React experience and recent roles"
+                  forceMode: "RAG"
+                  topK: 3
       responses:
         '200':
           description: Search results with AI interpretation
@@ -189,6 +219,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PageConsultantWithCvDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/consultants/{userId}/cvs:
+    get:
+      tags: [ Consultants ]
+      summary: List CVs for a consultant by userId
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: onlyActiveCv
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: If true, include only the active CV
+      responses:
+        '200':
+          description: Consultant CVs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsultantCvDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/consultants/{userId}:
+    get:
+      tags: [ Consultants ]
+      summary: Get consultant summary by userId
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Consultant summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultantSummaryDto'
+        '404':
+          description: Not found
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -471,6 +552,57 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
+  /api/matches/requests:
+    get:
+      tags: [ Matches ]
+      summary: List project requests (uploaded customer documents) with coverage info
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 0, minimum: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+        - in: query
+          name: sort
+          schema: { type: string, default: "uploadedAt,desc" }
+      responses:
+        '200':
+          description: Paged list of requests with coverage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedMatchesListDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/matches/requests/{id}/top-consultants:
+    get:
+      tags: [ Matches ]
+      summary: Get top consultants for a request (AI-enriched)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, default: 5, minimum: 1, maximum: 10 }
+      responses:
+        '200':
+          description: Top consultants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchConsultantDto'
+        '404':
+          description: Project request not found
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /api/project-requests:
     get:
       tags: [ Project Requests ]
@@ -536,6 +668,13 @@ paths:
     post:
       tags: [ Project Requests ]
       summary: Upload and analyze a customer project request PDF
+      description: |
+        Uploads a PDF document and uses AI to extract structured information including:
+        - Customer name from the document
+        - Project summary and requirements
+        - MUST vs SHOULD requirements categorization
+        - Project deadline (if mentioned)
+        - Upload timestamp tracking
       requestBody:
         required: true
         content:
@@ -549,11 +688,33 @@ paths:
                   format: binary
       responses:
         '200':
-          description: Extracted project request
+          description: Extracted project request with AI-analyzed structure
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectRequestResponseDto'
+              example:
+                id: 123
+                customerName: "Acme Corporation AS"
+                title: "Senior Kotlin Developer - Mobile Platform"
+                summary: "Project for developing a new mobile banking application using Kotlin and modern Android architecture. Requires experienced developer with strong backend integration skills."
+                originalFilename: "project-request-acme-mobile.pdf"
+                uploadedAt: "2024-10-01T10:30:00Z"
+                deadlineDate: "2024-12-15T00:00:00Z"
+                mustRequirements:
+                  - name: "5+ years experience with Kotlin/Android development"
+                    details: null
+                  - name: "Experience with REST API integration"
+                    details: null
+                  - name: "Knowledge of Material Design principles"
+                    details: null
+                shouldRequirements:
+                  - name: "Experience with Jetpack Compose"
+                    details: null
+                  - name: "Familiarity with CI/CD pipelines"
+                    details: null
+                  - name: "Previous fintech application experience"
+                    details: null
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -759,6 +920,66 @@ components:
             $ref: '#/components/schemas/Problem'
 
   schemas:
+    CoverageStatus:
+      type: string
+      enum: [ GREEN, YELLOW, RED, NEUTRAL ]
+
+    MatchesListItemDto:
+      type: object
+      required: [ id, hitCount, coverageStatus, coverageLabel ]
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        customerName:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        deadlineDate:
+          type: string
+          format: date-time
+          nullable: true
+        hitCount:
+          type: integer
+          format: int64
+        coverageStatus:
+          $ref: '#/components/schemas/CoverageStatus'
+        coverageLabel:
+          type: string
+
+    PagedMatchesListDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: '#/components/schemas/MatchesListItemDto' }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer }
+        currentPage: { type: integer }
+        pageSize: { type: integer }
+        hasNext: { type: boolean }
+        hasPrevious: { type: boolean }
+
+    MatchConsultantDto:
+      type: object
+      required: [ userId, name, cvId, relevanceScore ]
+      properties:
+        userId: { type: string }
+        name: { type: string }
+        cvId: { type: string }
+        relevanceScore:
+          type: number
+          format: double
+        justification:
+          type: string
+          nullable: true
+
     RelationalSearchRequest:
       type: object
       properties:
@@ -779,7 +1000,7 @@ components:
           type: integer
           minimum: 0
           maximum: 100
-          description: Minimum CV quality score
+          description: "Minimum CV quality score (0–100). Candidates without a score are treated as 0 for filtering."
         onlyActiveCv:
           type: boolean
           default: false
@@ -812,7 +1033,7 @@ components:
           type: integer
           minimum: 0
           maximum: 100
-          description: Minimum CV quality score
+          description: "Minimum CV quality score (0–100). Candidates without a score are treated as 0 for filtering."
         onlyActiveCv:
           type: boolean
           default: false
@@ -956,6 +1177,9 @@ components:
         qualityScore:
           type: integer
           nullable: true
+          minimum: 0
+          maximum: 100
+          description: "CV quality score (0–100); populated from cv_score.score_percent. May be null when no score exists."
         active:
           type: boolean
         keyQualifications:
@@ -985,6 +1209,10 @@ components:
         attachments:
           type: array
           items: { $ref: '#/components/schemas/AttachmentDto' }
+        industries:
+          type: array
+          items:
+            type: string
 
     KeyQualificationDto:
       type: object
@@ -1227,20 +1455,34 @@ components:
           format: int64
         customerName:
           type: string
+          description: Customer name extracted from the document
         title:
           type: string
+          description: Title/subject derived from the document
         summary:
           type: string
+          description: AI-generated summary of the project request
         originalFilename:
           type: string
+          description: Original filename of the uploaded PDF
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the document was uploaded
+        deadlineDate:
+          type: string
+          format: date-time
+          description: Project deadline extracted from the document (if available)
         mustRequirements:
           type: array
           items:
             $ref: '#/components/schemas/ProjectRequirementDto'
+          description: Critical requirements that must be met
         shouldRequirements:
           type: array
           items:
             $ref: '#/components/schemas/ProjectRequirementDto'
+          description: Preferred requirements that would be beneficial
 
     ProjectRequirementDto:
       type: object
@@ -1414,15 +1656,23 @@ components:
           type: string
           description: Optional conversation ID to maintain context
           example: "conv-123"
+        consultantId:
+          type: string
+          description: Optional consultant userId to target the query (used to bias or provide RAG context)
+          example: "thomas.andersen"
+        cvId:
+          type: string
+          description: Optional CV/resume id for the selected consultant; used to include CV JSON as context to the AI
+          example: "default"
         text:
           type: string
           description: Natural language search text
           example: "Find consultants who know Kotlin and Spring"
         forceMode:
           type: string
-          enum: [structured, semantic, hybrid, rag]
+          enum: ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
           description: Force a specific search mode
-          example: "structured"
+          example: "STRUCTURED"
         topK:
           type: integer
           minimum: 1
@@ -1439,9 +1689,9 @@ components:
       properties:
         mode:
           type: string
-          enum: [structured, semantic, hybrid, rag]
+          enum: ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
           description: Search mode used
-          example: "structured"
+          example: "STRUCTURED"
         results:
           type: array
           items:
@@ -1466,6 +1716,8 @@ components:
         conversationId:
           type: string
           description: Conversation ID for follow-up queries
+        scoring:
+          $ref: '#/components/schemas/ScoringInfo'
 
     SearchResult:
       type: object
@@ -1476,8 +1728,7 @@ components:
       properties:
         consultantId:
           type: string
-          format: uuid
-          description: Consultant ID
+          description: Consultant userId
         name:
           type: string
           description: Consultant name
@@ -1510,15 +1761,13 @@ components:
       properties:
         consultantId:
           type: string
-          format: uuid
-          description: Consultant ID
+          description: Consultant userId
         consultantName:
           type: string
           description: Consultant name
         chunkId:
           type: string
-          format: uuid
-          description: Chunk ID
+          description: Chunk identifier
         text:
           type: string
           description: Source text excerpt
@@ -1548,6 +1797,22 @@ components:
           additionalProperties: true
           description: Additional debug data
 
+    ScoringInfo:
+      type: object
+      description: HYBRID scoring weights and formula
+      properties:
+        semanticWeight:
+          type: number
+          format: double
+          example: 0.7
+        qualityWeight:
+          type: number
+          format: double
+          example: 0.3
+        formula:
+          type: string
+          example: "combined = semanticWeight * semanticScore + qualityWeight * qualityScore"
+
     QueryInterpretation:
       type: object
       required:
@@ -1556,9 +1821,9 @@ components:
       properties:
         route:
           type: string
-          enum: [structured, semantic, hybrid, rag]
+          enum: ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
           description: Determined search route
-          example: "structured"
+          example: "STRUCTURED"
         structured:
           $ref: '#/components/schemas/StructuredCriteria'
           description: Extracted structured search criteria
