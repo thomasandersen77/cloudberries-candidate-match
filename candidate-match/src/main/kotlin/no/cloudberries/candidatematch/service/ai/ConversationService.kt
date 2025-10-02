@@ -78,10 +78,14 @@ class ConversationService(
     @Scheduled(fixedRate = 3600000) // Run every hour
     fun cleanupOldConversations() {
         // Remove from DB older than 24 hours
+        // First delete dependent turns to satisfy FK constraint, then delete conversations
+        jdbcTemplate.update(
+            "DELETE FROM ai_conversation_turn WHERE conversation_id IN (SELECT id FROM ai_conversation WHERE updated_at < (CURRENT_TIMESTAMP - INTERVAL '24 hours'))"
+        )
         jdbcTemplate.update(
             "DELETE FROM ai_conversation WHERE updated_at < (CURRENT_TIMESTAMP - INTERVAL '24 hours')"
         )
-        // Remove conversations older than 24 hours
+        // Remove conversations older than 24 hours from in-memory cache
         val cutoff = LocalDateTime.now().minusHours(24)
         val toRemove = mutableListOf<String>()
         
