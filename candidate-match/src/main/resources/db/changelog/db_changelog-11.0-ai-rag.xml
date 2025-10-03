@@ -38,7 +38,13 @@
     </changeSet>
 
     <!-- Chunk embeddings for RAG retrieval -->
-    <changeSet id="20251001-03-create-cv-chunk-embedding" author="agent">
+    <changeSet id="20251001-03-create-cv-chunk-embedding" author="agent" context="pgvector">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql"/>
+        </preConditions>
+        <!-- Ensure pgvector is available -->
+        <sql>CREATE EXTENSION IF NOT EXISTS vector;</sql>
+
         <createTable tableName="cv_chunk_embedding">
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false"/>
@@ -66,8 +72,10 @@
         </createTable>
         <addUniqueConstraint tableName="cv_chunk_embedding" columnNames="user_id, cv_id, chunk_index, provider, model"
                              constraintName="uk_cv_chunk_embedding_user_cv_chunk_provider_model"/>
-        <createIndex tableName="cv_chunk_embedding" indexName="idx_cv_chunk_embedding_ivfflat">
-            <column name="embedding"/>
-        </createIndex>
+        <!-- Create proper ivfflat index for vector similarity search -->
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_cv_chunk_embedding_ivfflat
+                ON cv_chunk_embedding USING ivfflat (embedding vector_l2_ops) WITH (lists = 100);
+        </sql>
     </changeSet>
 </databaseChangeLog>

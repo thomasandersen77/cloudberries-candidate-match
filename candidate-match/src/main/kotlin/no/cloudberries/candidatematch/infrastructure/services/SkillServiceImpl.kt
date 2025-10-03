@@ -4,6 +4,7 @@ import no.cloudberries.candidatematch.domain.candidate.*
 import no.cloudberries.candidatematch.infrastructure.entities.*
 import no.cloudberries.candidatematch.infrastructure.repositories.*
 import no.cloudberries.candidatematch.infrastructure.repositories.consultant.CvProjectExperienceSkillRepository
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,7 +25,7 @@ class SkillServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    @no.cloudberries.candidatematch.utils.Timed
+    @Timed
     override fun getConsultantSkills(consultantId: Long): List<Skill> {
         val skillEntities = consultantSkillRepository.findByConsultantId(consultantId)
         val skillIds = skillEntities.map { it.skillId }

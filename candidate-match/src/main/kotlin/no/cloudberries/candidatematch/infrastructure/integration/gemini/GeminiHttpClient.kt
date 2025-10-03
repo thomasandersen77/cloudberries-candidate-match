@@ -5,6 +5,8 @@ import mu.KotlinLogging
 import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
 import no.cloudberries.candidatematch.domain.ai.AIGenerationException
 import no.cloudberries.candidatematch.domain.ai.AIResponse
+import no.cloudberries.candidatematch.domain.ai.ChatContext
+import no.cloudberries.candidatematch.domain.ai.Role
 import org.springframework.stereotype.Service
 
 @Service
@@ -23,7 +25,7 @@ class GeminiHttpClient(
             logger.error { "Gemini API key not configured" }
             return false
         }
-        val modelId = geminiConfig.model.ifBlank { "gemini-1.5-pro" }
+        val modelId = geminiConfig.quickModel.ifBlank { geminiConfig.model.ifBlank { "gemini-2.5-flash" } }
         return runCatching {
             val response = client.models.generateContent(
                 modelId,
@@ -33,8 +35,7 @@ class GeminiHttpClient(
             response?.text()?.lowercase()?.contains("yes") ?: false
         }.getOrElse {
             logger.error(it) {
-                "Gemini connection test failed. Check model id '${geminiConfig.model}'. " +
-                        "Ensure it exists and is available in your region/project."
+                "Gemini connection test failed. Check model id '$modelId'. Ensure it exists and is available in your region/project."
             }
             false
         }
@@ -42,8 +43,8 @@ class GeminiHttpClient(
 
     override fun generateContent(prompt: String): AIResponse {
         runCatching {
-            logger.info { "Requesting content generation from Gemini. Model '${geminiConfig.model}" }
-            val modelUsed = geminiConfig.model.ifBlank { "gemini-1.5-pro" }
+            val modelUsed = geminiConfig.quickModel.ifBlank { geminiConfig.model.ifBlank { "gemini-2.5-flash" } }
+            logger.info { "Requesting content generation from Gemini. Model '$modelUsed'" }
             try {
                 val content = fetchAndCleanGeminiResponse(prompt)
                 return AIResponse(
@@ -58,7 +59,7 @@ class GeminiHttpClient(
                     errorMessage,
                     e
                 )
-            }.also { logger.info { "Gemini Model ${modelUsed ?: "default"} generated content: $it" } }
+            }.also { logger.info { "Gemini Model ${modelUsed.ifBlank { "default" }} generated content." } }
         }.getOrElse { e ->
             throw AIGenerationException(
                 "Failed to generate content with Gemini",
@@ -68,7 +69,7 @@ class GeminiHttpClient(
     }
 
     private fun fetchAndCleanGeminiResponse(prompt: String): String {
-        val modelId = geminiConfig.model.ifBlank { "gemini-1.5-pro" }
+        val modelId = geminiConfig.quickModel.ifBlank { geminiConfig.model.ifBlank { "gemini-2.5-flash" } }
         return client.models
             .generateContent(
                 modelId,
@@ -78,6 +79,46 @@ class GeminiHttpClient(
             ?.text()
             ?.cleanJsonResponse()
             ?: throw AIGenerationException("No response received from Gemini")
+    }
+
+    override fun generateContent(prompt: String, context: ChatContext): AIResponse {
+        val modelId = geminiConfig.quickModel.ifBlank { geminiConfig.model.ifBlank { "gemini-2.5-flash" } }
+        logger.info { "Requesting chat generation from Gemini. Model '$modelId' with conversationId='${context.conversationId ?: "<none>"}'" }
+        val MAX_TURNS = 8
+        val MAX_CHARS = 4000
+        try {
+            val conversationPrompt = buildString {
+                append("You are a helpful assistant. Use prior context when answering.\n\n")
+                context.history.takeLast(MAX_TURNS).forEach { msg ->
+                    val roleLabel = if (msg.role == Role.USER) "User" else "Assistant"
+                    append("$roleLabel: ")
+                    append(msg.text.take(MAX_CHARS))
+                    append("\n\n")
+                }
+                append("User: ")
+                append(prompt.take(MAX_CHARS))
+                append("\nAssistant:")
+            }
+
+            val response = client.models.generateContent(
+                modelId,
+                conversationPrompt,
+                null
+            )
+
+            val content = response?.text()?.cleanJsonResponse()
+                ?: throw AIGenerationException("No response received from Gemini")
+
+            return AIResponse(
+                content = content,
+                modelUsed = modelId
+            )
+        } catch (e: Exception) {
+            val errorMessage = "Failed to generate content with Gemini"
+            logger.error(e) { errorMessage }
+            if (e is AIGenerationException) throw e
+            throw AIGenerationException(errorMessage, e)
+        }
     }
 
     private fun String.cleanJsonResponse(): String =

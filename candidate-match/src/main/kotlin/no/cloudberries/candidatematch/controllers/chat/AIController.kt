@@ -1,5 +1,6 @@
 package no.cloudberries.candidatematch.controllers.chat
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
@@ -12,6 +13,8 @@ import no.cloudberries.candidatematch.service.ai.AISearchOrchestrator
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.UUID
+import kotlin.uuid.Uuid
 
 @RestController
 @RequestMapping("/api/chatbot")
@@ -35,10 +38,14 @@ class AIController(
         @RequestBody request: AIAnalysisRequest,
     ): AIResponse {
         logger.info { "POST /api/chatbot/analyze content.len=${request.content.length}" }
+        request.conversationId?.let { conversationId ->
+            logger.info { "Conversation ID: $conversationId" }
+        }
 
         return aiAnalysisService.analyzeContent(
             request.content,
-            AIProvider.GEMINI
+            AIProvider.GEMINI,
+            request.conversationId
         )
     }
 
@@ -69,5 +76,7 @@ class AIController(
 }
 
 data class AIAnalysisRequest(
-    val content: String
+    val content: String,
+    @JsonProperty(value = "conversationId", required = false)
+    val conversationId: String?
 )
