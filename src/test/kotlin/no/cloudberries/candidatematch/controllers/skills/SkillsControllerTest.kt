@@ -17,8 +17,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 class SkillsControllerTest {
 
     private val skillsService = mockk<SkillsService>()
+    private val skillsReadService = mockk<no.cloudberries.candidatematch.service.skills.SkillsReadService>()
 
-    private val controller = SkillsController(skillsService)
+    private val controller = SkillsController(skillsService, skillsReadService)
     private val mockMvc: MockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     private val mapper = jacksonObjectMapper()
 

@@ -9,6 +9,11 @@ spring:
       validation-timeout: 5000      # 5 seconds
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+  cache:
+    type: caffeine
+    cache-names: skillsSummaryCache, consultantsBySkillCache, skillNamesCache, topConsultantsBySkillCache, queryInterpretations
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=5m
 flowcase:
   apiKey: ${FLOWCASE_API_KEY}
   baseUrl: ${FLOWCASE_BASE_URL}
@@ -41,3 +46,4 @@ management:
     group:
       readiness:
         include: "readinessState,dependencies" # Inkluderer vår egendefinerte sjekk
+

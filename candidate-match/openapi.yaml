@@ -103,7 +103,9 @@ paths:
   /api/skills:
     get:
       tags: [ Skills ]
-      summary: List skills across consultants
+      summary: List skills across consultants (deprecated)
+      deprecated: true
+      description: Deprecated heavy aggregate endpoint. Use /api/skills/summary and /api/skills/{skill}/consultants instead.
       parameters:
         - in: query
           name: skill
@@ -123,6 +125,132 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SkillInCompanyDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/skills/summary:
+    get:
+      tags: [ Skills ]
+      summary: List skills summary (paged)
+      description: Returns paged skills with consultant counts. Supports substring filter and sorting.
+      parameters:
+        - in: query
+          name: q
+          required: false
+          description: Optional substring filter on skill name
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - in: query
+          name: sort
+          required: false
+          description: Sort by 'consultantCount,desc' or 'name,asc'. Default consultantCount,desc then name,asc.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paged skill summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageSkillSummaryDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/skills/{skill}/consultants:
+    get:
+      tags: [ Skills ]
+      summary: List consultants for a skill (paged)
+      parameters:
+        - in: path
+          name: skill
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - in: query
+          name: sort
+          required: false
+          description: Sort by 'name,asc' or 'name,desc'. Default 'name,asc'.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paged consultants having the given skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageConsultantSummaryDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/skills/{skill}/top-consultants:
+    get:
+      tags: [ Skills ]
+      summary: Top consultants for a skill
+      description: Returns the top N consultants for the given skill, ranked by CV quality score when available, then by name.
+      parameters:
+        - in: path
+          name: skill
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            default: 3
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: Top consultants for the skill
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsultantSummaryDto'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/skills/names:
+    get:
+      tags: [ Skills ]
+      summary: Skill names for autocomplete (ranked by popularity)
+      description: |
+        Returns a list of skill names suitable for autocomplete.
+        - When 'prefix' is omitted, returns the top 'limit' names ranked by number of consultants with the skill (descending), then by name (ascending).
+        - When 'prefix' is provided, returns names starting with the prefix, ranked by popularity.
+        The popularity ranking merges multiple sources (normalized consultant skills, normalized project skills, and legacy CV skill tables) to reflect coverage.
+      parameters:
+        - in: query
+          name: prefix
+          required: false
+          description: Optional prefix filter for name starts-with (case-insensitive)
+          schema:
+            type: string
+        - in: query
+          name: limit
+          required: false
+          description: Maximum number of names to return (default 100; 1–200)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 200
+      responses:
+        '200':
+          description: List of ranked skill names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -978,6 +1106,39 @@ components:
             $ref: '#/components/schemas/Problem'
 
   schemas:
+    SkillSummaryDto:
+      type: object
+      required: [ name, consultantCount ]
+      properties:
+        name:
+          type: string
+        consultantCount:
+          type: integer
+    PageSkillSummaryDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillSummaryDto'
+        number:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        first:
+          type: boolean
+        last:
+          type: boolean
+        sort:
+          type: object
+          additionalProperties: true
+        pageable:
+          type: object
+          additionalProperties: true
     ProgrammingLanguageStat:
       type: object
       required: [ language, consultantCount, percentage, aggregatedYears ]
