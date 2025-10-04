@@ -17,6 +17,8 @@ tags:
     description: AI content analysis
   - name: Skills
     description: Company skills overview
+  - name: Analytics
+    description: Company statistics and analytics
   - name: Consultants
     description: Consultant search and sync
   - name: CV
@@ -33,6 +35,51 @@ tags:
     description: Customer project request management and analysis
 
 paths:
+  /api/analytics/programming-languages:
+    get:
+      tags: [ Analytics ]
+      summary: Programming language statistics
+      description: Returns counts, percentages, and aggregated experience years per language.
+      parameters:
+        - in: query
+          name: languages
+          required: false
+          description: Optional list of languages to include (defaults to Kotlin, Java, C#, Python)
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Language stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProgrammingLanguageStat'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/analytics/roles:
+    get:
+      tags: [ Analytics ]
+      summary: Consultant roles statistics
+      description: Percentage of consultants with experience as System Developer, Data Engineer, or Project Manager.
+      responses:
+        '200':
+          description: Role stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoleStat'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /api/industries/backfill:
     post:
       tags: [ Admin ]
@@ -83,12 +130,23 @@ paths:
     post:
       tags: [ Chat ]
       summary: Analyze content with AI
+      description: Accepts an optional conversationId to maintain context across turns.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/AIAnalysisRequest'
+            examples:
+              simple:
+                summary: Single-turn analysis
+                value:
+                  content: "Summarize this text"
+              with_conversation:
+                summary: Multi-turn with conversationId
+                value:
+                  conversationId: "d26c61a0-27be-4a59-a7b6-8a3b9e6261df"
+                  content: "Add details based on our last answer"
       responses:
         '200':
           description: Analysis result
@@ -920,6 +978,33 @@ components:
             $ref: '#/components/schemas/Problem'
 
   schemas:
+    ProgrammingLanguageStat:
+      type: object
+      required: [ language, consultantCount, percentage, aggregatedYears ]
+      properties:
+        language:
+          type: string
+        consultantCount:
+          type: integer
+        percentage:
+          type: number
+          format: double
+        aggregatedYears:
+          type: integer
+          description: Sum of duration years (from consultant_skill and cv_skill_in_category)
+
+    RoleStat:
+      type: object
+      required: [ role, consultantCount, percentage ]
+      properties:
+        role:
+          type: string
+        consultantCount:
+          type: integer
+        percentage:
+          type: number
+          format: double
+
     CoverageStatus:
       type: string
       enum: [ GREEN, YELLOW, RED, NEUTRAL ]
@@ -1084,6 +1169,11 @@ components:
       type: object
       required: [ content ]
       properties:
+        conversationId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional conversation id to maintain multi-turn context
         content:
           type: string
           description: Content to analyze

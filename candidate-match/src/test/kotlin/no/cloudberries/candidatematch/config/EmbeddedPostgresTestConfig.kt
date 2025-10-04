@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Primary
 import javax.sql.DataSource
 
 @Configuration
+@org.springframework.context.annotation.Profile("test")
 class EmbeddedPostgresTestConfig {
 
     @Primary

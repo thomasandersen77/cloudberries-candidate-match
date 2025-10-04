@@ -9,6 +9,7 @@ import org.springframework.core.io.DefaultResourceLoader
 import javax.sql.DataSource
 
 @TestConfiguration
+@org.springframework.context.annotation.Profile("test")
 @Import(EmbeddedPostgresTestConfig::class)
 class LiquibaseTestConfig {
     @Bean

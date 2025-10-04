@@ -1,0 +1,124 @@
+# Fridat plan for conversation history and analytics
+
+meta:
+  author: agent
+  created: 2025-10-04
+  scope:
+    - backend
+    - openapi
+    - frontend
+  summary: |
+    Adds multi-turn conversation support via conversationId and exposes analytics
+    endpoints for programming languages and common roles. Includes detailed
+    frontend guidance and a new statistics page.
+
+backend:
+  conversation_history:
+    status: implemented
+    endpoint: POST /api/chatbot/analyze
+    request_schema: AIAnalysisRequest
+    changes:
+      - add_optional_field: conversationId (string, uuid)
+      - description: Maintain context across turns for up to 8 recent turns; messages truncated to 4000 chars
+      - model: prefers gemini.quickModel (gemini-2.5-flash) in local profile
+    notes: |
+      - If conversationId is provided, backend builds a prompt from recent turns
+        and the current message.
+      - If not provided, the call remains single-turn.
+  analytics:
+    programming_languages:
+      status: implemented
+      endpoint: GET /api/analytics/programming-languages
+      params:
+        - name: languages
+          type: array[string]
+          optional: true
+          default: [Kotlin, Java, C#, Python]
+      response_item: ProgrammingLanguageStat
+      response_fields:
+        - language: string
+        - consultantCount: int
+        - percentage: number(%) of all consultants
+        - aggregatedYears: int (sum of durationYears from consultant_skill and cv_skill_in_category)
+      implementation: |
+        - Repository: ProgrammingLanguageStatsRepository
+          - Sources: consultant_skill+skill (normalized), cv_skill_in_category (string-based), cv_project_experience_skill (string-based)
+        - Service: ProgrammingLanguageStatsService merges rows, de-duplicates per consultant & language, and sums years
+        - Controller: ProgrammingLanguageStatsController @ GET /api/analytics/programming-languages
+    roles:
+      status: implemented
+      endpoint: GET /api/analytics/roles
+      response_item: RoleStat
+      response_fields:
+        - role: string (System Developer, Data Engineer, Project Manager)
+        - consultantCount: int
+        - percentage: number(%) of all consultants
+      implementation: |
+        - Repository: RoleStatsRepository (reads cv_project_experience_role)
+        - Service: RoleStatsService (maps role synonyms to buckets and de-duplicates per consultant)
+        - Controller: RolesStatsController @ GET /api/analytics/roles
+
+openapi:
+  file: candidate-match/openapi.yaml
+  updated:
+    - add tag: Analytics
+    - add paths:
+      - /api/analytics/programming-languages (GET)
+      - /api/analytics/roles (GET)
+    - add conversationId to components.schemas.AIAnalysisRequest
+  next_steps:
+    - copy_to_frontend: true
+    - path_frontend: ~/git/cloudberries-candidate-match-web/openapi.yaml
+
+frontend:
+  conversation_uuid:
+    storage: localStorage
+    key: cb_chat_conversation_id
+    algorithm: |
+      - On first chat request, get localStorage[key]; if missing, generate crypto.randomUUID() and store.
+      - Include conversationId in payload to /api/chatbot/analyze.
+  new_page:
+    route: /stats
+    title: Analytics & Stats
+    sources:
+      - GET /api/analytics/programming-languages
+      - GET /api/analytics/roles
+    ui: |
+      - Two tables:
+        1) Programming languages: language, number of consultants, percentage, aggregated years
+        2) Roles: role, number of consultants, percentage
+      - Add menu link under the Header menu and a tile on HomePage
+  api_client:
+    - base_url: env VITE_API_BASE_URL or http://localhost:8080
+    - endpoints:
+      - GET /api/analytics/programming-languages
+      - GET /api/analytics/roles
+      - POST /api/chatbot/analyze (with conversationId)
+  run_local:
+    - ensure_db: docker-compose -f candidate-match/docker-compose-local.yaml up -d
+    - profile: local
+    - java: sdk use java 21.0.7-tem
+    - backend: mvn -pl candidate-match spring-boot:run -Dspring-boot.run.profiles=local
+    - frontend: npm run dev (in cloudberries-candidate-match-web)
+
+examples:
+  chat_frontend_ts: |
+    // Add to src/services/chatService.ts
+    function getOrCreateConversationId(): string {
+      const key = 'cb_chat_conversation_id';
+      let id = localStorage.getItem(key);
+      if (!id) { id = crypto.randomUUID(); localStorage.setItem(key, id); }
+      return id;
+    }
+
+    export async function analyzeContent(payload: AIAnalysisRequest): Promise<AIResponseModel> {
+      const cid = getOrCreateConversationId();
+      const body = { ...payload, conversationId: cid };
+      const { data } = await apiClient.post<AIResponseModel>('/api/chatbot/analyze', body);
+      return data;
+    }
+
+  stats_frontend_tsx: |
+    // Basic idea for src/pages/StatsPage.tsx
+    // Fetch /api/analytics/programming-languages and /api/analytics/roles and render MUI tables
+    // See frontend.md for full implementation details.
