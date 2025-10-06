@@ -21,5 +21,6 @@
     <include file="db/changelog/db_changelog-12.0-industry.xml" />
     <include file="db/changelog/db_changelog-13.0-ai-conv-cascade.xml" />
     <include file="db/changelog/db_changelog-14.0-auth.xml" />
+    <include file="db/changelog/db_changelog-15.0-fix-cascade-delete.xml" />
 
 </databaseChangeLog>

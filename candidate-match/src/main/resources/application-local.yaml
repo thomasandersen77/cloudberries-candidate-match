@@ -8,6 +8,7 @@ openai:
 gemini:
   apiKey: ${GEMINI_API_KEY}
   model: gemini-2.5-pro
+  quick-model: gemini-2.5-flash
 embedding:
   enabled: true
   provider: GEMINI

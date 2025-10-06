@@ -29,4 +29,11 @@ class AuthController(
         val token = jwt.generateToken(user.username)
         return ResponseEntity.ok(LoginResponse(token))
     }
+
+    @PostMapping("/demo")
+    fun demoLoginNoDB(): ResponseEntity<Any> {
+        val token = jwt.generateToken("demo")
+        return ResponseEntity.ok(LoginResponse(token))
+    }
+
 }

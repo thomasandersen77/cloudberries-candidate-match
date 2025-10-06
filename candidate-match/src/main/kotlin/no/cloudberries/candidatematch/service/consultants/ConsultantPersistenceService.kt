@@ -8,6 +8,7 @@ import no.cloudberries.candidatematch.infrastructure.entities.ConsultantEntity
 import no.cloudberries.candidatematch.infrastructure.entities.consultant.*
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.consultant.*
+import no.cloudberries.candidatematch.infrastructure.repositories.industry.CvProjectExperienceIndustryRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -28,6 +29,7 @@ class ConsultantPersistenceService(
     private val skillInCatRepo: CvSkillInCategoryRepository,
     private val attachmentRepo: CvAttachmentRepository,
     private val industryTaggingService: IndustryTaggingService,
+    private val cpeiRepository: CvProjectExperienceIndustryRepository,
 ) {
     
     private val logger = KotlinLogging.logger { }
@@ -138,6 +140,8 @@ class ConsultantPersistenceService(
             val projectExperiences = projExpRepo.findByCvIdIn(cvIds)
             val projectIds = projectExperiences.mapNotNull { it.id }
             if (projectIds.isNotEmpty()) {
+                // Clear industry references first to avoid foreign key constraint violations
+                cpeiRepository.deleteByProjectExperienceIdIn(projectIds)
                 projRoleRepo.deleteByProjectExperienceIdIn(projectIds)
                 projSkillRepo.deleteByProjectExperienceIdIn(projectIds)
             }

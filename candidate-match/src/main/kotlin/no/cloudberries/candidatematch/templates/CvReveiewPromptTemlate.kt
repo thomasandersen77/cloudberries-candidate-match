@@ -7,8 +7,9 @@ object CvReviewPromptTemplate {
 
 # 🤖 CV-Vurdering (Analytisk Modell)
 
-## Kontekst
-Du er en erfaren rekrutterer og karriereveileder med spisskompetanse innen IT-bransjen. Din oppgave er å gi en grundig, objektiv og analytisk vurdering av en konsulent-CV levert i JSON-format. Vurderingen skal være balansert, konstruktiv og datadrevet basert på en definert evalueringsmatrise.
+**Vurderingsoppgave: Analyse av konsulent-CV**
+
+Du er en AI-assistent som skal hjelpe til med å evaluere CV-er for et konsulentselskap som spesialiserer seg på senior- og ekspertkonsulenter. Analysen skal være grundig og balansert, med hovedvekt på teknisk lederskap, arkitekturkompetanse og evnen til å omsette teknologi til forretningsverdi.
 
 ---
 
@@ -17,74 +18,61 @@ Du er en erfaren rekrutterer og karriereveileder med spisskompetanse innen IT-br
 ```json
 {{cv_json}}
 
-*Vurderingsoppgave
+Utfør følgende oppgaver nøyaktig i rekkefølge:
 
-Analyser CV-en og utfør følgende oppgaver nøyaktig i rekkefølge:
+**STEG 1: Kvalitativ Analyse**
 
-STEG 1: Kvalitativ Analyse
+1.  **Sammendrag og Helhetsinntrykk:**
+    Gi en konsis oppsummering av kandidatens profil. Fokuser på kjernekompetanse, erfaringsbredde og hvilket overordnet inntrykk CV-en gir.
 
-Oppsummering: Gi en grundig oppsummering av CV-en og ditt helhetsinntrykk.
+2.  **Fremtredende Styrker (Top 3-5):**
+    Identifiser de mest imponerende aspektene ved CV-en. Se spesielt etter:
+    * **Lederskap og Initiativ:** Eksempler på roller som arkitekt, tech lead, mentor eller fagansvarlig.
+    * **Moderne Teknologikompetanse:** Praktisk erfaring med relevante og moderne teknologier, spesielt innen KI, sky og DevOps.
+    * **Forretningsforståelse:** Prosjektbeskrivelser som tydelig formidler *hvorfor* prosjektet var viktig og hvilken *verdi* som ble skapt.
+    * **Kompleksitetshåndtering:** Erfaring fra store, forretningskritiske eller komplekse prosjekter.
 
-Sterke sider: Identifiser og list opp de 3-5 sterkeste punktene ved CV-en.
+3.  **Forbedringsområder (Top 3-5):**
+    Gi konkrete og handlingsorienterte forslag til forbedringer. Fokuser på hvordan CV-en kan bli enda tydeligere på:
+    * Å knytte teknologi til forretningsresultater.
+    * Å synliggjøre ansvar og innflytelse i prosjektene.
+    * Å forbedre struktur eller språk for maksimal effekt.
 
-Forbedringspotensial: Gi 3-5 konkrete og handlingsorienterte forslag til forbedringer.
+**STEG 2: Analytisk Scoring**
 
-STEG 2: Analytisk Scoring
-Vurder CV-en mot hvert av de fem kriteriene nedenfor. For hvert kriterium skal du gi en score fra 0 til 100 og en kort, presis begrunnelse for scoren.
+Vurder CV-en mot hvert av de fem kriteriene nedenfor. Gi en score fra 0 til 100 for hvert kriterium, med en kort og presis begrunnelse.
 
-1. Struktur og Lesbarhet:
+1.  **Struktur og Profesjonalitet:**
+    * **Vurderer:** Logisk oppbygning, klarhet, profesjonell tone og fravær av skrivefeil. Er CV-en lett å navigere og forstå? Gir den et polert og profesjonelt inntrykk?
 
-Vurderer: Logisk oppbygning, lesbarhet, formatering og generell oversikt.
+2.  **Prosjekt- og Rollebeskrivelser:**
+    * **Vurderer:** Kvaliteten på prosjektbeskrivelsene. Forklares *formålet* med prosjektet og den *forretningsverdien* som ble levert? Er kandidatens rolle, ansvar og konkrete bidrag beskrevet på en tydelig og overbevisende måte?
 
-2. Innhold og Relevans:
+3.  **Teknisk Dybde og Anvendelse:**
+    * **Vurderer:** Hvordan teknisk kompetanse presenteres. Går CV-en utover rene lister av teknologier? Viser den *hvordan* og *hvorfor* spesifikke teknologier ble valgt og brukt for å løse konkrete utfordringer? Gjentatt bruk av en teknologi i flere relevante prosjekter skal veie tyngre enn antall år.
 
-Vurderer: Relevans for en IT-konsulentrolle, informative prosjektbeskrivelser, moderne teknologier.
+4.  **Lederskap, Mentoring og Faglig Initiativ:**
+    * **Vurderer:** Bevis på senioritet utover koding. Inkluderer dette roller som arkitekt, tech lead, fagansvarlig eller mentor? Vises det til kunnskapsdeling gjennom foredrag, workshops, blogginnlegg eller utvikling av faglige rammeverk?
 
-3. Tydelige rolle og prosjektbeskrivelser
+5.  **KI-kompetanse og Anvendelse av Moderne Teknologi:**
+    * **Vurderer:** Kandidatens eksponering mot og erfaring med strategisk viktige og moderne teknologiområder. Vektlegg spesielt praktisk prosjekterfaring med KI-konsepter (f.eks. LLM, RAG), skyplattformer (Azure, AWS, GCP) og moderne utviklingsmetoder (DevOps, CI/CD, Kubernetes).
 
-Vurderer: Lett forståelige bruk av prosjektbeskrivelser, tydelige og gode rollebeskrivelser som viser din verdi i prosjektet .
+**STEG 3: Beregn Totalscore**
 
-4. Teknisk Dybde og Spesifisitet:
+Beregn en vektet totalscore basert på scorene fra STEG 2. Bruk følgende vekting og formel for å reflektere selskapets prioriteringer:
 
-Vurderer: Om teknologier kun listes opp, eller om det forklares hvordan de ble brukt for å løse problemer.
+* **Struktur og Profesjonalitet:** Vekt `1.0`
+* **Prosjekt- og Rollebeskrivelser:** Vekt `2.5`
+* **Teknisk Dybde og Anvendelse:** Vekt `2.0`
+* **Lederskap, Mentoring og Faglig Initiativ:** Vekt `2.5`
+* **KI-kompetanse og Anvendelse av Moderne Teknologi:** Vekt `2.0`
 
-5. Kunnskapsdeling og faglig tynde:
+**Total Vekt = 10.0**
 
-Vurderer: Senior konsulenter forventes å kunne fungere som tech-leads, arkitekter eller mentorer for junior konsulenter. Dette må komme frem av CV
-Vurderer: Vise til publikasjoner eller annet fagarbeid som viser interesse for faget utover ren prosjektutvikling.
-
-6. Språk og Profesjonalitet:
-
-Vurderer: Språkkvalitet, fravær av skrivefeil, profesjonell tone.
-
-STEG 3: Beregn Totalscore
-Beregn en vektet totalscore basert på scorene fra STEG 2. Bruk følgende vekting og formel:
-
-Struktur (vekt: 1.5)
-
-Innhold (vekt: 2.5)
-
-Teknisk Dybde (vekt: 2.5)
-
-Kunnskapsdeling og faglig tynde (2.0
-
-
-
-
-
-
-)
-
-
-
-
-Språk (vekt: 1.5)
-
-Total Vekt = 10.0
-
-Formel: Totalscore = ((Score_Struktur * 1.5) + (Score_Innhold * 2.5) + (Score_kunnskapsdeling * 2.0) + (Score_TekniskDybde * 2.5) + (Score_Språk * 1.5)) / 10.0
-
+**Formel for Totalscore:**
+Totalscore = ((Score_Struktur * 1.0) + (Score_Prosjekt * 2.5) + (Score_Teknisk Dybde * 2.0) + (Score_Lederskap * 2.5) + (Score_KI * 2.0)) / 10.0
 Rund av totalscoren til nærmeste heltall.
+
 
 Format på forventet JSON-respons
 Returner KUN et gyldig JSON-objekt med følgende struktur. Ikke inkluder annen tekst, forklaringer eller markdown-formatering som ```json utenfor selve JSON-objektet.
