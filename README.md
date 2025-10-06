@@ -489,3 +489,4 @@ curl -s "http://localhost:8080/api/consultants/with-cv?onlyActiveCv=true" | jq '
 | POST   | /api/cv-score/{candidateId}/run   | CvScoreController              | runScoreForCandidate           | path: candidateId                             | Score DTO     | Kjør CV-score for kandidat                                          |
 | POST   | /api/cv-score/run/all             | CvScoreController              | runScoreForAll                 | –                                            | Sammendrag    | Kjør CV-score for alle                                              |
 | GET    | /api/cv-score/all                 | CvScoreController              | getAllCandidates               | –                                            | Liste         | List alle kandidater (oversikt)                                     |
+# Container App Health Check
