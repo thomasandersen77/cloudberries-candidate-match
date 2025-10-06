@@ -20,5 +20,6 @@
     <include file="db/changelog/db_changelog-11.0-ai-rag.xml" />
     <include file="db/changelog/db_changelog-12.0-industry.xml" />
     <include file="db/changelog/db_changelog-13.0-ai-conv-cascade.xml" />
+    <include file="db/changelog/db_changelog-14.0-auth.xml" />
 
 </databaseChangeLog>
