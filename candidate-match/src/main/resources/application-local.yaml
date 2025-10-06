@@ -33,10 +33,18 @@ ai:
     enabled: true
   hybrid:
     enabled: true
-    semantic_weight: 0.6
-    quality_weight: 0.4
+    semantic_weight: 0.7
+    quality_weight: 0.3
   streaming:
     enabled: false  # Enable later when UI supports it
+
+search:
+  lexicon:
+    public-sector-tokens: ["kommune","etat","nav","skatt","stat","offentlig","departement","direktorat","helsedirektoratet","kartverket","politiet","helse","utdanningsdirektoratet"]
+    customer-synonyms:
+      sparebank1: ["sparebank 1","sb1"]
+      dnb: ["den norske bank","d.n.b"]
+      nav: ["arbeids- og velferdsetaten"]
   ollama:
     base-url: http://localhost:11434
     model: llama3.2:1b
@@ -54,7 +62,7 @@ sync:
 spring:
   liquibase:
     change-log: classpath*:/db/changelog/db.changelog-master.xml
-    contexts: pgvector
+    contexts: "default,pgvector"
   datasource:
     url: jdbc:postgresql://localhost:5433/candidatematch
     username: ${POSTGRES_USER:candidatematch}

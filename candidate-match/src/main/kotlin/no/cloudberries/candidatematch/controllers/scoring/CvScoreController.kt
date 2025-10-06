@@ -2,6 +2,7 @@ package no.cloudberries.candidatematch.controllers.scoring
 
 import no.cloudberries.candidatematch.domain.candidate.scoring.CandidateCvScoringService
 import no.cloudberries.candidatematch.service.ai.AIService
+import no.cloudberries.candidatematch.service.scoring.CvScoreAppService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/cv-score")
 class CvScoreController(
-    private val cvScoreAppService: no.cloudberries.candidatematch.service.scoring.CvScoreAppService,
+    private val cvScoreAppService: CvScoreAppService,
 ) {
 
     private val logger = mu.KotlinLogging.logger {}

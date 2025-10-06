@@ -27,6 +27,7 @@ class ConsultantPersistenceService(
     private val skillCatRepo: CvSkillCategoryRepository,
     private val skillInCatRepo: CvSkillInCategoryRepository,
     private val attachmentRepo: CvAttachmentRepository,
+    private val industryTaggingService: IndustryTaggingService,
 ) {
     
     private val logger = KotlinLogging.logger { }
@@ -262,6 +263,9 @@ class ConsultantPersistenceService(
             })
         }
         // Attachments (none for now)
+        
+        // After persisting all CV details, tag industries (normalized taxonomy)
+        industryTaggingService.tagIndustriesForCv(cvId)
     }
 
     data class PersistResult(

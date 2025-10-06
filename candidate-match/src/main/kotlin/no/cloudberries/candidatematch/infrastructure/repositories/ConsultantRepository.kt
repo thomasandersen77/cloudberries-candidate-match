@@ -5,13 +5,9 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.stereotype.Repository
-import jakarta.persistence.QueryHint
 import org.springframework.data.repository.query.Param
 import no.cloudberries.candidatematch.domain.candidate.Skill
-import no.cloudberries.candidatematch.infrastructure.entities.SkillEntity
-import no.cloudberries.candidatematch.infrastructure.entities.ConsultantSkillEntity
 import no.cloudberries.candidatematch.service.skills.ConsultantSkillReader
 import no.cloudberries.candidatematch.service.skills.SkillAggregateRow
 
@@ -54,7 +50,7 @@ interface ConsultantRepository : JpaRepository<ConsultantEntity, Long>, Consulta
             "WHERE (:skillNames is null or sk.name in :skillNames)"
     )
     override fun findSkillAggregates(
-        @Param("skillNames") skills: Collection<String>?
+        @Param("skillNames") skillFilters: Collection<String>?
     ): List<SkillAggregateRow>
 
     fun existsByUserId(userId: String): Boolean

@@ -2,7 +2,6 @@ package no.cloudberries.candidatematch.dto.ai
 
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * Response from AI consultant search
@@ -28,7 +27,10 @@ data class ChatSearchResponse(
     val debug: DebugInfo? = null,
     
     @Schema(description = "Conversation ID for follow-up queries")
-    val conversationId: String? = null
+    val conversationId: String? = null,
+
+    @Schema(description = "Scoring info for HYBRID responses (weights and formula)")
+    val scoring: ScoringInfo? = null
 )
 
 /**
@@ -36,8 +38,8 @@ data class ChatSearchResponse(
  */
 @Schema(description = "Search result for a consultant")
 data class SearchResult(
-    @Schema(description = "Consultant ID")
-    val consultantId: UUID,
+    @Schema(description = "Consultant ID (userId)")
+    val consultantId: String,
     
     @Schema(description = "Consultant name", example = "Thomas Andersen")
     val name: String,
@@ -57,14 +59,14 @@ data class SearchResult(
  */
 @Schema(description = "Source citation for RAG answers")
 data class RAGSource(
-    @Schema(description = "Consultant ID")
-    val consultantId: UUID,
+    @Schema(description = "Consultant ID (userId)")
+    val consultantId: String,
     
     @Schema(description = "Consultant name")
     val consultantName: String,
     
     @Schema(description = "Chunk ID")
-    val chunkId: UUID,
+    val chunkId: String,
     
     @Schema(description = "Source text excerpt")
     val text: String,
@@ -89,4 +91,14 @@ data class DebugInfo(
     
     @Schema(description = "Additional debug data")
     val extra: Map<String, Any>? = null
+)
+
+@Schema(description = "HYBRID scoring weights and formula")
+data class ScoringInfo(
+    @Schema(description = "Weight applied to semantic similarity", example = "0.7")
+    val semanticWeight: Double,
+    @Schema(description = "Weight applied to CV quality score", example = "0.3")
+    val qualityWeight: Double,
+    @Schema(description = "Formula used to compute final score", example = "combined = semanticWeight * semanticScore + qualityWeight * qualityScore")
+    val formula: String = "combined = semanticWeight * semanticScore + qualityWeight * qualityScore"
 )

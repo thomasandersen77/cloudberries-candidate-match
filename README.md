@@ -139,6 +139,32 @@ sdk install java 21.0.7-tem
 sdk install maven
 ```
 
+### SDKMAN automatisk JDK-bytte (.sdkmanrc)
+
+- Repo-lokalt (ikke globalt): .sdkmanrc i rotmappen definerer Java og Maven for dette repoet.
+- Slå på auto-bytte én gang:
+
+```bash
+echo "sdkman_auto_env=true" >> "$HOME/.sdkman/etc/config"
+```
+
+- Bytt automatisk når du cd'er inn i repoet:
+
+```bash
+cd /Users/tandersen/git/cloudberries-candidate-match
+sdk env install   # installer manglende versjoner (første gang)
+# eller
+sdk env           # bare bytt uten install
+```
+
+- Midlertidig overstyring når du trenger en annen JDK:
+
+```bash
+sdk use java 21.0.7-tem
+```
+
+- For å gå tilbake, forlat mappen og cd inn igjen (med auto_env på), så brukes .sdkmanrc (java=25.0.1-tem, maven=3.9.9).
+
 ## Konfigurasjon
 
 Applikasjonsinnstillinger lastes fra miljøvariabler (foretrukket) eller application YAML-filer. Hovednøklene:

@@ -24,7 +24,8 @@ data class ConsultantCvDto(
     val courses: List<CourseDto>,
     val languages: List<LanguageDto>,
     val skillCategories: List<SkillCategoryDto>,
-    val attachments: List<AttachmentDto>
+    val attachments: List<AttachmentDto>,
+    val industries: List<String>
 )
 
 data class KeyQualificationDto(

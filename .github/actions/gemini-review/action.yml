@@ -1,0 +1,79 @@
+name: 'Gemini Code Review'
+description: 'Calls Gemini API with a specific prompt and code diff, then saves the result.'
+inputs:
+  review_type:
+    description: 'Type of review (e.g., architecture, security, readability)'
+    required: false
+    default: 'review'
+  prompt_file:
+    description: 'Path to the prompt file (relative to workspace root)'
+    required: true
+  output_file:
+    description: 'Path for the output review file (relative to current working directory)'
+    required: true
+  gemini_api_key:
+    description: 'API key for Gemini'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Perform Gemini Review
+      shell: bash
+      env:
+        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
+      run: |
+        set -euo pipefail
+        echo "Using review type: '${{ inputs.review_type }}'"
+        # Read prompt from workspace-root-relative path
+        PROMPT=$(cat "$GITHUB_WORKSPACE/${{ inputs.prompt_file }}")
+
+        # Determine diff range based on event; fallback to origin/main...HEAD
+        BASE_SHA="${{ github.event.pull_request.base.sha }}"
+        HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+        if [ -n "${BASE_SHA}" ] && [ -n "${HEAD_SHA}" ]; then
+          echo "Detected PR context; diffing ${BASE_SHA}..${HEAD_SHA}"
+          CODE_DIFF=$(git diff "${BASE_SHA}" "${HEAD_SHA}")
+        else
+          echo "No PR context; diffing origin/main...HEAD"
+          CODE_DIFF=$(git diff origin/main...HEAD)
+        fi
+
+        # Build payload safely with jq
+        JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
+
+$CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+
+        # Retry logic
+        MAX_ATTEMPTS=3
+        RETRY_DELAY=5
+        for ((i=1; i<=MAX_ATTEMPTS; i++)); do
+          echo "::notice::Attempt $i/$MAX_ATTEMPTS to call Gemini API for ${{ inputs.review_type }}..."
+          HTTP_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent" \
+            -H "Content-Type: application/json" \
+            -H "x-goog-api-key: ${GEMINI_API_KEY}" \
+            -d "$JSON_PAYLOAD")
+          HTTP_STATUS_CODE=${HTTP_RESPONSE: -3}
+          GEMINI_RESPONSE=${HTTP_RESPONSE:0:${#HTTP_RESPONSE}-3}
+
+          if [ "$HTTP_STATUS_CODE" -eq 200 ]; then
+            echo "::notice::Gemini API call succeeded."
+            break
+          fi
+
+          echo "::warning::Status $HTTP_STATUS_CODE from Gemini."
+          if [ "$i" -lt "$MAX_ATTEMPTS" ]; then
+            echo "Retrying in ${RETRY_DELAY}s..."; sleep "$RETRY_DELAY"
+          else
+            echo "::error::Failed after ${MAX_ATTEMPTS} attempts. Response:"; echo "$GEMINI_RESPONSE"; exit 1
+          fi
+        done
+
+        # Validate response is not an error JSON
+        if echo "$GEMINI_RESPONSE" | jq -e '.error' > /dev/null; then
+          echo "::error::Gemini API returned an error payload:"; echo "$GEMINI_RESPONSE"; exit 1
+        fi
+
+        # Extract and save text to the requested file path (relative to current working dir)
+        echo "$GEMINI_RESPONSE" | jq -r '.candidates[0].content.parts[0].text' > "${{ inputs.output_file }}"
+        echo "Saved review to '${{ inputs.output_file }}'"

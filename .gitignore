@@ -11,3 +11,5 @@ WARP.md
 .run/
 out/
 target/
+reviews
+.DS_Store

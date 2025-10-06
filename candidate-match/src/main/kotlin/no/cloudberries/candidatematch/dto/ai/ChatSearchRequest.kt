@@ -14,6 +14,18 @@ data class ChatSearchRequest(
     val conversationId: String? = null,
 
     @Schema(
+        description = "Optional consultant userId to target the query (used to bias or provide RAG context)",
+        example = "thomas.andersen"
+    )
+    val consultantId: String? = null,
+
+    @Schema(
+        description = "Optional CV/resume id for the selected consultant; used to include CV JSON as context to the AI",
+        example = "default"
+    )
+    val cvId: String? = null,
+
+    @Schema(
         description = "Natural language search text",
         example = "Find consultants who know Kotlin and Spring",
         required = true
@@ -22,7 +34,7 @@ data class ChatSearchRequest(
 
     @Schema(
         description = "Force a specific search mode",
-        example = "structured",
+        example = "STRUCTURED",
         allowableValues = ["STRUCTURED", "SEMANTIC", "HYBRID", "RAG"]
     )
     val forceMode: SearchMode? = null,

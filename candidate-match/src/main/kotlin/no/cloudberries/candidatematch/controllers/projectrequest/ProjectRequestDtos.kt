@@ -17,6 +17,8 @@ data class ProjectRequestResponseDto(
     val mustRequirements: List<ProjectRequirementDto>,
     val shouldRequirements: List<ProjectRequirementDto>,
     val originalFilename: String?,
+    val uploadedAt: LocalDateTime? = null,
+    val deadlineDate: LocalDateTime? = null,
 )
 
 data class ProjectRequirementDto(
