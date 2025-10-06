@@ -31,14 +31,19 @@ jobs:
           tenant-id: ${{ secrets.CLOUDBERRIESCANDIDATEMATCHCA_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.CLOUDBERRIESCANDIDATEMATCHCA_AZURE_SUBSCRIPTION_ID }}
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
           dockerfilePath: ./candidate-match/Dockerfile
           registryUrl: ghcr.io
-          registryUsername: ${{ secrets.CLOUDBERRIESCANDIDATEMATCHCA_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.CLOUDBERRIESCANDIDATEMATCHCA_REGISTRY_PASSWORD }}
           containerAppName: cloudberries-candidate-match-ca
           resourceGroup: cloudberries-internal-dev
           imageToBuild: ghcr.io/thomasandersen77/cloudberries-candidate-match:${{ github.sha }}
