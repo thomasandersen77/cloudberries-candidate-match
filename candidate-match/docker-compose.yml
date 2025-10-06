@@ -20,7 +20,9 @@ services:
       retries: 3
 
   app:
-    build: ..
+    build:
+      context: ..
+      dockerfile: candidate-match/Dockerfile
     container_name: candidate-match-app
     restart: unless-stopped
     ports:

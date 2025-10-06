@@ -1,30 +1,44 @@
-# Multi-stage build for minimal image size
-FROM eclipse-temurin:21-jdk-alpine AS build
-WORKDIR /app
+# syntax=docker/dockerfile:1
 
-# Copy Maven files first for better layer caching
-COPY ../pom.xml ./
-COPY src ./src
-COPY mvnw ./
-COPY ../.mvn ./.mvn
+# Build stage: use JDK 21 and install Maven
+FROM eclipse-temurin:21-jdk-jammy@sha256:adb9b2d15adf1833d9dae0bdc1cff61ef5a804dc58dfbfb34269f32432b2e5dc AS build
+WORKDIR /workspace
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+# Install Maven (Debian/Ubuntu)
+RUN apt-get update && apt-get install -y --no-install-recommends maven && rm -rf /var/lib/apt/lists/*
 
-# Final stage - use JRE for smaller image
-FROM eclipse-temurin:21-jre-alpine
+# Copy only POMs first to leverage layer caching
+COPY pom.xml ./
+COPY candidate-match/pom.xml candidate-match/pom.xml
+# Ensure parent aggregator's child module directories exist so Maven doesn't fail
+COPY ai-rag-service/pom.xml ai-rag-service/pom.xml
+COPY teknologi-barometer-service/pom.xml teknologi-barometer-service/pom.xml
+
+# Pre-fetch dependencies for the candidate-match module
+RUN mvn -B -DskipTests -DskipITs=true -pl candidate-match -am dependency:go-offline
+
+# Copy source for the candidate-match module
+COPY candidate-match/src candidate-match/src
+
+# Build only the candidate-match module
+RUN mvn -B -DskipTests -DskipITs=true -pl candidate-match -am clean package
+
+# Runtime stage: JRE 21 with curl for healthcheck
+FROM eclipse-temurin:21-jre-jammy@sha256:db1689535962d757a5adabf57387584ed543d38c0b9d1fe870123ea362ad73b0 AS runtime
+
+# Install curl for HEALTHCHECK
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
-RUN addgroup -g 1000 appuser && \
-    adduser -D -s /bin/sh -u 1000 -G appuser appuser
+RUN groupadd --system appuser && useradd --system --no-create-home --gid appuser --shell /usr/sbin/nologin appuser
 
 # Set working directory
 WORKDIR /app
 
 # Copy the built JAR from build stage
-COPY --from=build /app/target/candidate-match.jar app.jar
+COPY --from=build /workspace/candidate-match/target/candidate-match.jar app.jar
 
-# Change ownership to non-root user
+# Set ownership to non-root user
 RUN chown appuser:appuser app.jar
 
 # Switch to non-root user
@@ -33,135 +47,9 @@ USER appuser
 # Expose port
 EXPOSE 8080
 
-# Health check
+# Health check using curl against Spring Boot actuator
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+  CMD curl -fsS http://localhost:8080/actuator/health >/dev/null || exit 1
 
 # Run the application
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
-
-# Multi-stage build for minimal image size
-FROM eclipse-temurin:21-jdk-alpine AS build
-WORKDIR /app
-
-# Copy Maven files first for better layer caching
-COPY ../pom.xml ./
-COPY src ./src
-COPY mvnw ./
-COPY ../.mvn ./.mvn
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Final stage - use JRE for smaller image
-FROM eclipse-temurin:21-jre-alpine
-
-# Create non-root user for security
-RUN addgroup -g 1000 appuser && \
-    adduser -D -s /bin/sh -u 1000 -G appuser appuser
-
-# Set working directory
-WORKDIR /app
-
-# Copy the built JAR from build stage
-COPY --from=build /app/target/candidate-match.jar app.jar
-
-# Change ownership to non-root user
-RUN chown appuser:appuser app.jar
-
-# Switch to non-root user
-USER appuser
-
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run the application
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
-
-# Multi-stage build for minimal image size
-FROM eclipse-temurin:21-jdk-alpine AS build
-WORKDIR /app
-
-# Copy Maven files first for better layer caching
-COPY ../pom.xml ./
-COPY src ./src
-COPY mvnw ./
-COPY ../.mvn ./.mvn
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Final stage - use JRE for smaller image
-FROM eclipse-temurin:21-jre-alpine
-
-# Create non-root user for security
-RUN addgroup -g 1000 appuser && \
-    adduser -D -s /bin/sh -u 1000 -G appuser appuser
-
-# Set working directory
-WORKDIR /app
-
-# Copy the built JAR from build stage
-COPY --from=build /app/target/candidate-match.jar app.jar
-
-# Change ownership to non-root user
-RUN chown appuser:appuser app.jar
-
-# Switch to non-root user
-USER appuser
-
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run the application
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
-
-# Multi-stage build for minimal image size
-FROM eclipse-temurin:21-jdk-alpine AS build
-WORKDIR /app
-
-# Copy Maven files first for better layer caching
-COPY ../pom.xml ./
-COPY src ./src
-COPY mvnw ./
-COPY ../.mvn ./.mvn
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Final stage - use JRE for smaller image
-FROM eclipse-temurin:21-jre-alpine
-
-# Create non-root user for security
-RUN addgroup -g 1000 appuser && \
-    adduser -D -s /bin/sh -u 1000 -G appuser appuser
-
-# Set working directory
-WORKDIR /app
-
-# Copy the built JAR from build stage
-COPY --from=build /app/target/candidate-match.jar app.jar
-
-# Change ownership to non-root user
-RUN chown appuser:appuser app.jar
-
-# Switch to non-root user
-USER appuser
-
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run the application
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

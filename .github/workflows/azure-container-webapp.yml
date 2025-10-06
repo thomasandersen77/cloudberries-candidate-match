@@ -4,12 +4,9 @@ name: Build and Deploy Container to Azure Web App
 
 env:
   AZURE_WEBAPP_NAME: 'cloudberries-backend' # Replace with your App Service name
-  DOCKERFILE_PATH: './Dockerfile'              # Path to your Dockerfile
+  DOCKERFILE_PATH: './candidate-match/Dockerfile'              # Path to your Dockerfile
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
