@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/candidatematch
+    username: ${POSTGRES_USER:candidatematch}
+    password: ${POSTGRES_PASSWORD:candidatematch123}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      validation-timeout: 5000
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: false  # Disable Liquibase for now to avoid DB dependency
+
+# Make external services optional
+flowcase:
+  apiKey: ${FLOWCASE_API_KEY:dummy-key}
+  baseUrl: ${FLOWCASE_BASE_URL:https://dummy.com}
+
+openai:
+  apiKey: ${OPENAI_API_KEY:dummy-key}
+  model: gpt-4
+  assistantId: ${OPENAI_ASSISTANT_ID:dummy-assistant}
+
+gemini:
+  apiKey: ${GEMINI_API_KEY:dummy-key}
+  model: gemini-2.5-pro
+
+embedding:
+  enabled: false
+  provider: GEMINI
+  model: text-embedding-004
+  dimension: 768
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  health:
+    # Make health check less strict
+    group:
+      readiness:
+        include: "readinessState"
