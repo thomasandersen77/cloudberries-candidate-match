@@ -40,7 +40,6 @@ import javax.crypto.SecretKey
 
 @Configuration
 class SecurityConfig(
-    private val appUserRepository: AppUserRepository,
     @Value("\${security.jwt.secret:dev-secret-change-me}") private val jwtSecret: String,
     @Value("\${security.jwt.expiration-minutes:480}") private val expirationMinutes: Long,
 ) {
@@ -50,7 +49,7 @@ class SecurityConfig(
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun userDetailsService(): UserDetailsService = UserDetailsService { username ->
+    fun userDetailsService(appUserRepository: AppUserRepository): UserDetailsService = UserDetailsService { username ->
         val user = appUserRepository.findByUsername(username)
             ?: throw org.springframework.security.core.userdetails.UsernameNotFoundException("User not found")
         val roles = user.roles?.split(',')?.filter { it.isNotBlank() }?.map { SimpleGrantedAuthority(it.trim()) } ?: emptyList()
