@@ -48,5 +48,8 @@ jobs:
           containerAppName: cloudberries-candidate-match-ca
           resourceGroup: cloudberries-internal-dev
           imageToBuild: ghcr.io/thomasandersen77/cloudberries-candidate-match:${{ github.sha }}
+          ingress: external
+          targetPort: 8080
+          ingressTransport: auto
 
 

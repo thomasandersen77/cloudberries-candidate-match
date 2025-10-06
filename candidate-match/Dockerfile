@@ -51,5 +51,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -fsS http://localhost:8080/actuator/health >/dev/null || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+# Bind to 0.0.0.0 and honor PORT if provided by the platform
+ENTRYPOINT ["sh", "-c", "exec java -XX:MaxRAMPercentage=75.0 -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-8080} -jar app.jar"]
