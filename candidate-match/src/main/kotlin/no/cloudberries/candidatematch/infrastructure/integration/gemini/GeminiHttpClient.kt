@@ -32,8 +32,8 @@ class GeminiHttpClient(
             )
             response?.text()?.lowercase()?.contains("yes") ?: false
         }.getOrElse {
-            logger.error(it) {
-                "Gemini connection test failed. Check model id '${geminiConfig.model}'. " +
+            logger.error {
+                "Gemini connection test failed. ${it.message}. Check model id '${geminiConfig.model}'. " +
                         "Ensure it exists and is available in your region/project."
             }
             false

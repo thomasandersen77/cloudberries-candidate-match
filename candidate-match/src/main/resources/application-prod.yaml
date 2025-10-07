@@ -36,6 +36,9 @@ embedding:
   dimension: 768
 
 ai:
+  ollama:
+    base-url: http://localhost:11434
+    model: llama3.2:1b
   provider: GEMINI
   models:
     interpretation: gemini-2.5-flash

@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
@@ -21,9 +22,6 @@ class OllamaHttpClient(
 
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(config.connectTimeoutSeconds, TimeUnit.SECONDS)
-            .readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS)
-            .writeTimeout(config.writeTimeoutSeconds, TimeUnit.SECONDS)
             .build()
     }
 
