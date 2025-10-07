@@ -1,4 +1,4 @@
-package no.cloudberries.candidatematch.matches.controller
+package no.cloudberries.candidatematch.controllers.matching
 
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.matches.dto.*
@@ -16,7 +16,7 @@ import java.util.*
  */
 @RestController
 @RequestMapping("/api/matches")
-class MatchesController(
+class CandidateToRequestMatchesController(
     private val projectMatchingService: ProjectMatchingService
 ) {
     

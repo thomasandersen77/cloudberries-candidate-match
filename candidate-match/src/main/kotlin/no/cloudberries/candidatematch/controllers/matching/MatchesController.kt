@@ -3,22 +3,16 @@ package no.cloudberries.candidatematch.controllers.matching
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.controllers.matching.PagedMatchesListDto
-import no.cloudberries.candidatematch.controllers.matching.MatchConsultantDto
 import no.cloudberries.candidatematch.service.matching.MatchesService
+import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
-import org.springframework.context.annotation.Profile
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @Validated
-@Profile("!local")
-@RestController
-@RequestMapping("/api/matches")
+@Profile("!local", "!prod", "legacy")
+@RestController("legacyMatchesController")
+@RequestMapping("/api/match")
 class MatchesController(
     private val matchesService: MatchesService
 ) {
