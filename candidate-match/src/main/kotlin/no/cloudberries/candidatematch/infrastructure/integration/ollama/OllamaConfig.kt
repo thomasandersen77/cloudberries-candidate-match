@@ -1,8 +1,10 @@
 package no.cloudberries.candidatematch.infrastructure.integration.ollama
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
+@Profile("local")
 @Component
 @ConfigurationProperties(prefix = "ai.ollama")
 data class OllamaConfig(

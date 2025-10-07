@@ -20,7 +20,7 @@ gemini:
   apiKey: ${GEMINI_API_KEY}
   model: gemini-2.5-pro
 embedding:
-  enabled: false
+  enabled: true
   provider: GEMINI
   model: text-embedding-004
   dimension: 768
