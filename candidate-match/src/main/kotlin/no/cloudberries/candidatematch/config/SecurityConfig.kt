@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
@@ -34,7 +33,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
 import org.springframework.web.filter.OncePerRequestFilter
 import java.nio.charset.StandardCharsets
-import java.time.Instant
 import java.util.*
 import javax.crypto.SecretKey
 
