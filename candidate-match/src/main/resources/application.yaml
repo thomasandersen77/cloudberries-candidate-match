@@ -5,7 +5,6 @@ spring:
       file-size-threshold: 128KB
       max-file-size: 10MB
       max-request-size: 10MB
-      location: /Users/tandersen/candidate_match/data
       resolve-lazily: true
   datasource:
     hikari:
