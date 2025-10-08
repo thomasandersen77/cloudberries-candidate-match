@@ -41,7 +41,7 @@ runs:
         # Build payload safely with jq
         JSON_PAYLOAD=$(jq -n --arg text_content "$PROMPT
 
-$CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
+        $CODE_DIFF" '{contents: [{parts: [{text: $text_content}]}]}')
 
         # Retry logic
         MAX_ATTEMPTS=3
