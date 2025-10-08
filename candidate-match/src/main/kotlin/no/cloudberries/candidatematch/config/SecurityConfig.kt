@@ -13,7 +13,9 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-class SecurityConfig {
+class SecurityConfig(
+    private val jwtAuthFilter: JwtAuthFilter
+) {
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
@@ -54,14 +56,15 @@ class SecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .cors { it.configurationSource(corsConfigurationSource()) } // <-- bind den her
+            .cors { it.configurationSource(corsConfigurationSource()) }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-.requestMatchers("/api/auth/login", "/api/auth/demo", "/api/health", "/actuator/**").permitAll()
+                    .requestMatchers("/api/auth/login", "/api/auth/demo", "/api/health", "/actuator/**").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .anyRequest().authenticated()
             }
+            .addFilterBefore(jwtAuthFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }
