@@ -15,7 +15,7 @@ import java.util.*
  * Provides endpoints for manual matching triggers and result retrieval.
  */
 @RestController
-@RequestMapping("/api/matches")
+@RequestMapping("/matches")
 class CandidateToRequestMatchesController(
     private val projectMatchingService: ProjectMatchingService
 ) {

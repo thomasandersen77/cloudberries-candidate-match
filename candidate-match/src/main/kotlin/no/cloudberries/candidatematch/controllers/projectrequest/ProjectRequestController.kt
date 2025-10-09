@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/api/project-requests")
+@RequestMapping("/project-requests")
 class ProjectRequestController(
     private val analysisService: ProjectRequestAnalysisService,
     private val projectRequestService: ProjectRequestService

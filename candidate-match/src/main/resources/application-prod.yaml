@@ -7,9 +7,9 @@ spring:
       max-request-size: 10MB
       resolve-lazily: true
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST}:5432/candidatematch
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://cloudberries-candidate-match-pgdb.postgres.database.azure.com:5432/candidatematch?sslmode=require
+    username: candidatematch
+    password: OdU]22WkG6$7
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5

@@ -33,7 +33,7 @@ tags:
     description: Customer project request management and analysis
 
 paths:
-  /api/industries/backfill:
+  /industries/backfill:
     post:
       tags: [ Admin ]
       summary: Backfill industry tags for all CVs
@@ -53,7 +53,7 @@ paths:
                 properties:
                   processed:
                     type: integer
-  /api/skills:
+  /skills:
     get:
       tags: [ Skills ]
       summary: List skills across consultants
@@ -79,7 +79,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/chatbot/analyze:
+  /chatbot/analyze:
     post:
       tags: [ Chat ]
       summary: Analyze content with AI
@@ -99,7 +99,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/chatbot/search:
+  /chatbot/search:
     post:
       tags: [ Chat ]
       summary: AI-powered consultant search
@@ -152,7 +152,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants:
+  /consultants:
     get:
       tags: [ Consultants ]
       summary: List consultants (paged)
@@ -175,7 +175,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/with-cv:
+  /consultants/with-cv:
     get:
       tags: [ Consultants ]
       summary: List all consultants with their CVs (normalized entities)
@@ -198,7 +198,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/with-cv/paged:
+  /consultants/with-cv/paged:
     get:
       tags: [ Consultants ]
       summary: List consultants with CVs (paged)
@@ -222,7 +222,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/{userId}/cvs:
+  /consultants/{userId}/cvs:
     get:
       tags: [ Consultants ]
       summary: List CVs for a consultant by userId
@@ -251,7 +251,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/{userId}:
+  /consultants/{userId}:
     get:
       tags: [ Consultants ]
       summary: Get consultant summary by userId
@@ -273,7 +273,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/sync/run:
+  /consultants/sync/run:
     post:
       tags: [ Consultants ]
       summary: Trigger a sync from Flowcase
@@ -297,7 +297,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/search:
+  /consultants/search:
     post:
       tags: [ Consultants ]
       summary: Relational search for consultants
@@ -330,7 +330,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/search/semantic:
+  /consultants/search/semantic:
     post:
       tags: [ Consultants ]
       summary: Semantic (vector) search for consultants
@@ -367,7 +367,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/consultants/search/embedding-info:
+  /consultants/search/embedding-info:
     get:
       tags: [ Consultants ]
       summary: Get embedding provider information
@@ -382,7 +382,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/cv/{userId}:
+  /cv/{userId}:
     get:
       tags: [ CV ]
       summary: Get a consultant's CV (raw JSON)
@@ -402,7 +402,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/embeddings/run/jason:
+  /embeddings/run/jason:
     post:
       tags: [ Embeddings ]
       summary: Generate embeddings for Jason (demo)
@@ -416,7 +416,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/embeddings/run:
+  /embeddings/run:
     post:
       tags: [ Embeddings ]
       summary: Generate embeddings for a specific user/cv
@@ -441,7 +441,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/embeddings/run/missing:
+  /embeddings/run/missing:
     post:
       tags: [ Embeddings ]
       summary: Generate embeddings for users missing vectors
@@ -462,7 +462,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/health:
+  /health:
     get:
       tags: [ Health ]
       summary: Health check
@@ -476,7 +476,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/matches:
+  /matches:
     post:
       tags: [ Matches ]
       summary: Find candidate matches for a project request
@@ -498,7 +498,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/matches/upload:
+  /matches/upload:
     post:
       tags: [ Matches ]
       summary: Upload a CV PDF and find matches
@@ -527,7 +527,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/matches/by-skills:
+  /matches/by-skills:
     post:
       tags: [ Matches ]
       summary: Find candidate matches given a list of skills
@@ -552,7 +552,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/matches/requests:
+  /matches/requests:
     get:
       tags: [ Matches ]
       summary: List project requests (uploaded customer documents) with coverage info
@@ -576,7 +576,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/matches/requests/{id}/top-consultants:
+  /matches/requests/{id}/top-consultants:
     get:
       tags: [ Matches ]
       summary: Get top consultants for a request (AI-enriched)
@@ -603,7 +603,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/project-requests:
+  /project-requests:
     get:
       tags: [ Project Requests ]
       summary: List stored customer project requests with pagination
@@ -664,7 +664,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/project-requests/upload:
+  /project-requests/upload:
     post:
       tags: [ Project Requests ]
       summary: Upload and analyze a customer project request PDF
@@ -718,7 +718,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/project-requests/{id}:
+  /project-requests/{id}:
     get:
       tags: [ Project Requests ]
       summary: Get stored customer project request by id
@@ -741,7 +741,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
   
-  /api/project-requests/{id}/close:
+  /project-requests/{id}/close:
     put:
       tags: [ Project Requests ]
       summary: Close a project request
@@ -764,7 +764,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
   
-  /api/project-requests/{id}/analyze:
+  /project-requests/{id}/analyze:
     post:
       tags: [ Project Requests ]
       summary: Trigger AI analysis for a project request
@@ -787,7 +787,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
   
-  /api/project-requests/{id}/suggestions:
+  /project-requests/{id}/suggestions:
     get:
       tags: [ Project Requests ]
       summary: Get AI suggestions for a project request
@@ -812,7 +812,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/cv-score/{candidateId}:
+  /cv-score/{candidateId}:
     get:
       tags: [ CV Scoring ]
       summary: Get CV score for a candidate
@@ -851,7 +851,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/cv-score/run/all:
+  /cv-score/run/all:
     post:
       tags: [ CV Scoring ]
       summary: Trigger scoring for all consultants
@@ -865,7 +865,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /api/cv-score/all:
+  /cv-score/all:
     get:
       tags: [ CV Scoring ]
       summary: List all candidates (summary)

@@ -74,11 +74,12 @@ spring:
       location: /tmp/uploads
   liquibase:
     change-log: classpath*:/db/changelog/db.changelog-master.xml
-    contexts: "default,pgvector"
+    contexts: "default,local"
+    default-schema: public
   datasource:
-    url: jdbc:postgresql://localhost:5433/candidatematch
-    username: ${POSTGRES_USER:candidatematch}
-    password: ${POSTGRES_PASSWORD:candidatematch123}
+    url: jdbc:postgresql://localhost:5432/candidatematch
+    username: candidatematch
+    password: candidatematch123
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -95,6 +96,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        default_schema: public
         format_sql: true
         jdbc:
           batch_size: 25

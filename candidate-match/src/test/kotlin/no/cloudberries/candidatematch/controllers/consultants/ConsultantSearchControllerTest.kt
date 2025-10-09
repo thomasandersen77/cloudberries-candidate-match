@@ -53,7 +53,7 @@ class ConsultantSearchControllerTest {
         every { consultantSearchService.searchRelational(any(), any()) } returns mockResult
 
         mockMvc.perform(
-            post("/api/consultants/search")
+            post("/consultants/search")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -91,7 +91,7 @@ class ConsultantSearchControllerTest {
         every { consultantSearchService.searchSemantic(any(), any()) } returns mockResult
 
         mockMvc.perform(
-            post("/api/consultants/search/semantic")
+            post("/consultants/search/semantic")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -111,7 +111,7 @@ class ConsultantSearchControllerTest {
 
         every { consultantSearchService.getEmbeddingProviderInfo() } returns providerInfo
 
-        mockMvc.perform(get("/api/consultants/search/embedding-info"))
+        mockMvc.perform(get("/consultants/search/embedding-info"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.enabled").value(true))
             .andExpect(jsonPath("$.provider").value("GOOGLE_GEMINI"))
@@ -126,7 +126,7 @@ class ConsultantSearchControllerTest {
         val request = RelationalSearchRequest(minQualityScore = 150)
 
         mockMvc.perform(
-            post("/api/consultants/search")
+            post("/consultants/search")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -140,7 +140,7 @@ class ConsultantSearchControllerTest {
         val request = SemanticSearchRequest(text = "Senior developer")
 
         mockMvc.perform(
-            post("/api/consultants/search/semantic")
+            post("/consultants/search/semantic")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )

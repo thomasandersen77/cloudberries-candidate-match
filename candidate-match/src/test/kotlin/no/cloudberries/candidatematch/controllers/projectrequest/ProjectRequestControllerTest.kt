@@ -52,7 +52,7 @@ class ProjectRequestControllerTest {
         every { analysisService.analyzeAndStore(any(), any()) } returns agg
 
         mockMvc.perform(
-            multipart("/api/project-requests/upload").file(file)
+            multipart("/project-requests/upload").file(file)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(99))

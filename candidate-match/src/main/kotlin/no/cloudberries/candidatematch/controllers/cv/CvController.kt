@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/cv")
+@RequestMapping("/cv")
 class CvController(
     private val consultantCvService: ConsultantCvService,
 ) {

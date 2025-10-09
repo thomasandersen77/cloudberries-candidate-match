@@ -12,6 +12,7 @@ import no.cloudberries.candidatematch.templates.CvReviewPromptTemplate
 import no.cloudberries.candidatematch.templates.renderCvReviewTemplate
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
+import kotlin.coroutines.Continuation
 
 @Service
 class ScoreCandidateService(
@@ -42,6 +43,7 @@ class ScoreCandidateService(
                 consultantName = consultantName
             )
         )
+        println(cvReviewTemplate)
 
         val response = when (aiProvider) {
             AIProvider.GEMINI -> {

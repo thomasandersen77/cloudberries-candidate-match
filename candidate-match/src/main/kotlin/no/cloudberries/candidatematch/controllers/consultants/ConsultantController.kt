@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 // Only read operations from Flowcase via service. No create/update.
 
 @RestController
-@RequestMapping("/api/consultants")
+@RequestMapping("/consultants")
 class ConsultantController(
     private val consultantReadService: ConsultantReadService,
     private val consultantSearchService: ConsultantSearchService,

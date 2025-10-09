@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 class AuthController(
     private val users: AppUserRepository,
     private val passwordEncoder: PasswordEncoder,

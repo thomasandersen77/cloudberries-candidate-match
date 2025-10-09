@@ -30,7 +30,7 @@ class CvScoreControllerTest {
             strengths = listOf("X"),
             potentialImprovements = listOf("Y")
         )
-        mockMvc.perform(get("/api/cv-score/u1").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/cv-score/u1").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.candidateId").value("u1"))
             .andExpect(jsonPath("$.scorePercent").value(80))
@@ -46,7 +46,7 @@ class CvScoreControllerTest {
             strengths = emptyList(),
             potentialImprovements = emptyList()
         )
-        mockMvc.perform(post("/api/cv-score/u1/run").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/cv-score/u1/run").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.scorePercent").value(90))
         verify { appService.scoreCandidate("u1") }
@@ -55,7 +55,7 @@ class CvScoreControllerTest {
     @Test
     fun `run all scoring`() {
         every { appService.scoreAll() } returns no.cloudberries.candidatematch.service.scoring.CvScoreAppService.ScoreAllResult(2)
-        mockMvc.perform(post("/api/cv-score/run/all").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/cv-score/run/all").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.processedCount").value(2))
         verify { appService.scoreAll() }

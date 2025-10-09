@@ -10,7 +10,7 @@ services:
     ports:
       - "5433:5432" # Bruker port 5433 for å unngå konflikt med andre instillinger
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U candidatematch -d candidatematch"]
       interval: 5s
       timeout: 5s
       retries: 20

@@ -97,7 +97,7 @@ class ConsultantCvQueryControllerIntegrationTest {
             )
         )
 
-        mockMvc.get("/api/consultants/with-cv?onlyActiveCv=true")
+        mockMvc.get("/consultants/with-cv?onlyActiveCv=true")
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -116,7 +116,7 @@ class ConsultantCvQueryControllerIntegrationTest {
         createConsultantWithCv("u-2", "Bob", activeCv = true)
         createConsultantWithCv("u-3", "Cara", activeCv = false)
 
-        mockMvc.get("/api/consultants/with-cv/paged?page=0&size=2")
+        mockMvc.get("/consultants/with-cv/paged?page=0&size=2")
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }

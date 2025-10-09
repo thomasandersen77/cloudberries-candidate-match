@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 @Validated
 @Profile("!local", "!prod", "legacy")
 @RestController("legacyMatchesController")
-@RequestMapping("/api/match")
+@RequestMapping("/match")
 class MatchesController(
     private val matchesService: MatchesService
 ) {

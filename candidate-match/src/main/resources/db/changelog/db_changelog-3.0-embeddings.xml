@@ -5,6 +5,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
+    <changeSet id="20250913-01-enable-pgvector" author="agent" context="local">
+        <sql>CREATE
+        EXTENSION IF NOT EXISTS vector;</sql>
+    </changeSet>
+
     <!-- Table to store embeddings for Flowcase CVs -->
     <changeSet id="20250913-02-create-cv-embedding" author="agent" context="pgvector">
         <createTable tableName="cv_embedding">

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/industries")
+@RequestMapping("/industries")
 class IndustryAdminController(
     private val consultantCvRepository: ConsultantCvRepository,
     private val industryTaggingService: IndustryTaggingService,

@@ -21,7 +21,7 @@ data class PageResponse<T>(
 )
 
 @RestController
-@RequestMapping("/api/consultants")
+@RequestMapping("/consultants")
 class ConsultantCvQueryController(
     private val consultantWithCvService: ConsultantWithCvService,
 ) {

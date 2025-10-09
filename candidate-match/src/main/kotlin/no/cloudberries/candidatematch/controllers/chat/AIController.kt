@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/chatbot")
+@RequestMapping("/chatbot")
 @Tag(
     name = "AI Chat",
     description = "AI-powered consultant search and analysis"

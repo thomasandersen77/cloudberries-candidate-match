@@ -46,7 +46,7 @@ class ProjectRequestIntegrationTest {
 
         // When & Then
         mockMvc.perform(
-            post("/api/project-requests")
+            post("/project-requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonContent)
         )
@@ -77,7 +77,7 @@ class ProjectRequestIntegrationTest {
 
         // When & Then
         mockMvc.perform(
-            post("/api/project-requests")
+            post("/project-requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonContent)
         )
@@ -98,14 +98,14 @@ class ProjectRequestIntegrationTest {
         )
 
         mockMvc.perform(
-            post("/api/project-requests")
+            post("/project-requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
         )
 
         // When & Then
         mockMvc.perform(
-            get("/api/project-requests")
+            get("/project-requests")
                 .param("page", "0")
                 .param("size", "10")
                 .param("sort", "id,desc")
@@ -130,7 +130,7 @@ class ProjectRequestIntegrationTest {
         )
 
         val result = mockMvc.perform(
-            post("/api/project-requests")
+            post("/project-requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
         )
@@ -142,7 +142,7 @@ class ProjectRequestIntegrationTest {
         val projectId = createdRequest.id!!
 
         // When & Then
-        mockMvc.perform(get("/api/project-requests/$projectId"))
+        mockMvc.perform(get("/project-requests/$projectId"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(projectId))
             .andExpect(jsonPath("$.customerName").value("Test Customer"))
@@ -162,7 +162,7 @@ class ProjectRequestIntegrationTest {
         )
 
         val result = mockMvc.perform(
-            post("/api/project-requests")
+            post("/project-requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
         )
@@ -174,7 +174,7 @@ class ProjectRequestIntegrationTest {
         val projectId = createdRequest.id!!
 
         // When & Then
-        mockMvc.perform(put("/api/project-requests/$projectId/close"))
+        mockMvc.perform(put("/project-requests/$projectId/close"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(projectId))
             .andExpected(jsonPath("$.status").value("CLOSED"))
@@ -183,7 +183,7 @@ class ProjectRequestIntegrationTest {
     @Test
     fun `should return 404 for non-existent project request`() {
         // When & Then
-        mockMvc.perform(get("/api/project-requests/999"))
+        mockMvc.perform(get("/project-requests/999"))
             .andExpect(status().isNotFound)
     }
 
@@ -201,7 +201,7 @@ class ProjectRequestIntegrationTest {
         )
 
         val result = mockMvc.perform(
-            post("/api/project-requests")
+            post("/project-requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
         )
@@ -213,7 +213,7 @@ class ProjectRequestIntegrationTest {
         val projectId = createdRequest.id!!
 
         // When & Then
-        mockMvc.perform(get("/api/project-requests/$projectId/suggestions"))
+        mockMvc.perform(get("/project-requests/$projectId/suggestions"))
             .andExpected(status().isOk)
             .andExpected(jsonPath("$").isArray)
             .andExpected(jsonPath("$").isEmpty)

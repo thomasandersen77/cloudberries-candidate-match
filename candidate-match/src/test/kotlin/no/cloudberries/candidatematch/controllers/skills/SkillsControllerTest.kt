@@ -37,7 +37,7 @@ class SkillsControllerTest {
         )
 
         mockMvc.perform(
-            get("/api/skills")
+            get("/skills")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
@@ -60,7 +60,7 @@ class SkillsControllerTest {
         )
 
         mockMvc.perform(
-            get("/api/skills")
+            get("/skills")
                 .param("skill", "JAVA", "KOTLIN")
                 .accept(MediaType.APPLICATION_JSON)
         )

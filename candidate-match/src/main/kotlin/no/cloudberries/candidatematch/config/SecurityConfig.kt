@@ -42,6 +42,7 @@ class SecurityConfig(
             allowCredentials = false
             maxAge = 3600
         }
+        cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
         return UrlBasedCorsConfigurationSource().apply {
             registerCorsConfiguration(
                 "/**",
@@ -61,7 +62,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/auth/login", "/api/auth/demo", "/api/health", "/actuator/**").permitAll()
+                    .requestMatchers("/auth/login", "/auth/demo", "/health", "/actuator/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/**").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/**").permitAll()
