@@ -23,6 +23,8 @@ class SecurityConfig(
         val cors = CorsConfiguration().apply {
             allowedOrigins = listOf(
                 "https://delightful-meadow-056d48003.1.azurestaticapps.net",
+                "https://cloudberries-candidate-match-ca.whitesand-767916af.westeurope.azurecontainerapps.io",
+                "http://localhost:5173",
                 "http://localhost:5174"
             )
             allowedMethods = listOf(
@@ -37,7 +39,15 @@ class SecurityConfig(
             allowedHeaders = listOf(
                 "Authorization",
                 "Content-Type",
-                "Accept"
+                "Accept",
+                "Origin",
+                "X-Requested-With",
+                "Cache-Control",
+                "Pragma"
+            )
+            exposedHeaders = listOf(
+                "Authorization",
+                "Location"
             )
             allowCredentials = false
             maxAge = 3600
