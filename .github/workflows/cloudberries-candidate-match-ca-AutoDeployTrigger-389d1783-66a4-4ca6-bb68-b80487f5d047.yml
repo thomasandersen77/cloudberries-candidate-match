@@ -52,4 +52,11 @@ jobs:
           targetPort: 8080
           ingressTransport: auto
 
+      - name: Ensure anonymous access to Container App (disable platform auth)
+        run: |
+          az extension add -n containerapp --yes || az extension update -n containerapp
+          az containerapp auth update \
+            --name cloudberries-candidate-match-ca \
+            --resource-group cloudberries-internal-dev \
+            --enabled false
 
