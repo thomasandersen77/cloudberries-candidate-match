@@ -82,7 +82,17 @@ class SecurityConfig(
                         "/actuator/info",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
-                        "/swagger-ui.html"
+                        "/swagger-ui.html",
+                        // API-prefixed public mirrors (when requests arrive as /api/*)
+                        "/api/auth/login",
+                        "/api/auth/demo",
+                        "/api/health",
+                        "/api/actuator/health",
+                        "/api/actuator/health/**",
+                        "/api/actuator/info",
+                        "/api/v3/api-docs/**",
+                        "/api/swagger-ui/**",
+                        "/api/swagger-ui.html"
                     ).permitAll()
                     // Keep OPTIONS open for CORS preflight
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
