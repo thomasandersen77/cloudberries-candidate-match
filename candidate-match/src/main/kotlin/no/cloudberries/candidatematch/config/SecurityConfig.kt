@@ -72,11 +72,20 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/login", "/auth/demo", "/health", "/actuator/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/**").permitAll()
+                    .requestMatchers(
+                        "/",
+                        "/auth/login",
+                        "/auth/demo",
+                        "/health",
+                        "/actuator/health",
+                        "/actuator/health/**",
+                        "/actuator/info",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
+                    ).permitAll()
+                    // Keep OPTIONS open for CORS preflight
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                    .requestMatchers(HttpMethod.PUT, "/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
