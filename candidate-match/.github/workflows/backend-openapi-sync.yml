@@ -1,0 +1,81 @@
+name: Backend - OpenAPI sync to frontend
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "openapi.yaml"
+  workflow_dispatch:
+
+jobs:
+  sync_openapi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FRONTEND_REPO: ${{ vars.FRONTEND_REPO }} # e.g. thomasandersen77/cloudberries-candidate-match-web
+    steps:
+      - name: Checkout backend
+        uses: actions/checkout@v4
+
+      - name: Validate variables/secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${FRONTEND_REPO:?Missing repo variable FRONTEND_REPO}"
+          test -n "${{ secrets.FRONTEND_REPO_PAT }}" || { echo 'Missing secret FRONTEND_REPO_PAT' >&2; exit 1; }
+
+      - name: Clone frontend repo
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.FRONTEND_REPO_PAT }}
+        run: |
+          set -euo pipefail
+          git clone "https://x-access-token:${TOKEN}@github.com/${FRONTEND_REPO}.git" frontend
+
+      - name: Copy openapi.yaml and create branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="chore/openapi-sync-${GITHUB_RUN_ID}"
+          cp openapi.yaml frontend/openapi.yaml
+          cd frontend
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git checkout -b "$BRANCH"
+          if git diff --quiet; then
+            echo "No changes in openapi.yaml; skipping PR creation." > $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          git add openapi.yaml
+          git commit -m "chore: sync openapi.yaml from backend (${GITHUB_SHA::7})"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Create PR in frontend repo
+        if: success()
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.FRONTEND_REPO_PAT }}
+          FRONTEND_REPO: ${{ vars.FRONTEND_REPO }}
+        run: |
+          set -euo pipefail
+          BRANCH="chore/openapi-sync-${GITHUB_RUN_ID}"
+          # If PR already exists, skip
+          existing=$(curl -s -H "Authorization: token ${TOKEN}" \
+            "https://api.github.com/repos/${FRONTEND_REPO}/pulls?state=open" | jq -r \
+            --arg head "$(echo ${FRONTEND_REPO%/*}):${BRANCH}" '.[] | select(.head.label==$head) | .number')
+          if [ -n "$existing" ] && [ "$existing" != "null" ]; then
+            echo "Open PR already exists: #$existing" > $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          data=$(jq -n --arg title "Sync openapi.yaml from backend" \
+                       --arg head "$BRANCH" \
+                       --arg base "main" \
+                       --arg body "Automated sync from backend run $GITHUB_RUN_ID" \
+                       '{title:$title, head:$head, base:$base, body:$body}')
+          curl -s -H "Authorization: token ${TOKEN}" \
+               -H "Accept: application/vnd.github+json" \
+               -d "$data" \
+               "https://api.github.com/repos/${FRONTEND_REPO}/pulls" | jq -r '.html_url' > pr_url.txt
+          echo "PR created: $(cat pr_url.txt)" > $GITHUB_STEP_SUMMARY

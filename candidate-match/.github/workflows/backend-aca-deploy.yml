@@ -1,0 +1,142 @@
+name: Backend - Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: ["main"]
+    # Trigger on backend changes; adjust paths if you want finer control
+    paths:
+      - '**'
+  workflow_dispatch:
+
+concurrency:
+  group: backend-aca-deploy
+  cancel-in-progress: true
+
+env:
+  # Set these as Repository Variables (Settings → Variables → Actions)
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+  AZURE_CONTAINERAPPS_ENV: ${{ vars.AZURE_CONTAINERAPPS_ENV }}
+  AZURE_CONTAINERAPPS_APP: ${{ vars.AZURE_CONTAINERAPPS_APP }}
+  ACR_NAME: ${{ vars.ACR_NAME }} # e.g. candidateregistry123
+
+jobs:
+  deploy:
+    name: Build image and deploy to ACA
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # for OIDC login to Azure
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (Temurin) for tests
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Run backend tests
+        shell: bash
+        run: mvn -B -q -DskipTests=false test
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Ensure Container Apps extension
+        shell: bash
+        run: |
+          set -euo pipefail
+          az extension add -n containerapp --yes || az extension update -n containerapp
+          az provider register --namespace Microsoft.App --wait || true
+
+      - name: Validate variables
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${AZURE_RESOURCE_GROUP:?Missing repo variable AZURE_RESOURCE_GROUP}"
+          : "${AZURE_CONTAINERAPPS_APP:?Missing repo variable AZURE_CONTAINERAPPS_APP}"
+          : "${ACR_NAME:?Missing repo variable ACR_NAME}"
+          echo "RG=$AZURE_RESOURCE_GROUP APP=$AZURE_CONTAINERAPPS_APP ACR=$ACR_NAME"
+
+      - name: Validate required secrets for DB config
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${{ secrets.AZURE_DB_URL }}" || { echo 'Missing secret AZURE_DB_URL' >&2; exit 1; }
+          test -n "${{ secrets.AZURE_DB_USERNAME }}" || { echo 'Missing secret AZURE_DB_USERNAME' >&2; exit 1; }
+          test -n "${{ secrets.AZURE_DB_PASSWORD }}" || { echo 'Missing secret AZURE_DB_PASSWORD' >&2; exit 1; }
+
+      - name: Compute image tag
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA::7}"
+          IMAGE_TAG="${SHORT_SHA}-$(date +%Y%m%d%H%M%S)"
+          IMAGE="${ACR_NAME}.azurecr.io/candidate-match-backend:${IMAGE_TAG}"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image in Azure (ACR Build)
+        shell: bash
+        run: |
+          set -euo pipefail
+          az acr show -n "$ACR_NAME" -o none
+          az acr build \
+            --registry "$ACR_NAME" \
+            --image "${{ steps.meta.outputs.image }}" \
+            .
+
+      - name: Configure Container App secrets and env vars (DB, profile)
+        shell: bash
+        env:
+          DB_URL: ${{ secrets.AZURE_DB_URL }}
+          DB_USERNAME: ${{ secrets.AZURE_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.AZURE_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # Set or update secrets safely (GitHub masks secret values in logs)
+          az containerapp secret set \
+            -n "$AZURE_CONTAINERAPPS_APP" \
+            -g "$AZURE_RESOURCE_GROUP" \
+            --secrets db-url="$DB_URL" db-username="$DB_USERNAME" db-password="$DB_PASSWORD"
+
+          # Wire env vars to secret references and set Spring profile to azure
+          az containerapp update \
+            -n "$AZURE_CONTAINERAPPS_APP" \
+            -g "$AZURE_RESOURCE_GROUP" \
+            --set-env-vars \
+              DB_URL=secretref:db-url \
+              DB_USERNAME=secretref:db-username \
+              DB_PASSWORD=secretref:db-password \
+              SPRING_PROFILES_ACTIVE=azure \
+            --only-show-errors
+
+      - name: Update Azure Container App to new image
+        shell: bash
+        run: |
+          set -euo pipefail
+          az containerapp update \
+            -n "$AZURE_CONTAINERAPPS_APP" \
+            -g "$AZURE_RESOURCE_GROUP" \
+            --image "${{ steps.meta.outputs.image }}" \
+            --only-show-errors
+          FQDN=$(az containerapp show -n "$AZURE_CONTAINERAPPS_APP" -g "$AZURE_RESOURCE_GROUP" --query properties.configuration.ingress.fqdn -o tsv)
+          echo "Deployed image: ${{ steps.meta.outputs.image }}"
+          echo "Container App URL: https://$FQDN"
+
+      # Optional: Health check after rollout (no secrets printed)
+      - name: Smoke test /health
+        shell: bash
+        continue-on-error: true
+        run: |
+          FQDN=$(az containerapp show -n "$AZURE_CONTAINERAPPS_APP" -g "$AZURE_RESOURCE_GROUP" --query properties.configuration.ingress.fqdn -o tsv)
+          echo "GET https://$FQDN/health"
+          curl -fsS -o /dev/null -w "%{http_code}\n" "https://$FQDN/health" || true

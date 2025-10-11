@@ -75,7 +75,7 @@ spring:
   liquibase:
     change-log: classpath*:/db/changelog/db.changelog-master.xml
     contexts: "default,local,pgvector"
-    default-schema: public
+    default-schema: candiatemacth
   datasource:
     url: jdbc:postgresql://localhost:5433/candidatematch
     username: candidatematch
@@ -96,7 +96,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        default_schema: public
+        default_schema: candidatemacth
         format_sql: true
         jdbc:
           batch_size: 25
