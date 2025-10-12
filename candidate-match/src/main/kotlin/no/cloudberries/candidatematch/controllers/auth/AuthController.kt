@@ -21,18 +21,23 @@ class AuthController(
 
     @PostMapping("/login")
     fun login(@RequestBody body: LoginRequest): ResponseEntity<Any> {
+        logger.info { "Login attempt from ${body.username}" }
         val user = users.findByUsername(body.username)
             ?: return ResponseEntity.status(401).body(mapOf("error" to "invalid_credentials"))
         if (!passwordEncoder.matches(body.password, user.passwordHash)) {
+            logger.warn { "Invalid credentials for user ${body.username}" }
             return ResponseEntity.status(401).body(mapOf("error" to "invalid_credentials"))
         }
         val token = jwt.generateToken(user.username)
+        logger.info { "Login attempt from ${body.username} successful" }
         return ResponseEntity.ok(LoginResponse(token))
     }
 
     @PostMapping("/demo")
     fun demoLoginNoDB(): ResponseEntity<Any> {
+        logger.info { "Login attempt from user demo. Token: ${jwt.generateToken("demo")}" }
         val token = jwt.generateToken("demo")
+        logger.info { "Login attempt from $token successful" }
         return ResponseEntity.ok(LoginResponse(token))
     }
 

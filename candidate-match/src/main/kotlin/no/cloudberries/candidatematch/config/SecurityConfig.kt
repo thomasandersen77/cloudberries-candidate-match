@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -73,29 +74,29 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
-                        "/",
-                        "/auth/login",
-                        "/auth/demo",
-                        "/health",
-                        "/actuator/health",
-                        "/actuator/health/**",
-                        "/actuator/info",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        // API-prefixed public mirrors (when requests arrive as /api/*)
-                        "/api/auth/login",
-                        "/api/auth/demo",
-                        "/api/health",
-                        "/api/actuator/health",
-                        "/api/actuator/health/**",
-                        "/api/actuator/info",
-                        "/api/v3/api-docs/**",
-                        "/api/swagger-ui/**",
-                        "/api/swagger-ui.html"
+                        AntPathRequestMatcher("/"),
+                        AntPathRequestMatcher("/auth/login"),
+                        AntPathRequestMatcher("/auth/demo"),
+                        AntPathRequestMatcher("/health"),
+                        AntPathRequestMatcher("/actuator/health"),
+                        AntPathRequestMatcher("/actuator/health/**"),
+                        AntPathRequestMatcher("/actuator/info"),
+                        AntPathRequestMatcher("/v3/api-docs/**"),
+                        AntPathRequestMatcher("/swagger-ui/**"),
+                        AntPathRequestMatcher("/swagger-ui.html"),
+                        // API-prefixed public mirrors
+                        AntPathRequestMatcher("/api/auth/login"),
+                        AntPathRequestMatcher("/api/auth/demo"),
+                        AntPathRequestMatcher("/api/health"),
+                        AntPathRequestMatcher("/api/actuator/health"),
+                        AntPathRequestMatcher("/api/actuator/health/**"),
+                        AntPathRequestMatcher("/api/actuator/info"),
+                        AntPathRequestMatcher("/api/v3/api-docs/**"),
+                        AntPathRequestMatcher("/api/swagger-ui/**"),
+                        AntPathRequestMatcher("/api/swagger-ui.html")
                     ).permitAll()
                     // Keep OPTIONS open for CORS preflight
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers(AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)

@@ -20,6 +20,7 @@ spring:
       idle-timeout: 300000
       max-lifetime: 1200000
       validation-timeout: 5000
+      schema: public
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true

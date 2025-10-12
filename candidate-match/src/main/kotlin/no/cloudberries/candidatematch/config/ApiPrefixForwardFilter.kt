@@ -8,12 +8,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
-/**
- * Allows clients to call the backend with an optional "/api" prefix (e.g., /api/auth/login),
- * forwarding such requests internally to the corresponding non-prefixed path (/auth/login).
- * This is useful when a static site (e.g., Azure Static Web Apps) is configured to route
- * all API calls under /api/* to the backend container without path rewriting.
- */
+
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 class ApiPrefixForwardFilter : OncePerRequestFilter() {
