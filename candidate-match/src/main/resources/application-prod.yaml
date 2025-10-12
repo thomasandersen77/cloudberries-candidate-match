@@ -1,5 +1,5 @@
 server:
-  forward-headers-strategy: none
+  forward-headers-strategy: framework
 
 spring:
   servlet:
