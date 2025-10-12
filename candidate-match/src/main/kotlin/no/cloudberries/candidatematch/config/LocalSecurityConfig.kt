@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource
  * Activate with: -Dspring-boot.run.profiles=local
  */
 @Configuration
-@Profile("prod")
+@Profile("prod", "local")
 class LocalSecurityConfig {
 
     @Bean
@@ -30,7 +30,7 @@ class LocalSecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .cors { } // use global CorsConfigurationSource from properties
+            .cors { it.disable() } // use global CorsConfigurationSource from properties
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/**").permitAll()
