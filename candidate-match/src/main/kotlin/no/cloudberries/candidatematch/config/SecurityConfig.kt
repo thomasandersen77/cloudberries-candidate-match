@@ -9,57 +9,31 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
+@org.springframework.context.annotation.Profile("!local")
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter
 ) {
 
-    @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
-        val cors = CorsConfiguration().apply {
-            allowedOrigins = listOf(
-                "https://delightful-meadow-056d48003.1.azurestaticapps.net",
-                "https://cloudberries-candidate-match-ca.whitesand-767916af.westeurope.azurecontainerapps.io",
-                "http://localhost:5173",
-                "http://localhost:5174"
-            )
-            allowedMethods = listOf(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "PATCH",
-                "OPTIONS",
-                "HEAD"
-            )
-            allowedHeaders = listOf(
-                "Authorization",
-                "Content-Type",
-                "Accept",
-                "Origin",
-                "X-Requested-With",
-                "Cache-Control",
-                "Pragma"
-            )
-            exposedHeaders = listOf(
-                "Authorization",
-                "Location"
-            )
-            allowCredentials = false
-            maxAge = 3600
-        }
-        cors.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
-        return UrlBasedCorsConfigurationSource().apply {
-            registerCorsConfiguration(
-                "/**",
-                cors
-            )
-        }
+    companion object {
+        private val PUBLIC_ANY = arrayOf(
+            "/",
+            "/health",
+            "/actuator/health/**",
+            "/actuator/info",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/auth/login",
+            "/auth/demo"
+        )
+        private val PUBLIC_POST = arrayOf(
+            "/consultants/search/**",
+            "/consultants/cv-score/**",
+            "/analytics/**",
+            "/chat/**"
+        )
     }
 
     @Bean
@@ -69,49 +43,17 @@ class SecurityConfig(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .cors { it.configurationSource(corsConfigurationSource()) }
+            .cors { } // Use CorsConfigurationSource from properties
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(
-                        AntPathRequestMatcher("/"),
-                        AntPathRequestMatcher("/auth/login"),
-                        AntPathRequestMatcher("/auth/demo"),
-                        AntPathRequestMatcher("/health"),
-                        AntPathRequestMatcher("/actuator/health"),
-                        AntPathRequestMatcher("/actuator/health/**"),
-                        AntPathRequestMatcher("/actuator/info"),
-                        AntPathRequestMatcher("/v3/api-docs/**"),
-                        AntPathRequestMatcher("/swagger-ui/**"),
-                        AntPathRequestMatcher("/swagger-ui.html"),
-                        // API-prefixed public mirrors
-                        AntPathRequestMatcher("/api/auth/login"),
-                        AntPathRequestMatcher("/api/auth/demo"),
-                        AntPathRequestMatcher("/api/health"),
-                        AntPathRequestMatcher("/api/actuator/health"),
-                        AntPathRequestMatcher("/api/actuator/health/**"),
-                        AntPathRequestMatcher("/api/actuator/info"),
-                        AntPathRequestMatcher("/api/v3/api-docs/**"),
-                        AntPathRequestMatcher("/api/swagger-ui/**"),
-                        AntPathRequestMatcher("/api/swagger-ui.html")
-                    ).permitAll()
-                    // Public READ endpoints used by the UI (no auth required)
-                    .requestMatchers(
-                        AntPathRequestMatcher("/**", HttpMethod.GET.name())
-                    ).permitAll()
-                    // Public SEARCH posts (stateless read operations)
-                    .requestMatchers(
-                        AntPathRequestMatcher("/consultants/search", HttpMethod.POST.name()),
-                        AntPathRequestMatcher("/consultants/search/semantic", HttpMethod.POST.name()),
-                        AntPathRequestMatcher("/api/consultants/search", HttpMethod.POST.name()),
-                        AntPathRequestMatcher("/api/consultants/search/semantic", HttpMethod.POST.name())
-                    ).permitAll()
-                    // Keep OPTIONS open for CORS preflight
-                    .requestMatchers(AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers(*PUBLIC_ANY).permitAll()
+                    .requestMatchers(HttpMethod.POST, *PUBLIC_POST).permitAll()
+                    .requestMatchers(HttpMethod.GET, "/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
-
         return http.build()
     }
 }

@@ -114,3 +114,8 @@ management:
 logging:
   level:
     no.cloudberries.candidatematch: INFO # Setter DEBUG-logging for din kode
+
+cors:
+  allowed-origins: >
+    https://delightful-meadow-056d48003.1.azurestaticapps.net,
+    https://cloudberries-candidate-match-ca.whitesand-767916af.westeurope.azurecontainerapps.io
