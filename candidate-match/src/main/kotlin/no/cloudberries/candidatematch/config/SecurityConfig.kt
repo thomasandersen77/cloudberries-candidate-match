@@ -9,6 +9,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @org.springframework.context.annotation.Profile("!local")
@@ -40,10 +43,31 @@ class SecurityConfig(
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val cors = CorsConfiguration().apply {
+            // Allowed origins must be explicit when allowCredentials is true
+            allowedOrigins = listOf(
+                "https://delightful-meadow-056d48003.1.azurestaticapps.net",
+                "https://cloudberries-candidate-match-ca.whitesand-767916af.westeurope.azurecontainerapps.io",
+                "http://localhost:5174",
+                "http://localhost:5173"
+            )
+            allowedMethods = listOf("GET","POST","PUT","PATCH","DELETE","OPTIONS")
+            allowedHeaders = listOf("Authorization","Content-Type","Accept","Origin","X-Requested-With","Cache-Control","Pragma")
+            exposedHeaders = listOf("Authorization","Location")
+            allowCredentials = true
+            maxAge = 3600
+        }
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", cors)
+        }
+    }
+
+    @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .cors { } // Use CorsConfigurationSource from properties
+            .cors { it.configurationSource(corsConfigurationSource()) }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
