@@ -3,7 +3,7 @@
     <property name="LOGS" value="./logs" />
 
     <!-- Base pattern without inline colors; color is applied per-level by dedicated appenders -->
-    <property name="BASE_PATTERN" value="%d{ISO8601} %-5level [%t] [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable"/>
+    <property name="BASE_PATTERN" value="%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable"/>
 
     <!-- ERROR: red -->
     <appender name="CONSOLE_ERROR" class="ch.qos.logback.core.ConsoleAppender">
@@ -13,7 +13,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>%red(%d{ISO8601} %-5level [%t] [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
+            <pattern>%red(%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
         </encoder>
     </appender>
 
@@ -25,7 +25,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>%yellow(%d{ISO8601} %-5level [%t] [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
+            <pattern>%yellow(%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
         </encoder>
     </appender>
 
@@ -37,7 +37,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>%black(%d{ISO8601} %-5level [%t] [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
+            <pattern>%black(%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
         </encoder>
     </appender>
 
@@ -49,7 +49,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>%gray(%d{ISO8601} %-5level [%t] [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
+            <pattern>%gray(%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
         </encoder>
     </appender>
 
@@ -61,7 +61,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>%cyan(%d{ISO8601} %-5level [%t] [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
+            <pattern>%cyan(%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable)</pattern>
         </encoder>
     </appender>
 

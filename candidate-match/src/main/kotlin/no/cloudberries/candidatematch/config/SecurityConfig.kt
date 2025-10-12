@@ -1,12 +1,16 @@
 package no.cloudberries.candidatematch.config
 
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
@@ -14,7 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-@org.springframework.context.annotation.Profile("!local")
+@Profile("!local")
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter
 ) {
@@ -52,14 +56,35 @@ class SecurityConfig(
                 "http://localhost:5174",
                 "http://localhost:5173"
             )
-            allowedMethods = listOf("GET","POST","PUT","PATCH","DELETE","OPTIONS")
-            allowedHeaders = listOf("Authorization","Content-Type","Accept","Origin","X-Requested-With","Cache-Control","Pragma")
-            exposedHeaders = listOf("Authorization","Location")
+            allowedMethods = listOf(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            )
+            allowedHeaders = listOf(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With",
+                "Cache-Control",
+                "Pragma"
+            )
+            exposedHeaders = listOf(
+                "Authorization",
+                "Location"
+            )
             allowCredentials = true
             maxAge = 3600
         }
         return UrlBasedCorsConfigurationSource().apply {
-            registerCorsConfiguration("/**", cors)
+            registerCorsConfiguration(
+                "/**",
+                cors
+            )
         }
     }
 
@@ -71,13 +96,37 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers(
+                        HttpMethod.OPTIONS,
+                        "/**"
+                    ).permitAll()
                     .requestMatchers(*PUBLIC_ANY).permitAll()
-                    .requestMatchers(HttpMethod.POST, *PUBLIC_POST).permitAll()
-                    .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        *PUBLIC_POST
+                    ).permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             }
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .exceptionHandling {
+                it.authenticationEntryPoint(AuthenticationEntryPoint { request, response, authException ->
+                    response.sendError(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Unauthorized"
+                    )
+                })
+            }.exceptionHandling {
+                it.accessDeniedHandler { _, response,   _ ->
+                    response.status = HttpStatus.FORBIDDEN.value()
+                }
+            }
+            .addFilterBefore(
+                jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter::class.java
+            )
         return http.build()
     }
 }

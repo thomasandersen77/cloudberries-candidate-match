@@ -200,35 +200,49 @@ consultantId = consultant.userId,
             onlyActiveCv = true
         )
 
+        // Initial candidate set (preserves CV aggregation)
         val consultantPage: Page<ConsultantWithCvDto>
         val searchTime = measureTimeMillis {
             consultantPage = consultantSearchService.searchSemantic(
                 semanticCriteria,
-                PageRequest.of(
-                    0,
-                    request.topK
-                )
+                PageRequest.of(0, request.topK)
             )
         }
         timings["search"] = searchTime
 
-        val searchResults = consultantPage.content.map { consultant ->
-            val semanticText = interpretation.semanticText
+        // Re-compute semantic similarity for the candidate set so we can expose a proper 0..1 score
+        val allowedPairs = consultantPage.content.map { it.userId to it.cvId }
+        val reRanked = consultantSearchService.reRankWithinCandidates(
+            queryText = augmentedText,
+            allowedPairs = allowedPairs,
+            topK = request.topK
+        )
+
+        // Join back with DTOs to compute quality and justification
+        val dtoByKey = consultantPage.content.associateBy { it.userId to it.cvId }
+        val searchResults = reRanked.map { r ->
+            val dto = dtoByKey[r.dto.userId to r.dto.cvId] ?: r.dto
+            val quality = calculateQualityScore(dto)
+            val semanticPct = (r.semanticScore * 100).toInt()
+            val qualityPct = (quality * 100).toInt()
+            val justification = "Semantic similarity ${semanticPct}% to your query. CV quality ${qualityPct}%."
             SearchResult(
-consultantId = consultant.userId,
-                name = consultant.name,
-                score = calculateQualityScore(consultant),
-                highlights = listOf("Semantic match for: $semanticText"),
+                consultantId = dto.userId,
+                name = dto.name,
+                score = r.semanticScore,
+                highlights = listOf("Semantic match for: ${interpretation.semanticText}"),
                 meta = mapOf(
-                    "cvCount" to consultant.cvs.size,
-                    "semanticScore" to calculateQualityScore(consultant)
+                    "cvCount" to dto.cvs.size,
+                    "semanticScore" to r.semanticScore,
+                    "qualityScore" to quality,
+                    "justification" to justification
                 )
             )
         }
 
         return ChatSearchResponse(
             mode = SearchMode.SEMANTIC,
-            results = searchResults,
+            results = searchResults, // already sorted by semantic similarity desc
             answer = null,
             sources = null,
             latencyMs = timings.values.sum(),

@@ -42,7 +42,7 @@ class JwtAuthFilter(
                 val auth = UsernamePasswordAuthenticationToken(
                     username,
                     null,
-                    listOf(SimpleGrantedAuthority("ROLE_USER"))
+                    listOf(SimpleGrantedAuthority("ROLE_USER"), SimpleGrantedAuthority("ROLE_ADMIN"))
                 )
                 SecurityContextHolder.getContext().authentication = auth
             } else if (username == null) {

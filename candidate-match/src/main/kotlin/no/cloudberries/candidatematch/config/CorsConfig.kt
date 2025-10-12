@@ -12,7 +12,7 @@ class CorsConfig {
 
     @Bean
     fun corsConfigurationSource(
-        @Value("\${cors.allowed-origins:*}") origins: String
+        @Value($$"${cors.allowed-origins:*}") origins: String
     ): CorsConfigurationSource {
         val cors = CorsConfiguration().apply {
             allowedOriginPatterns = origins.split(',').map { it.trim() }
