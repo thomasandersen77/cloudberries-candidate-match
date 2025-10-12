@@ -45,12 +45,13 @@ jobs:
           appSourcePath: ${{ github.workspace }}
           dockerfilePath: ./candidate-match/Dockerfile
           registryUrl: ghcr.io
+          registryUsername: ${{ github.actor }}
+          registryPassword: ${{ secrets.GITHUB_TOKEN }}
           containerAppName: cloudberries-candidate-match-ca
           resourceGroup: cloudberries-internal-dev
           imageToBuild: ghcr.io/thomasandersen77/cloudberries-candidate-match:${{ github.sha }}
           ingress: external
           targetPort: 8080
-          ingressTransport: auto
 
       - name: Ensure anonymous access to Container App (disable platform auth)
         run: |
