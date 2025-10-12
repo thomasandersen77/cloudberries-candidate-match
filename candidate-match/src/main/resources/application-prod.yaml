@@ -115,7 +115,7 @@ management:
 logging:
   level:
     no.cloudberries.candidatematch: INFO # Setter DEBUG-logging for din kode
-    org.springframework.security=DEBUG:
+    org.springframework.security=INFO:
 
 
 cors:
