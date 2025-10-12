@@ -19,7 +19,7 @@ class AuthController(
     data class LoginRequest(val username: String, val password: String)
     data class LoginResponse(val token: String)
 
-    @PostMapping("/login")
+@PostMapping("/login", consumes = ["application/json"], produces = ["application/json"])
     fun login(@RequestBody body: LoginRequest): ResponseEntity<Any> {
         logger.info { "Login attempt from ${body.username}" }
         val user = users.findByUsername(body.username)
@@ -33,7 +33,7 @@ class AuthController(
         return ResponseEntity.ok(LoginResponse(token))
     }
 
-    @PostMapping("/demo")
+    @PostMapping("/demo", produces = ["application/json"])
     fun demoLoginNoDB(): ResponseEntity<Any> {
         logger.info { "Login attempt from user demo. Token: ${jwt.generateToken("demo")}" }
         val token = jwt.generateToken("demo")

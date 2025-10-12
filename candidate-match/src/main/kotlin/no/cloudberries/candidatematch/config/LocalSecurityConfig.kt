@@ -8,19 +8,18 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.web.cors.CorsConfigurationSource
 
 /**
  * Extremely simple security for local development:
  * - CSRF disabled
  * - Stateless
- * - CORS via properties (CorsConfigurationSource bean)
+ * - CORS via global CorsConfig bean (enabled)
  * - All requests permitted (avoid 403s while iterating)
  *
  * Activate with: -Dspring-boot.run.profiles=local
  */
 @Configuration
-@Profile("prod", "local")
+@Profile("local")
 class LocalSecurityConfig {
 
     @Bean
@@ -30,7 +29,7 @@ class LocalSecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .cors { it.disable() } // use global CorsConfigurationSource from properties
+            .cors { } // use global CorsConfigurationSource bean from CorsConfig
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/**").permitAll()

@@ -25,7 +25,7 @@ class AIController(
 ) {
     private val logger = KotlinLogging.logger { }
 
-    @PostMapping("/analyze")
+    @PostMapping("/analyze", consumes = ["application/json"], produces = ["application/json"])
     @Timed
     @Operation(
         summary = "Analyze content with AI",
@@ -42,7 +42,7 @@ class AIController(
         )
     }
 
-    @PostMapping("/search")
+    @PostMapping("/search", consumes = ["application/json"], produces = ["application/json"])
     @Timed
     @Operation(
         summary = "AI-powered consultant search",
