@@ -25,11 +25,11 @@ class TimerAspect {
         return try {
             val result = joinPoint.proceed()
             val executionTime = System.currentTimeMillis() - start
-logger.info { "Method ${className}::${methodName} executed in ${"%.3f".format(executionTime / 1000.0)}s (${executionTime}ms)" }
+            logger.info { "Method ${className}::${methodName} executed in ${"%.3f".format(executionTime / 1000.0)}s (${executionTime}ms)" }
             result
         } catch (throwable: Throwable) {
             val executionTime = System.currentTimeMillis() - start
-logger.warn { "Method ${className}::${methodName} failed after ${"%.3f".format(executionTime / 1000.0)}s (${executionTime}ms)" }
+            logger.error { "Method ${className}::${methodName} failed after ${"%.3f".format(executionTime / 1000.0)}s (${executionTime}ms)" }
             throw throwable
         }
     }
