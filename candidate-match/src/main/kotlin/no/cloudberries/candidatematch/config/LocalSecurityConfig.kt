@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource
  * Activate with: -Dspring-boot.run.profiles=local
  */
 @Configuration
-@Profile("local")
+@Profile("prod")
 class LocalSecurityConfig {
 
     @Bean

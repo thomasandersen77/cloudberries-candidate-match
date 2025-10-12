@@ -18,7 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-@Profile("!local")
+@Profile("local")
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter
 ) {
