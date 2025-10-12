@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain
  * Activate with: -Dspring-boot.run.profiles=local
  */
 @Configuration
-@Profile("local")
+@Profile("prod")
 class LocalSecurityConfig {
 
     @Bean

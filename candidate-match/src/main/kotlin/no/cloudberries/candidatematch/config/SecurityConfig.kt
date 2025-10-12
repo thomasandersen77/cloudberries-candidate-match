@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-@Profile("prod")
+@Profile("local")
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter
 ) {
