@@ -13,3 +13,4 @@ out/
 target/
 reviews
 .DS_Store
+.vscode
