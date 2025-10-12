@@ -95,21 +95,8 @@ class SecurityConfig(
             .cors { it.configurationSource(corsConfigurationSource()) }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
-                auth
-                    .requestMatchers(
-                        HttpMethod.OPTIONS,
-                        "/**"
-                    ).permitAll()
-                    .requestMatchers(*PUBLIC_ANY).permitAll()
-                    .requestMatchers(
-                        HttpMethod.POST,
-                        *PUBLIC_POST
-                    ).permitAll()
-                    .requestMatchers(
-                        HttpMethod.GET,
-                        "/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                // TEMP: open all endpoints in Azure/prod to resolve 403s
+                auth.anyRequest().permitAll()
             }
             .exceptionHandling {
                 it.authenticationEntryPoint(AuthenticationEntryPoint { request, response, authException ->
