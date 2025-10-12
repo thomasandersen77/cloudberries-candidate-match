@@ -12,13 +12,13 @@ class CorsConfig {
 
     @Bean
     fun corsConfigurationSource(
-        @Value($$"${cors.allowed-origins:*}") origins: String
+        @Value("\${cors.allowed-origins:*}") origins: String,
     ): CorsConfigurationSource {
         val cors = CorsConfiguration().apply {
             allowedOriginPatterns = origins.split(',').map { it.trim() }
-            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD")
+            allowedMethods = listOf("GET","POST","PUT","DELETE","PATCH","OPTIONS","HEAD")
             allowedHeaders = listOf("*")
-            exposedHeaders = listOf("Authorization", "Location", "X-Total-Count")
+            exposedHeaders = listOf("Authorization","Location","X-Total-Count")
             allowCredentials = true
             maxAge = 3600
         }
