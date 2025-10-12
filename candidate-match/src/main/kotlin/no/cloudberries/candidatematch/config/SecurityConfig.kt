@@ -95,6 +95,22 @@ class SecurityConfig(
                         AntPathRequestMatcher("/api/swagger-ui/**"),
                         AntPathRequestMatcher("/api/swagger-ui.html")
                     ).permitAll()
+                    // Public READ endpoints used by the UI (no auth required)
+                    .requestMatchers(
+                        AntPathRequestMatcher("/skills/**", HttpMethod.GET.name()),
+                        AntPathRequestMatcher("/consultants/**", HttpMethod.GET.name()),
+                        AntPathRequestMatcher("/cv-score/**", HttpMethod.GET.name()),
+                        AntPathRequestMatcher("/api/skills/**", HttpMethod.GET.name()),
+                        AntPathRequestMatcher("/api/consultants/**", HttpMethod.GET.name()),
+                        AntPathRequestMatcher("/api/cv-score/**", HttpMethod.GET.name())
+                    ).permitAll()
+                    // Public SEARCH posts (stateless read operations)
+                    .requestMatchers(
+                        AntPathRequestMatcher("/consultants/search", HttpMethod.POST.name()),
+                        AntPathRequestMatcher("/consultants/search/semantic", HttpMethod.POST.name()),
+                        AntPathRequestMatcher("/api/consultants/search", HttpMethod.POST.name()),
+                        AntPathRequestMatcher("/api/consultants/search/semantic", HttpMethod.POST.name())
+                    ).permitAll()
                     // Keep OPTIONS open for CORS preflight
                     .requestMatchers(AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
                     .anyRequest().authenticated()
