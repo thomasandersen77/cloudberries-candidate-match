@@ -108,7 +108,7 @@ jobs:
             -g "$AZURE_RESOURCE_GROUP" \
             --secrets db-url="$DB_URL" db-username="$DB_USERNAME" db-password="$DB_PASSWORD"
 
-          # Wire env vars to secret references and set Spring profile to azure
+# Wire env vars to secret references and set Spring profile to prod (Docker also sets -Dspring.profiles.active=prod)
           az containerapp update \
             -n "$AZURE_CONTAINERAPPS_APP" \
             -g "$AZURE_RESOURCE_GROUP" \
@@ -116,7 +116,7 @@ jobs:
               DB_URL=secretref:db-url \
               DB_USERNAME=secretref:db-username \
               DB_PASSWORD=secretref:db-password \
-              SPRING_PROFILES_ACTIVE=azure \
+SPRING_PROFILES_ACTIVE=prod
             --only-show-errors
 
       - name: Update Azure Container App to new image
