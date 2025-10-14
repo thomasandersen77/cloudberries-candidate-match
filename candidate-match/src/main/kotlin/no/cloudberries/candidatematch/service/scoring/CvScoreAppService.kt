@@ -1,5 +1,6 @@
 package no.cloudberries.candidatematch.service.scoring
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -106,7 +107,7 @@ class CvScoreAppService(
         )
     }
 
-    private fun jsonArrayToList(node: com.fasterxml.jackson.databind.JsonNode?): List<String> = when {
+    private fun jsonArrayToList(node: JsonNode?): List<String> = when {
         node == null || node.isNull -> emptyList()
         node.isArray -> node.mapNotNull { it.asText() }
         else -> emptyList()
