@@ -115,9 +115,3 @@ management:
 logging:
   level:
     no.cloudberries.candidatematch: INFO # Setter DEBUG-logging for din kode
-    org.springframework.security=INFO:
-
-
-cors:
-  allowed-origins: >
-    https://cloudberries-candidate-match-ca.whitesand-767916af.westeurope.azurecontainerapps.io
