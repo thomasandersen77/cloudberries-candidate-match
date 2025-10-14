@@ -107,10 +107,6 @@ spring:
     init:
       schema-locations: classpath:/db/changelog/schema.sql
 
-cors:
-  allowed-origins: >
-    http://localhost:5173,
 logging:
   level:
     no.cloudberries.candidatematch: INFO # Setter DEBUG-logging for din kode
-    org.springframework.security=DEBUG:
