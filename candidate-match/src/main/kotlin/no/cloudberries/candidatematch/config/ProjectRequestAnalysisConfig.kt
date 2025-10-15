@@ -5,12 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConfigurationProperties(prefix = "projectrequest")
-class ProjectRequestConfig {
-    val analysis = AnalysisConfig()
-
-    class AnalysisConfig {
-        var aiEnabled: Boolean = true
-        var provider: AIProvider = AIProvider.GEMINI
-    }
-}
+@ConfigurationProperties(prefix = "projectrequest.analysis")
+data class ProjectRequestAnalysisConfig(
+    var aiEnabled: Boolean = true,
+    var provider: AIProvider = AIProvider.GEMINI
+)
