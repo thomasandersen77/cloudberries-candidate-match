@@ -2,6 +2,7 @@ server:
   forward-headers-strategy: framework
 
 spring:
+
   servlet:
     multipart:
       enabled: true
@@ -26,6 +27,9 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
     contexts: "default,pgvector"
+  mvc:
+    servlet:
+      path: /api
 
 # Make external services optional
 flowcase:

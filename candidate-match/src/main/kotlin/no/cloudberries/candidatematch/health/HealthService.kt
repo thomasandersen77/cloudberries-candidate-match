@@ -2,6 +2,7 @@ package no.cloudberries.candidatematch.health
 
 import jakarta.persistence.EntityManager
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 
 @Service
@@ -13,6 +14,7 @@ class HealthService(
 
     private val logger = mu.KotlinLogging.logger { }
 
+    @Timed
     fun isDatabaseHealthy(): Boolean = runCatching {
         // Use existing EntityManager instead of creating a new one
         entityManager
@@ -31,6 +33,7 @@ class HealthService(
     /**
      * Sjekker helsen til Flowcase-integrasjonen ved å kalle et lettvektig endepunkt.
      */
+    @Timed
     fun checkFlowcaseHealth(): Boolean =
         try {
             flowcaseHttpClient.checkHealth()

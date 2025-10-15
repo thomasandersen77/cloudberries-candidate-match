@@ -4,6 +4,7 @@ import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiCo
 import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiHttpClient
 import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIConfig
 import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIHttpClient
+import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 
 // I HealthService.kt
@@ -24,7 +25,7 @@ class OpenAIHealthChecker(
                 return false
             }
 
-
+    @Timed
     override fun isHealthy(): Boolean =
         runCatching {
             openAIHttpClient.testConnection()
@@ -46,7 +47,7 @@ class GeminiHealthChecker(
                 return false
             }
 
-
+    @Timed
     override fun isHealthy(): Boolean {
         return geminiHttpClient.testConnection()
     }

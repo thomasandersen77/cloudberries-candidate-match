@@ -23,7 +23,7 @@ class GeminiHttpClient(
             logger.error { "Gemini API key not configured" }
             return false
         }
-        val modelId = geminiConfig.model.ifBlank { "gemini-1.5-pro" }
+        val modelId = geminiConfig.quickModel.ifBlank { "gemini-1.5-pro" }
         return runCatching {
             val response = client.models.generateContent(
                 modelId,
