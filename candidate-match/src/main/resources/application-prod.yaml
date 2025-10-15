@@ -101,7 +101,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health"
+        include: mappings,health
   endpoint:
     health:
       probes:
