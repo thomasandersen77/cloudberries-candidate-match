@@ -1,19 +1,56 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 128KB
+      max-file-size: 10MB
+      max-request-size: 10MB
+      resolve-lazily: true
+      location: /tmp/uploads
+  datasource:
+    url: jdbc:postgresql://cloudberries-candidate-match-pgdb.postgres.database.azure.com:5432/candidatematch?sslmode=require
+    username: candidatematch
+    password: OdU]22WkG6$7
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      validation-timeout: 5000
+      schema: public
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
+    contexts: "default,pgvector"
+  mvc:
+    servlet:
+      path: /api
+# application-prod.yml
+
+# Make external services optional
 flowcase:
   apiKey: ${FLOWCASE_API_KEY}
   baseUrl: ${FLOWCASE_BASE_URL}
+
 openai:
   apiKey: ${OPENAI_API_KEY}
   model: gpt-5
   assistantId: ${OPENAI_ASSISTANT_ID}
+
 gemini:
   apiKey: ${GEMINI_API_KEY}
   model: gemini-2.5-pro
-  quick-model: gemini-2.5-flash
+
 embedding:
   enabled: true
   provider: GEMINI
   model: text-embedding-004
   dimension: 768
+
 ai:
   ollama:
     base-url: http://localhost:11434
@@ -55,57 +92,35 @@ search:
     connect-timeout-seconds: 5
     read-timeout-seconds: 120
     write-timeout-seconds: 10
+    # ... existing code ...
+    read-timeout-seconds: 120
+    write-timeout-seconds: 10
 projectrequest:
   analysis:
     ai-enabled: true
     provider: GEMINI
 sync:
   consultants:
+# ... existing code ...
+sync:
+  consultants:
     on-startup: true
 
-spring:
-  servlet:
-    multipart:
-      enabled: true
-      file-size-threshold: 0B
-      max-request-size: 10MB
-      max-file-size: 10MB
-      resolve-lazily: true
-      location: /tmp/uploads
-  liquibase:
-    change-log: classpath*:/db/changelog/db.changelog-master.xml
-    contexts: "default,local,pgvector"
-    default-schema: public
-  datasource:
-    url: jdbc:postgresql://localhost:5433/candidatematch
-    username: candidatematch
-    password: candidatematch123
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 300000 # 5 minxutes
-      connection-timeout: 5000 # 5 seconds
-      schema: public
-      data-source-properties:
-        sslmode: disable
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        default_schema: public
-        format_sql: true
-        jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
-    open-in-view: false
-  sql:
-    init:
-      schema-locations: classpath:/db/changelog/schema.sql
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings,health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  health:
+    # Make health check less strict
+    group:
+      readiness:
+        include: "readinessState,dependencies"
 
 logging:
   level:

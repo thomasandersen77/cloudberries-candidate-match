@@ -93,7 +93,7 @@ search:
     read-timeout-seconds: 120
     write-timeout-seconds: 10
 projectrequest:
-  analysis:
+  analysis:777
     ai-enabled: true
     provider: GEMINI
 sync:

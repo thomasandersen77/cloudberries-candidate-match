@@ -1,11 +1,16 @@
 package no.cloudberries.candidatematch.config
 
 import no.cloudberries.candidatematch.domain.ai.AIProvider
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Configuration
 
-@Component
-data class ProjectRequestAnalysisConfig(
-    @Value("\${projectrequest.analysis.ai-enabled:true}") val aiEnabled: Boolean,
-    @Value("\${projectrequest.analysis.provider:GEMINI}") val provider: AIProvider,
-)
+@Configuration
+@ConfigurationProperties(prefix = "projectrequest")
+class ProjectRequestConfig {
+    val analysis = AnalysisConfig()
+
+    class AnalysisConfig {
+        var aiEnabled: Boolean = true
+        var provider: AIProvider = AIProvider.GEMINI
+    }
+}
