@@ -11,9 +11,9 @@ spring:
       resolve-lazily: true
       location: /tmp/uploads
   datasource:
-    url: jdbc:postgresql://cloudberries-candidate-match-pgdb.postgres.database.azure.com:5432/candidatematch?sslmode=require
+    url: jdbc:postgresql://localhost:5433/candidatematch?sslmode=disable
     username: candidatematch
-    password: OdU]22WkG6$7
+    password: candidatematch123
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -44,6 +44,7 @@ openai:
 gemini:
   apiKey: ${GEMINI_API_KEY}
   model: gemini-2.5-pro
+  quick-model: gemini-2.5-flash
 
 embedding:
   enabled: true
@@ -92,16 +93,12 @@ search:
     connect-timeout-seconds: 5
     read-timeout-seconds: 120
     write-timeout-seconds: 10
-    # ... existing code ...
-    read-timeout-seconds: 120
-    write-timeout-seconds: 10
+
 projectrequest:
   analysis:
     ai-enabled: true
     provider: GEMINI
-sync:
-  consultants:
-# ... existing code ...
+
 sync:
   consultants:
     on-startup: true
