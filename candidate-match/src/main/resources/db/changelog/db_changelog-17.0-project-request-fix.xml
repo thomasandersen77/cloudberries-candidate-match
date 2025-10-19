@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Make customer_id nullable to align with domain (CustomerId is optional) -->
+    <changeSet id="20251018-01-project-request-customer-id-nullable" author="warp">
+        <dropNotNullConstraint tableName="project_request"
+                               columnName="customer_id"
+                               columnDataType="bigint"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Remove legacy column no longer used by JPA mapping (list is stored in join table) -->
+    <changeSet id="20251019-01-project-request-drop-required-skills" author="warp">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="project_request"/>
+                <columnExists tableName="project_request" columnName="required_skills"/>
+            </and>
+        </preConditions>
+        <dropColumn tableName="project_request" columnName="required_skills"/>
+    </changeSet>
+
+</databaseChangeLog>

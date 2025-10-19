@@ -2,6 +2,7 @@ package no.cloudberries.candidatematch.controllers.projectrequest
 
 import jakarta.validation.Valid
 import mu.KotlinLogging
+import no.cloudberries.candidatematch.matches.service.ProjectMatchingService
 import no.cloudberries.candidatematch.service.ProjectRequestService
 import no.cloudberries.candidatematch.service.projectrequest.ProjectRequestAnalysisService
 import no.cloudberries.candidatematch.utils.Timed
@@ -12,12 +13,15 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
+import no.cloudberries.candidatematch.domain.candidate.Skill
 
 @RestController
 @RequestMapping("/project-requests")
 class ProjectRequestController(
     private val analysisService: ProjectRequestAnalysisService,
-    private val projectRequestService: ProjectRequestService
+    private val projectRequestService: ProjectRequestService,
+    private val projectMatchingService: ProjectMatchingService,
 ) {
 
     private val logger = KotlinLogging.logger { }
@@ -35,7 +39,33 @@ class ProjectRequestController(
             pdfStream = file.inputStream,
             originalFilename = file.originalFilename
         )
-        return agg.toDto()
+        val dto = agg.toDto()
+
+        // Create a normalized ProjectRequest for matching pipeline (domain table)
+        try {
+            val now = LocalDateTime.now()
+            val start = now.plusDays(14)
+            val end = start.plusMonths(6)
+            val deadline = now.plusDays(7)
+            val requiredSkills = agg.requirements.mapNotNull { r -> r.name.takeIf { it.isNotBlank() }?.let { Skill.of(it) } }
+            val created = projectRequestService.createProjectRequest(
+                customerName = dto.customerName ?: "Unknown Customer",
+                requiredSkills = requiredSkills,
+                startDate = start,
+                endDate = end,
+                responseDeadline = deadline,
+                status = no.cloudberries.candidatematch.infrastructure.entities.RequestStatus.OPEN,
+                requestDescription = dto.summary ?: ("Uploaded customer request: ${dto.originalFilename ?: "(no name)"}"),
+                responsibleSalespersonEmail = "no-reply@cloudberries.no",
+            )
+            val createdId = created.id?.value
+            if (createdId != null) {
+                projectMatchingService.triggerAsyncMatching(createdId, forceRecompute = false)
+            }
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to normalize and trigger matching from upload (customerRequestId=${dto.id})" }
+        }
+        return dto
     }
 
     @Timed
@@ -88,9 +118,10 @@ class ProjectRequestController(
     @Timed
     @PostMapping
     fun createProjectRequest(
-        @Valid @RequestBody request: CreateProjectRequestDto
-    ): ResponseEntity<ProjectRequestDto> {
-        logger.info { "POST /api/project-requests for customer ${request.customerName}" }
+        @Valid @RequestBody request: CreateProjectRequestDto,
+        @RequestParam(name = "async", defaultValue = "false") async: Boolean,
+    ): ResponseEntity<Any> {
+        logger.info { "POST /api/project-requests for customer ${request.customerName} (async=$async)" }
 
         val projectRequest = projectRequestService.createProjectRequest(
             customerName = request.customerName,
@@ -102,6 +133,22 @@ class ProjectRequestController(
             requestDescription = request.requestDescription,
             responsibleSalespersonEmail = request.responsibleSalespersonEmail
         )
+
+        val newId: Long? = projectRequest.id?.value
+        if (async && newId != null) {
+            // Trigger async matching and return 202 with links
+            try {
+                projectMatchingService.triggerAsyncMatching(2, forceRecompute = false)
+            } catch (e: Exception) {
+                logger.warn(e) { "Failed to trigger matching for created request id=$newId" }
+            }
+            val body: Map<String, Any> = mapOf(
+                "requestId" to newId,
+                "statusUrl" to "/matches/status/$newId",
+                "matchesUrl" to "/matches/$newId?limit=10"
+            )
+            return ResponseEntity.accepted().body(body)
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(projectRequest.toDto())
     }

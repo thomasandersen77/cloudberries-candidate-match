@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Drop legacy skill column; Hibernate now uses name column for Skill.name field -->
+    <changeSet id="20251019-02-drop-legacy-skill-column" author="warp">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="project_request_required_skills"/>
+                <columnExists tableName="project_request_required_skills" columnName="skill"/>
+            </and>
+        </preConditions>
+        <dropColumn tableName="project_request_required_skills" columnName="skill"/>
+    </changeSet>
+
+</databaseChangeLog>

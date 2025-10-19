@@ -21,7 +21,8 @@ class ProjectRequestControllerTest {
 
     private val analysisService = mockk<ProjectRequestAnalysisService>()
     private val projectRequestService = mockk<ProjectRequestService>()
-    private val controller = ProjectRequestController(analysisService, projectRequestService)
+    private val projectMatchingService = mockk<no.cloudberries.candidatematch.matches.service.ProjectMatchingService>(relaxed = true)
+    private val controller = ProjectRequestController(analysisService, projectRequestService, projectMatchingService)
     private val mockMvc: MockMvc = MockMvcBuilders.standaloneSetup(controller).build()
 
     @Test

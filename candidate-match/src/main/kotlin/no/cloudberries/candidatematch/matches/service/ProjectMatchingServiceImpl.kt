@@ -6,6 +6,7 @@ import kotlinx.coroutines.coroutineScope
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
+import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.ai.AIProvider
 import no.cloudberries.candidatematch.infrastructure.repositories.ProjectRequestRepository
 import no.cloudberries.candidatematch.matches.domain.MatchCandidateResult
