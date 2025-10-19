@@ -111,7 +111,7 @@ class CandidateMatchingServiceIntegrationTest {
             println("-".repeat(40))
             println(
                 wrapText(
-                    requirement.comment,
+                    requirement.comment ?: "(no comment provided)",
                     80
                 )
             )

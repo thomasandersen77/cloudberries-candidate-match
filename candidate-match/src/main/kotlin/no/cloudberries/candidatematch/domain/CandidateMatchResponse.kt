@@ -10,6 +10,6 @@ data class CandidateMatchResponse(
 
 data class Requirement(
     val name: String,
-    val comment: String,
+    val comment: String? = null,
     val score: String
 )
