@@ -46,14 +46,14 @@ class ProjectMatchingServiceImpl(
     @Timed
     @Transactional(readOnly = true)
     override fun listProjectRequests(): List<ProjectRequestSummaryDto> {
-        logger.debug { "Fetching all project requests for matching overview" }
+        logger.info { "Fetching all project requests for matching overview" }
         
         return projectRequestRepository.findAll().map { entity ->
             ProjectRequestSummaryDto(
                 id = entity.id!!,
                 title = (entity.requestDescription.takeIf { it.length > 50 }?.substring(0, 50) + "..."),
                 customerName = entity.customerName,
-                createdAt = OffsetDateTime.now() // Use current time since entity doesn't have createdAt
+                createdAt = OffsetDateTime.from(entity.startDate) // Use startDate since entity doesn't have createdAt
             )
         }.sortedByDescending { it.createdAt }
     }
