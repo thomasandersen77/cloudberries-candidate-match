@@ -51,8 +51,7 @@ class ProjectMatchingServiceImpl(
         return projectRequestRepository.findAll().map { entity ->
             ProjectRequestSummaryDto(
                 id = entity.id!!,
-                title = entity.requestDescription?.takeIf { it.length > 50 }?.substring(0, 50) + "..." 
-                    ?: entity.requestDescription ?: "Untitled Project",
+                title = (entity.requestDescription.takeIf { it.length > 50 }?.substring(0, 50) + "..."),
                 customerName = entity.customerName,
                 createdAt = OffsetDateTime.now() // Use current time since entity doesn't have createdAt
             )
@@ -125,8 +124,7 @@ class ProjectMatchingServiceImpl(
         
         return MatchTop10Response(
             projectRequestId = projectRequestId,
-            projectTitle = projectRequest.requestDescription?.takeIf { it.length > 100 }?.substring(0, 100) + "..."
-                ?: projectRequest.requestDescription,
+            projectTitle = (projectRequest.requestDescription.takeIf { it.length > 100 }?.substring(0, 100) + "..."),
             totalMatches = matchResult.getTotalMatches(),
             matches = matchCandidates,
             lastUpdated = matchResult.updatedAt
@@ -135,6 +133,7 @@ class ProjectMatchingServiceImpl(
 
     @Async
     @Timed
+    @Transactional
     override fun triggerAsyncMatching(projectRequestId: Long, forceRecompute: Boolean) {
         logger.info { "Starting async matching computation for project $projectRequestId" }
         try {
@@ -147,6 +146,7 @@ class ProjectMatchingServiceImpl(
         }
     }
 
+    @Transactional
     override fun onProjectRequestUploaded(projectRequestId: Long) {
         logger.info { "Auto-triggering matching for uploaded project request $projectRequestId" }
         triggerAsyncMatching(projectRequestId, forceRecompute = false)
