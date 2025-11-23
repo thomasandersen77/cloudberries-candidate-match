@@ -1,0 +1,24 @@
+{
+  "provider": "OpenAI",
+  "model": "gpt-4",
+  "response": {
+    "customer": "Fremtind",
+    "candidate": "Thomas Andersen",
+    "assessment":  {
+      "requirements": [
+         {
+          "requirement": "Konsulenten må ha minst 5 års erfaring med Java",
+          "assessment": "Konsulenten har 5 års erfaring med Java i diverse prosjekter",
+          "score": "8/10"
+        },
+        {
+          "requirement": "Konsulenten må ha minst 7 års erfaring med Spring",
+          "assessment": "",
+          "score": "8/10"
+        }
+      ]
+    },
+    "totalScore": "8/10",
+    "conclusion": "Konsulenten passer svært godt til prosjekt..."
+  }
+}

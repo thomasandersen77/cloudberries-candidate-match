@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20250920-01-create-customer-project-request" author="agent">
+        <createTable tableName="customer_project_request">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_name" type="VARCHAR(255)"/>
+            <column name="title" type="VARCHAR(500)"/>
+            <column name="summary" type="TEXT"/>
+            <column name="original_filename" type="VARCHAR(255)"/>
+            <column name="original_text" type="TEXT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20250920-02-create-project-request-requirement" author="agent">
+        <createTable tableName="project_request_requirement">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_request_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="details" type="TEXT"/>
+            <column name="priority" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="project_request_requirement"
+                baseColumnNames="project_request_id"
+                referencedTableName="customer_project_request"
+                referencedColumnNames="id"
+                constraintName="fk_project_req_requirement_request"/>
+
+        <createIndex tableName="project_request_requirement" indexName="idx_req_project">
+            <column name="project_request_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

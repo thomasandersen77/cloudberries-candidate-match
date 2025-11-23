@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20251001-12-01-create-industry" author="agent">
+        <createTable tableName="industry">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(150)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="industry" indexName="idx_industry_name">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20251001-12-02-create-cv-project-experience-industry" author="agent">
+        <createTable tableName="cv_project_experience_industry">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="project_experience_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="industry_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="cv_project_experience_industry" baseColumnNames="project_experience_id"
+                                 referencedTableName="cv_project_experience" referencedColumnNames="id"
+                                 constraintName="fk_cpei_project_experience"/>
+        <addForeignKeyConstraint baseTableName="cv_project_experience_industry" baseColumnNames="industry_id"
+                                 referencedTableName="industry" referencedColumnNames="id"
+                                 constraintName="fk_cpei_industry"/>
+        <addUniqueConstraint tableName="cv_project_experience_industry"
+                             columnNames="project_experience_id, industry_id"
+                             constraintName="uk_cpei_project_industry"/>
+        <createIndex tableName="cv_project_experience_industry" indexName="idx_cpei_pe">
+            <column name="project_experience_id"/>
+        </createIndex>
+        <createIndex tableName="cv_project_experience_industry" indexName="idx_cpei_industry">
+            <column name="industry_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

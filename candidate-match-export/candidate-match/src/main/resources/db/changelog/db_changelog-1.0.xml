@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="liquibase">
+        <createTable tableName="customer">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="organization" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="consultant">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cv_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resume_data" type="json">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="consultant_skills">
+            <column name="consultant_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="skill" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="project_request">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="required_skills" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="response_deadline" type="date">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <createTable tableName="aisuggestion_entity">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="consultant_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cv_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="match_score" type="double precision">
+                <constraints nullable="false"/>
+            </column>
+            <column name="justification" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="project_request_id" type="bigint">
+                <constraints nullable="true"
+                             foreignKeyName="fk_aisuggestion_project_request"
+                             referencedTableName="project_request"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+
+
+
+        <addForeignKeyConstraint baseTableName="project_request"
+                                 baseColumnNames="customer_id"
+                                 constraintName="fk_project_request_customer"
+                                 referencedTableName="customer"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="consultant_skills"
+                                 baseColumnNames="consultant_id"
+                                 constraintName="fk_consultant_skills_consultant"
+                                 referencedTableName="consultant"
+                                 referencedColumnNames="id"/>
+
+        <createIndex indexName="idx_customer_email"
+                     tableName="customer">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_consultant_user_id"
+                     tableName="consultant">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_aisuggestion_project_request"
+                     tableName="aisuggestion_entity">
+            <column name="project_request_id"/>
+        </createIndex>
+
+    </changeSet>
+
+
+    <changeSet id="2" author="system">
+        <createTable tableName="project_request_required_skills">
+            <column name="project_request_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="skill" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="project_request_required_skills"
+                                 baseColumnNames="project_request_id"
+                                 constraintName="fk_project_skills_request"
+                                 referencedTableName="project_request"
+                                 referencedColumnNames="id"/>
+
+        <createIndex indexName="idx_project_skills"
+                     tableName="project_request_required_skills">
+            <column name="skill"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="tandersen" id="20250813-add-notification-fields-to-project-request">
+
+        <addColumn tableName="project_request">
+            <column name="status" type="varchar(50)" defaultValue="OPEN">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="project_request">
+            <column name="request_description" type="varchar(2000)"/>
+        </addColumn>
+
+        <addColumn tableName="project_request">
+            <column name="responsible_salesperson_email" type="varchar(255)"/>
+        </addColumn>
+
+        <modifyDataType
+                tableName="project_request"
+                columnName="response_deadline"
+                newDataType="timestamp"/>
+        <modifyDataType
+                tableName="project_request"
+                columnName="end_date"
+                newDataType="timestamp"/>
+        <modifyDataType
+                tableName="project_request"
+                columnName="start_date"
+                newDataType="timestamp"/>
+
+    </changeSet>
+
+</databaseChangeLog>

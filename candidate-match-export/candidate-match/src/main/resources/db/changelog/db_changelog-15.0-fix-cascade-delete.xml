@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20251007-15-01-fix-cascade-delete-cv-project-experience-industry" author="agent">
+        <!-- Precondition must be first in the changeSet per Liquibase XSD -->
+        <preConditions onFail="CONTINUE">
+            <foreignKeyConstraintExists 
+                foreignKeyTableName="cv_project_experience_industry" 
+                foreignKeyName="fk_cpei_project_experience"/>
+        </preConditions>
+
+        <comment>
+            Fix foreign key constraint to include ON DELETE CASCADE for cv_project_experience_industry.
+            This prevents foreign key constraint violations when deleting cv_project_experience records
+            during consultant sync operations.
+        </comment>
+        
+        <!-- Drop the existing foreign key constraint -->
+        <dropForeignKeyConstraint 
+            baseTableName="cv_project_experience_industry" 
+            constraintName="fk_cpei_project_experience"/>
+        
+        <!-- Recreate the foreign key constraint with ON DELETE CASCADE -->
+        <addForeignKeyConstraint 
+            baseTableName="cv_project_experience_industry" 
+            baseColumnNames="project_experience_id"
+            referencedTableName="cv_project_experience" 
+            referencedColumnNames="id"
+            constraintName="fk_cpei_project_experience"
+            onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="20251007-15-02-fix-cascade-delete-cv-project-experience-role" author="agent">
+        <!-- Precondition must be first in the changeSet per Liquibase XSD -->
+        <preConditions onFail="CONTINUE">
+            <foreignKeyConstraintExists 
+                foreignKeyTableName="cv_project_experience_role" 
+                foreignKeyName="fk_cper_project_experience"/>
+        </preConditions>
+
+        <comment>
+            Add ON DELETE CASCADE to cv_project_experience_role foreign key constraint
+            to prevent similar issues with role records.
+        </comment>
+        
+        <dropForeignKeyConstraint 
+            baseTableName="cv_project_experience_role" 
+            constraintName="fk_cper_project_experience"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="cv_project_experience_role" 
+            baseColumnNames="project_experience_id"
+            referencedTableName="cv_project_experience" 
+            referencedColumnNames="id"
+            constraintName="fk_cper_project_experience"
+            onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="20251007-15-03-fix-cascade-delete-cv-project-experience-skill" author="agent">
+        <!-- Precondition must be first in the changeSet per Liquibase XSD -->
+        <preConditions onFail="CONTINUE">
+            <foreignKeyConstraintExists 
+                foreignKeyTableName="cv_project_experience_skill" 
+                foreignKeyName="fk_cpes_project_experience"/>
+        </preConditions>
+
+        <comment>
+            Add ON DELETE CASCADE to cv_project_experience_skill foreign key constraint
+            to prevent similar issues with skill records.
+        </comment>
+        
+        <dropForeignKeyConstraint 
+            baseTableName="cv_project_experience_skill" 
+            constraintName="fk_cpes_project_experience"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="cv_project_experience_skill" 
+            baseColumnNames="project_experience_id"
+            referencedTableName="cv_project_experience" 
+            referencedColumnNames="id"
+            constraintName="fk_cpes_project_experience"
+            onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>
