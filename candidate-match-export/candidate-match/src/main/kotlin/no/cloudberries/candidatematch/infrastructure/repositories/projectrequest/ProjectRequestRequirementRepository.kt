@@ -1,8 +1,0 @@
-package no.cloudberries.candidatematch.infrastructure.repositories.projectrequest
-
-import no.cloudberries.candidatematch.infrastructure.entities.projectrequest.ProjectRequestRequirementEntity
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
-
-@Repository
-interface ProjectRequestRequirementRepository : JpaRepository<ProjectRequestRequirementEntity, Long>
