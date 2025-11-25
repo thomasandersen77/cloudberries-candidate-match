@@ -38,7 +38,7 @@
     </changeSet>
 
     <!-- Chunk embeddings for RAG retrieval -->
-    <changeSet id="20251001-03-create-cv-chunk-embedding" author="agent">
+    <changeSet id="20251001-03-create-cv-chunk-embedding" author="agent" context="pgvector">
         <createTable tableName="cv_chunk_embedding">
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false"/>

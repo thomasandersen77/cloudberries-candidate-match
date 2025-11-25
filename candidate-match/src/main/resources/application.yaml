@@ -36,9 +36,14 @@ openai:
   assistantId: ${OPENAI_ASSISTANT_ID}
 gemini:
   apiKey: ${GEMINI_API_KEY}
-  model: gemini-1.5-pro  # Gemini 1.5 Pro (stable) for single CV scoring
-  flashModel: gemini-2.0-flash-exp
-  fileStoreName: not-used  # We use inline CVs, not File Search
+  # Model for project analysis (PDF/requirement extraction)
+  model: ${GEMINI_MODEL:gemini-3-pro-preview}
+  # Model for batch candidate ranking (stable, high capacity)
+  matchingModel: ${GEMINI_MATCHING_MODEL:gemini-2.5-pro}
+  # Fast model for quick operations
+  flashModel: ${GEMINI_FLASH_MODEL:gemini-2.5-flash}
+  fileStoreName: ${GEMINI_FILESTORE_NAME:candidate-cv-store}
+  useFilesApi: ${GEMINI_USE_FILES_API:true}
 embedding:
   enabled: true
   provider: GEMINI
@@ -49,7 +54,10 @@ matching:
   provider: GEMINI
   topN: 10
   enabled: true
-  model: ${MATCHING_MODEL:gemini-1.5-pro}  # Gemini 1.5 Pro (stable) for batch candidate ranking
+  # Model for candidate ranking - use environment variable to override
+  # Recommended: gemini-2.5-flash (fast + good quality for batch)
+  # Options: gemini-2.5-pro (best quality), gemini-2.5-flash (fast), gemini-2.0-flash-001 (stable)
+  model: ${MATCHING_MODEL:gemini-2.5-flash}
   timeout: 600000  # 10 minutes for batch matching (in milliseconds)
 
 management:

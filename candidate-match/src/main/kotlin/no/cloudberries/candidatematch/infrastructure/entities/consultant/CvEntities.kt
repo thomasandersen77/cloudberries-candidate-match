@@ -23,6 +23,9 @@ data class ConsultantCvEntity(
 
     @Column(name = "active")
     val active: Boolean = false,
+
+    @Column(name = "gemini_file_uri", length = 512)
+    var geminiFileUri: String? = null,
 )
 
 @Entity

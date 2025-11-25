@@ -16,8 +16,10 @@ import java.time.Duration
 data class GeminiProperties(
     val apiKey: String,
     val model: String,
+    val matchingModel: String,  // Separate model for batch candidate ranking
     val flashModel: String,
-    val fileStoreName: String
+    val fileStoreName: String,
+    val useFilesApi: Boolean = true  // Toggle between inline CVs and Files API
 )
 
 /**

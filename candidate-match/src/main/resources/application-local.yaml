@@ -43,9 +43,22 @@ openai:
 
 gemini:
   apiKey: ${GEMINI_API_KEY}
-  model: gemini-1.5-pro  # Gemini 1.5 Pro (stable) for single CV scoring
-  flashModel: gemini-2.0-flash-exp
-  fileStoreName: not-used  # We use inline CVs, not File Search
+  
+  # Model for project analysis (PDF upload, Må/Bør-krav extraction)
+  # gemini-3-pro-preview gives best quality but has capacity limits
+  # For PDF analysis, this model is used
+  model: gemini-3-pro-preview
+  
+  # Model for candidate ranking (batch operations via Files API)
+  # PRIMARY: gemini-2.5-pro - stable, 2M context, high rate limits
+  # This is used as the first choice for batch ranking
+  matchingModel: gemini-2.5-pro
+  
+  # FALLBACK: gemini-2.5-flash - fast, used if matchingModel returns 503
+  flashModel: gemini-2.5-flash
+  
+  fileStoreName: candidate-cv-store
+  useFilesApi: true  # MUST be true for Files API batch matching
 
 embedding:
   enabled: true
@@ -108,7 +121,9 @@ matching:
   provider: GEMINI
   topN: 10
   enabled: true
-  model: gemini-1.5-pro  # Gemini 1.5 Pro (stable) for batch candidate ranking
+  # Model is now configured in gemini.matchingModel above
+  # This setting is kept for backwards compatibility but gemini.matchingModel takes precedence
+  model: gemini-2.5-pro  # Stable workhorse for batch operations
 
 management:
   endpoints:

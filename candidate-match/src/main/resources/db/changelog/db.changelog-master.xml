@@ -27,5 +27,6 @@
     <include file="db/changelog/db_changelog-18.0-project-request-drop-required-skills.xml" />
     <include file="db/changelog/db_changelog-19.0-drop-legacy-skill-column.xml" />
     <include file="db/changelog/db_changelog-20.0-increase-skill-name-length.xml" />
+    <include file="db/changelog/changes/2025-11-23-add-gemini-file-uri.sql" />
 
 </databaseChangeLog>

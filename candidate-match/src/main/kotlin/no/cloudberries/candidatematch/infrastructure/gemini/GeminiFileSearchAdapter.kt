@@ -39,7 +39,8 @@ class GeminiFileSearchAdapter(
     private val logger = KotlinLogging.logger {}
     
     private val storeName = geminiProperties.fileStoreName
-    private val model = matchingProperties.model  // Use matching.model instead of gemini.model
+    // Use gemini.matchingModel for batch ranking (stable, high capacity)
+    private val model = geminiProperties.matchingModel
 
     override suspend fun ensureStore(): String {
         // No-op: We don't use File Search store anymore

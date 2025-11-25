@@ -23,13 +23,23 @@ class SyncConsultantService(
     @Scheduled(cron = "0 0 */8 * * *")
     fun fetchFullCvForUser() {
         runBlocking {
-            logger.info { "Running scheduled job to fetch full CV for all users" }
-            flowcaseHttpClient.fetchAllUsers().flowcaseUserDTOs.forEach {
-                delay(500) // Increased delay to 500 ms
-                fetchCvForUser(
-                    it.userId,
-                    it.cvId
-                )
+            try {
+                logger.info { "Running scheduled job to fetch full CV for all users" }
+                flowcaseHttpClient.fetchAllUsers().flowcaseUserDTOs.forEach {
+                    delay(500) // Increased delay to 500 ms
+                    fetchCvForUser(
+                        it.userId,
+                        it.cvId
+                    )
+                }
+            } catch (e: IllegalArgumentException) {
+                if (e.message?.contains("Expected URL scheme") == true) {
+                    logger.warn { "Flowcase URL not configured, skipping scheduled sync. Set FLOWCASE_BASE_URL environment variable." }
+                } else {
+                    throw e
+                }
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to run scheduled CV sync: ${e.message}" }
             }
         }
     }

@@ -41,7 +41,8 @@ class ProjectMatchingServiceImpl(
     private val consultantWithCvService: ConsultantWithCvService,
     private val candidateMatchingService: CandidateMatchingService,
     private val consultantScoringService: ConsultantScoringService,
-    private val geminiMatchingStrategy: GeminiMatchingStrategy?
+    private val geminiMatchingStrategy: GeminiMatchingStrategy?,
+    private val geminiFilesMatchingService: no.cloudberries.candidatematch.service.matching.GeminiFilesMatchingService
 ) : ProjectMatchingService {
 
     private val logger = KotlinLogging.logger { }
@@ -96,12 +97,13 @@ class ProjectMatchingServiceImpl(
         val matchResult = ProjectMatchResult(projectRequestId = projectRequestId)
         val savedMatchResult = projectMatchResultRepository.save(matchResult)
         
-        // Compute matches using Gemini strategy if available, otherwise use legacy approach
-        val candidateResults = if (geminiMatchingStrategy != null) {
-            logger.info { "Using Gemini File Search matching strategy" }
-            computeMatchesUsingGemini(projectRequest, savedMatchResult)
-        } else {
-            logger.info { "Using legacy AI matching approach" }
+        // Use Gemini Files API for batch matching
+        val candidateResults = try {
+            logger.info { "Using Gemini Files API batch matching" }
+            computeMatchesUsingFilesApi(projectRequest, savedMatchResult)
+        } catch (e: Exception) {
+            logger.error(e) { "Gemini Files API failed, falling back to legacy matching" }
+            val consultants = getConsultantsForMatching(projectRequest)
             computeMatchesInParallel(consultants, projectRequest, savedMatchResult)
         }
         
@@ -173,6 +175,51 @@ class ProjectMatchingServiceImpl(
         val projectRequest = convertToDomainProjectRequest(projectRequestEntity)
         
         return geminiMatchingStrategy!!.computeMatches(projectRequest, matchResult)
+    }
+    
+    /**
+     * Computes matches using Gemini Files API batch approach.
+     * This calls GeminiFilesMatchingService which:
+     * 1. Uploads CVs to Gemini Files API (with caching)
+     * 2. Ranks all candidates in a SINGLE Gemini API call
+     * 3. Returns sorted list with scores and justifications
+     */
+    private suspend fun computeMatchesUsingFilesApi(
+        projectRequestEntity: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity,
+        matchResult: ProjectMatchResult
+    ): List<MatchCandidateResult> {
+        // Convert entity to domain model
+        val projectRequest = convertToDomainProjectRequest(projectRequestEntity)
+        
+        // Extract required skills for filtering
+        val requiredSkills = projectRequest.requiredSkills.map { it.name }
+        
+        // Call batch matching service
+        val matchedConsultants = geminiFilesMatchingService.matchConsultantsWithFilesApi(
+            projectRequest = projectRequest,
+            requiredSkills = requiredSkills,
+            topN = 10
+        )
+        
+        // Convert MatchConsultantDto to MatchCandidateResult entities
+        return matchedConsultants.mapNotNull { dto ->
+            val consultantId = dto.userId.toLongOrNull()
+            if (consultantId == null) {
+                logger.warn { "Invalid consultant ID in Files API result: ${dto.userId}" }
+                return@mapNotNull null
+            }
+            
+            // Convert 0-100 score to 0.0-1.0 decimal
+            val scoreDecimal = BigDecimal.valueOf(dto.relevanceScore).divide(BigDecimal.valueOf(100))
+                .coerceIn(BigDecimal.ZERO, BigDecimal.ONE)
+            
+            MatchCandidateResult(
+                matchResult = matchResult,
+                consultantId = consultantId,
+                matchScore = scoreDecimal,
+                matchExplanation = dto.justification ?: "Ranked by Gemini Files API"
+            )
+        }
     }
     
     /**
@@ -290,7 +337,7 @@ class ProjectMatchingServiceImpl(
     ): List<ConsultantWithCvDto> {
         
         // Extract skills from project request if available
-        val requiredSkills = projectRequest.requiredSkills?.map { it.name } ?: emptyList()
+        val requiredSkills = projectRequest.requiredSkills.map { it.name }
         
         logger.info { 
             "Selecting consultants for project ${projectRequest.id}. " +
