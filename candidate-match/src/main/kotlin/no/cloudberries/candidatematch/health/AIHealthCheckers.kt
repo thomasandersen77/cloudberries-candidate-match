@@ -1,6 +1,6 @@
 package no.cloudberries.candidatematch.health
 
-import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiConfig
+import no.cloudberries.candidatematch.config.GeminiProperties
 import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiHttpClient
 import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIConfig
 import no.cloudberries.candidatematch.infrastructure.integration.openai.OpenAIHttpClient
@@ -37,7 +37,7 @@ class OpenAIHealthChecker(
 
 @Service
 class GeminiHealthChecker(
-    private val geminiConfig: GeminiConfig,
+    private val geminiConfig: GeminiProperties,
     private val geminiHttpClient: GeminiHttpClient
 ) : AIHealthChecker {
 

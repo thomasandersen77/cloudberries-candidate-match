@@ -33,14 +33,14 @@ fun AISuggestion.fromDomain(domain: AISuggestion): AISuggestionEntity {
     )
 }
 
-fun AISuggestionEntity.toDomain(entity: AISuggestionEntity): AISuggestion {
+fun AISuggestionEntity.toDomain(): AISuggestion {
     return AISuggestion(
-        id = entity.id,
-        consultantName = entity.consultantName,
-        userId = entity.userId,
-        cvId = entity.cvId,
-        matchScore = entity.matchScore,
-        justification = entity.justification,
+        id = this.id,
+        consultantName = this.consultantName,
+        userId = this.userId,
+        cvId = this.cvId,
+        matchScore = this.matchScore,
+        justification = this.justification,
         projectRequest = null // Break circular dependency - don't convert projectRequest here
     )
 }

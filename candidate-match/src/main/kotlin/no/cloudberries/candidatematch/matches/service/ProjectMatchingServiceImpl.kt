@@ -6,8 +6,8 @@ import kotlinx.coroutines.coroutineScope
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
 import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.domain.ProjectRequestId
 import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.candidatematch.infrastructure.entities.toDomain
 import no.cloudberries.candidatematch.infrastructure.repositories.ProjectRequestRepository
 import no.cloudberries.candidatematch.matches.domain.MatchCandidateResult
 import no.cloudberries.candidatematch.matches.domain.ProjectMatchResult
@@ -18,6 +18,7 @@ import no.cloudberries.candidatematch.matches.repository.MatchCandidateResultRep
 import no.cloudberries.candidatematch.matches.repository.ProjectMatchResultRepository
 import no.cloudberries.candidatematch.service.consultants.ConsultantWithCvService
 import no.cloudberries.candidatematch.service.matching.CandidateMatchingService
+import no.cloudberries.candidatematch.service.matching.ConsultantScoringService
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -38,7 +39,10 @@ class ProjectMatchingServiceImpl(
     private val matchCandidateResultRepository: MatchCandidateResultRepository,
     private val projectRequestRepository: ProjectRequestRepository,
     private val consultantWithCvService: ConsultantWithCvService,
-    private val candidateMatchingService: CandidateMatchingService
+    private val candidateMatchingService: CandidateMatchingService,
+    private val consultantScoringService: ConsultantScoringService,
+    private val geminiMatchingStrategy: GeminiMatchingStrategy?,
+    private val geminiFilesMatchingService: no.cloudberries.candidatematch.service.matching.GeminiFilesMatchingService
 ) : ProjectMatchingService {
 
     private val logger = KotlinLogging.logger { }
@@ -53,7 +57,7 @@ class ProjectMatchingServiceImpl(
                 id = entity.id!!,
                 title = (entity.requestDescription.takeIf { it.length > 50 }?.substring(0, 50) + "..."),
                 customerName = entity.customerName,
-                createdAt = OffsetDateTime.from(entity.startDate) // Use startDate since entity doesn't have createdAt
+                createdAt = OffsetDateTime.now()  // Use current time for createdAt
             )
         }.sortedByDescending { it.createdAt }
     }
@@ -93,8 +97,15 @@ class ProjectMatchingServiceImpl(
         val matchResult = ProjectMatchResult(projectRequestId = projectRequestId)
         val savedMatchResult = projectMatchResultRepository.save(matchResult)
         
-        // Compute matches in parallel for performance
-        val candidateResults = computeMatchesInParallel(consultants, projectRequest, savedMatchResult)
+        // Use Gemini Files API for batch matching
+        val candidateResults = try {
+            logger.info { "Using Gemini Files API batch matching" }
+            computeMatchesUsingFilesApi(projectRequest, savedMatchResult)
+        } catch (e: Exception) {
+            logger.error(e) { "Gemini Files API failed, falling back to legacy matching" }
+            val consultants = getConsultantsForMatching(projectRequest)
+            computeMatchesInParallel(consultants, projectRequest, savedMatchResult)
+        }
         
         // Persist candidate results
         val savedCandidateResults = matchCandidateResultRepository.saveAll(candidateResults)
@@ -152,6 +163,87 @@ class ProjectMatchingServiceImpl(
         triggerAsyncMatching(projectRequestId, forceRecompute = false)
     }
 
+    /**
+     * Computes matches using Gemini File Search strategy.
+     * Delegates to the strategy for batch ranking of all candidates.
+     */
+    private suspend fun computeMatchesUsingGemini(
+        projectRequestEntity: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity,
+        matchResult: ProjectMatchResult
+    ): List<MatchCandidateResult> {
+        // Convert entity to domain model
+        val projectRequest = convertToDomainProjectRequest(projectRequestEntity)
+        
+        return geminiMatchingStrategy!!.computeMatches(projectRequest, matchResult)
+    }
+    
+    /**
+     * Computes matches using Gemini Files API batch approach.
+     * This calls GeminiFilesMatchingService which:
+     * 1. Uploads CVs to Gemini Files API (with caching)
+     * 2. Ranks all candidates in a SINGLE Gemini API call
+     * 3. Returns sorted list with scores and justifications
+     */
+    private suspend fun computeMatchesUsingFilesApi(
+        projectRequestEntity: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity,
+        matchResult: ProjectMatchResult
+    ): List<MatchCandidateResult> {
+        // Convert entity to domain model
+        val projectRequest = convertToDomainProjectRequest(projectRequestEntity)
+        
+        // Extract required skills for filtering
+        val requiredSkills = projectRequest.requiredSkills.map { it.name }
+        
+        // Call batch matching service
+        val matchedConsultants = geminiFilesMatchingService.matchConsultantsWithFilesApi(
+            projectRequest = projectRequest,
+            requiredSkills = requiredSkills,
+            topN = 10
+        )
+        
+        // Convert MatchConsultantDto to MatchCandidateResult entities
+        return matchedConsultants.mapNotNull { dto ->
+            val consultantId = dto.userId.toLongOrNull()
+            if (consultantId == null) {
+                logger.warn { "Invalid consultant ID in Files API result: ${dto.userId}" }
+                return@mapNotNull null
+            }
+            
+            // Convert 0-100 score to 0.0-1.0 decimal
+            val scoreDecimal = BigDecimal.valueOf(dto.relevanceScore).divide(BigDecimal.valueOf(100))
+                .coerceIn(BigDecimal.ZERO, BigDecimal.ONE)
+            
+            MatchCandidateResult(
+                matchResult = matchResult,
+                consultantId = consultantId,
+                matchScore = scoreDecimal,
+                matchExplanation = dto.justification ?: "Ranked by Gemini Files API"
+            )
+        }
+    }
+    
+    /**
+     * Converts ProjectRequestEntity to domain ProjectRequest.
+     * Helper method for bridging entity and domain layers.
+     */
+    private fun convertToDomainProjectRequest(
+        entity: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity
+    ): no.cloudberries.candidatematch.domain.ProjectRequest {
+        return no.cloudberries.candidatematch.domain.ProjectRequest(
+            id = entity.id?.let { no.cloudberries.candidatematch.domain.ProjectRequestId(it) },
+            customerId = entity.customerId?.let { no.cloudberries.candidatematch.domain.CustomerId(it) },
+            customerName = entity.customerName,
+            requiredSkills = entity.requiredSkills ?: emptyList(),
+            startDate = entity.startDate,
+            endDate = entity.endDate,
+            responseDeadline = entity.responseDeadline,
+            requestDescription = entity.requestDescription ?: "",
+            responsibleSalespersonEmail = entity.responsibleSalespersonEmail ?: "",
+            status = entity.status,
+            aISuggestions = entity.aiSuggestionEntities?.map { it.toDomain() } ?: emptyList()
+        )
+    }
+    
     /**
      * Computes matches for consultants in parallel to improve performance.
      * Uses coroutines to batch process consultants while avoiding overwhelming the AI service.
@@ -232,23 +324,55 @@ class ProjectMatchingServiceImpl(
 
     /**
      * Gets consultants suitable for matching based on project requirements.
-     * Applies business logic to select relevant candidates.
+     * 
+     * Enhanced selection logic:
+     * 1. Retrieve expanded pool of skill-matched consultants (50 for skills, 30 otherwise)
+     * 2. Score each consultant combining skill match (70%) and CV quality (30%)
+     * 3. Select top 5-15 consultants based on combined score
+     * 
+     * This ensures we analyze consultants who are both relevant and have quality CVs.
      */
     private fun getConsultantsForMatching(
         projectRequest: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity
     ): List<ConsultantWithCvDto> {
         
         // Extract skills from project request if available
-        val requiredSkills = projectRequest.requiredSkills?.map { it.name } ?: emptyList()
+        val requiredSkills = projectRequest.requiredSkills.map { it.name }
         
-        return if (requiredSkills.isNotEmpty()) {
-            // Get top consultants based on skill matching
-            consultantWithCvService.getTopConsultantsBySkills(requiredSkills, limit = 30)
-        } else {
-            // Get all consultants if no specific skills are required
-            consultantWithCvService.getAllConsultantsWithCvs(onlyActiveCv = true)
-                .take(20) // Limit to 20 for performance
+        logger.info { 
+            "Selecting consultants for project ${projectRequest.id}. " +
+            "Required skills: ${requiredSkills.joinToString(", ")}" 
         }
+        
+        // Get expanded pool of consultants based on skills
+        val candidatePool = if (requiredSkills.isNotEmpty()) {
+            consultantWithCvService.getTopConsultantsBySkills(requiredSkills, limit = 50)
+        } else {
+            consultantWithCvService.getAllConsultantsWithCvs(onlyActiveCv = true).take(30)
+        }
+        
+        if (candidatePool.isEmpty()) {
+            logger.warn { "No consultants available for matching" }
+            return emptyList()
+        }
+        
+        logger.info { "Retrieved ${candidatePool.size} consultants from initial pool" }
+        
+        // Score and rank consultants by combined skill + CV quality
+        val selectedConsultants = consultantScoringService.scoreConsultantsByCombinedRelevance(
+            consultants = candidatePool,
+            requiredSkills = requiredSkills,
+            minCandidates = 5,
+            maxCandidates = 15
+        )
+        
+        logger.info { 
+            "Selected ${selectedConsultants.size} consultants for AI matching: " +
+            selectedConsultants.take(3).joinToString { it.name } +
+            if (selectedConsultants.size > 3) "..." else ""
+        }
+        
+        return selectedConsultants
     }
 
     private fun getConsultantsByIds(consultantIds: List<Long>): List<ConsultantWithCvDto> {

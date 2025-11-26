@@ -32,9 +32,10 @@ class CandidateMatchingServiceTest {
             summary = "This is a summary.",
             requirements = mutableListOf(
                 Requirement(
-                    "Requirement 1",
-                    "This is a comment.",
-                    "10"
+                    name = "Requirement 1",
+                    isMustHave = false,
+                    score = "10",
+                    comment = "This is a comment."
                 )
             )
         )
@@ -72,9 +73,10 @@ class CandidateMatchingServiceTest {
             summary = "This is a summary.",
             requirements = mutableListOf(
                 Requirement(
-                    "Requirement 1",
-                    "This is a comment.",
-                    "10"
+                    name = "Requirement 1",
+                    isMustHave = false,
+                    score = "10",
+                    comment = "This is a comment."
                 )
             )
         )

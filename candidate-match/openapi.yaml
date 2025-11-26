@@ -672,6 +672,41 @@ paths:
           description: Project request not found
         default:
           $ref: '#/components/responses/ErrorResponse'
+  
+  /matches/requests/{id}/re-analyze:
+    post:
+      tags: [ Matches ]
+      summary: Re-analyze consultants using Gemini 3.0 batch evaluation
+      description: |
+        Re-analyzes and re-ranks consultants for a project request using improved AI matching.
+        This endpoint:
+        - Fetches ~30 consultants matching required skills
+        - Scores by 50% skills + 50% CV quality
+        - Selects top 10 candidates
+        - Sends all 10 CVs in ONE Gemini API call for batch evaluation
+        - Returns ranked results with detailed justifications
+        
+        Note: This endpoint runs synchronously and may take up to 60 seconds.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: Re-analyzed and ranked consultants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchConsultantDto'
+        '404':
+          description: Project request not found
+        '500':
+          description: AI service error
+        default:
+          $ref: '#/components/responses/ErrorResponse'
 
   /project-requests:
     get:
@@ -2020,3 +2055,116 @@ components:
           maximum: 1.0
           description: Confidence in criteria extraction (0-1)
           example: 0.92
+
+    ProjectRequestSummaryDto:
+      type: object
+      required:
+        - id
+        - customerName
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Project request ID
+        title:
+          type: string
+          nullable: true
+          description: Truncated project description
+        customerName:
+          type: string
+          description: Customer name
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    MatchCandidateDto:
+      type: object
+      required:
+        - consultantId
+        - consultantName
+        - userId
+        - matchScore
+        - createdAt
+      properties:
+        consultantId:
+          type: integer
+          format: int64
+          description: Consultant ID
+        consultantName:
+          type: string
+          description: Consultant name
+        userId:
+          type: string
+          description: Consultant user ID
+        cvId:
+          type: string
+          nullable: true
+          description: CV ID
+        matchScore:
+          type: number
+          format: double
+          minimum: 0.0
+          maximum: 1.0
+          description: Match score between 0 and 1
+        matchExplanation:
+          type: string
+          nullable: true
+          description: AI-generated explanation of the match
+        createdAt:
+          type: string
+          format: date-time
+          description: When the match was computed
+
+    MatchTop10Response:
+      type: object
+      required:
+        - projectRequestId
+        - totalMatches
+        - matches
+      properties:
+        projectRequestId:
+          type: integer
+          format: int64
+          description: Project request ID
+        projectTitle:
+          type: string
+          nullable: true
+          description: Truncated project title
+        totalMatches:
+          type: integer
+          description: Total number of matches computed
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatchCandidateDto'
+          description: Top consultant matches sorted by score
+        lastUpdated:
+          type: string
+          format: date-time
+          nullable: true
+          description: When matches were last computed
+
+    TriggerMatchingResponse:
+      type: object
+      required:
+        - projectRequestId
+        - status
+        - message
+      properties:
+        projectRequestId:
+          type: integer
+          format: int64
+          description: Project request ID
+        status:
+          type: string
+          enum: [TRIGGERED, PENDING, COMPLETED, ERROR]
+          description: Status of the matching operation
+        message:
+          type: string
+          description: Human-readable status message
+        jobId:
+          type: string
+          nullable: true
+          description: Job ID for tracking the matching operation

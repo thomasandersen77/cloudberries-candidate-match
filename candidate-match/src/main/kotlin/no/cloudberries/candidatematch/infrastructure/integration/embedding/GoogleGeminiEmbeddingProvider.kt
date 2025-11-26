@@ -3,8 +3,8 @@ package no.cloudberries.candidatematch.infrastructure.integration.embedding
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
+import no.cloudberries.candidatematch.config.GeminiProperties
 import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
-import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiConfig
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -14,7 +14,7 @@ import kotlin.math.min
 
 @Service
 class GoogleGeminiEmbeddingProvider(
-    private val geminiConfig: GeminiConfig,
+    private val geminiConfig: GeminiProperties,
     private val embeddingConfig: EmbeddingConfig,
 ) : EmbeddingProvider {
 

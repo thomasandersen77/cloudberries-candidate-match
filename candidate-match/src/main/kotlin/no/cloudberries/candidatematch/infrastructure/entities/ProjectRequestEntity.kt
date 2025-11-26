@@ -54,7 +54,7 @@ fun ProjectRequestEntity.toProjectRequest(): ProjectRequest {
         startDate = this.startDate,
         endDate = this.endDate,
         responseDeadline = this.responseDeadline,
-        aISuggestions = this.aiSuggestionEntities.map { it.toDomain(it) },
+        aISuggestions = this.aiSuggestionEntities.map { it.toDomain() },
         status = this.status,
         requestDescription = this.requestDescription,
         responsibleSalespersonEmail = this.responsibleSalespersonEmail,

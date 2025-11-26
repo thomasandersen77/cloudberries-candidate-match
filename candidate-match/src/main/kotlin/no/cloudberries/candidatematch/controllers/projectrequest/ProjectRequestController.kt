@@ -60,7 +60,10 @@ class ProjectRequestController(
             )
             val createdId = created.id?.value
             if (createdId != null) {
+                logger.info { "Triggering async batch matching for project request $createdId" }
                 projectMatchingService.triggerAsyncMatching(createdId, forceRecompute = false)
+            } else {
+                logger.warn { "Failed to create project request entity, skipping matching" }
             }
         } catch (e: Exception) {
             logger.warn(e) { "Failed to normalize and trigger matching from upload (customerRequestId=${dto.id})" }

@@ -1,0 +1,5 @@
+# Override liquibase contexts for tests to exclude pgvector
+# Embedded PostgreSQL doesn't have pgvector extension installed
+spring:
+  liquibase:
+    contexts: "default"

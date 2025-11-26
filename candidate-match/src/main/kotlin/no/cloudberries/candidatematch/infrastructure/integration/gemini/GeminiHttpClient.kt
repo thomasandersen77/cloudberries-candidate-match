@@ -2,6 +2,7 @@ package no.cloudberries.candidatematch.infrastructure.integration.gemini
 
 import com.google.genai.Client
 import mu.KotlinLogging
+import no.cloudberries.candidatematch.config.GeminiProperties
 import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
 import no.cloudberries.candidatematch.domain.ai.AIGenerationException
 import no.cloudberries.candidatematch.domain.ai.AIResponse
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class GeminiHttpClient(
-    private val geminiConfig: GeminiConfig
+    private val geminiConfig: GeminiProperties
 ) : AIContentGenerator {
     private val logger = KotlinLogging.logger {}
     private val client: Client by lazy {
@@ -23,7 +24,7 @@ class GeminiHttpClient(
             logger.error { "Gemini API key not configured" }
             return false
         }
-        val modelId = geminiConfig.quickModel.ifBlank { "gemini-1.5-pro" }
+        val modelId = geminiConfig.flashModel.ifBlank { "gemini-1.5-pro" }
         return runCatching {
             val response = client.models.generateContent(
                 modelId,

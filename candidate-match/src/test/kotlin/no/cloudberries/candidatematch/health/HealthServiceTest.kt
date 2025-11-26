@@ -55,6 +55,11 @@ class HealthServiceTest {
                 5000
             ).singleResult
         } returns 1
+        // Mock isHealthy() og isConfigured() for AI checkers
+        every { aiHealthChecker1.isHealthy() } returns true
+        every { aiHealthChecker2.isHealthy() } returns true
+        every { aiHealthChecker1.isConfigured() } returns true
+        every { aiHealthChecker2.isConfigured() } returns true
 
         // Act: Kaller metoden
         val isHealthy = healthService.isDatabaseHealthy()
@@ -72,6 +77,11 @@ class HealthServiceTest {
                 5000
             ).singleResult
         } throws RuntimeException("Database connection error")
+        // Mock isHealthy() og isConfigured() for AI checkers
+        every { aiHealthChecker1.isHealthy() } returns true
+        every { aiHealthChecker2.isHealthy() } returns true
+        every { aiHealthChecker1.isConfigured() } returns true
+        every { aiHealthChecker2.isConfigured() } returns true
 
         // Act: Kaller metoden
         val isHealthy = healthService.isDatabaseHealthy()
@@ -81,23 +91,37 @@ class HealthServiceTest {
     }
 
     @Test
-    fun `isAIHealthy returnerer true når minst én AI-tjeneste er sunn`() {
+    fun `genAI_operational returnerer true når minst én AI-tjeneste er sunn`() {
         // Arrange: Én AI er sunn, den andre ikke
+        every { flowcaseHttpClient.checkHealth() } returns true
+        every { query.setHint("jakarta.persistence.query.timeout", 5000).singleResult } returns 1
         every { aiHealthChecker1.isHealthy() } returns true
         every { aiHealthChecker2.isHealthy() } returns false
+        every { aiHealthChecker1.isConfigured() } returns true
+        every { aiHealthChecker2.isConfigured() } returns true
 
-        // Act & Assert
-        assertTrue(healthService.isAIHealthy())
+        // Act
+        val details = healthService.getHealthDetails()
+
+        // Assert
+        assertTrue(details["genAI_operational"] as Boolean)
     }
 
     @Test
-    fun `isAIHealthy returnerer false når ingen AI-tjenester er sunne`() {
+    fun `genAI_operational returnerer false når ingen AI-tjenester er sunne`() {
         // Arrange: Begge AI-tjenestene er nede
+        every { flowcaseHttpClient.checkHealth() } returns true
+        every { query.setHint("jakarta.persistence.query.timeout", 5000).singleResult } returns 1
         every { aiHealthChecker1.isHealthy() } returns false
         every { aiHealthChecker2.isHealthy() } returns false
+        every { aiHealthChecker1.isConfigured() } returns true
+        every { aiHealthChecker2.isConfigured() } returns true
 
-        // Act & Assert
-        assertFalse(healthService.isAIHealthy())
+        // Act
+        val details = healthService.getHealthDetails()
+
+        // Assert
+        assertFalse(details["genAI_operational"] as Boolean)
     }
 
     @Test
@@ -105,6 +129,8 @@ class HealthServiceTest {
         // Arrange: Én AI er konfigurert, den andre ikke
         every { aiHealthChecker1.isConfigured() } returns true
         every { aiHealthChecker2.isConfigured() } returns false
+        every { aiHealthChecker1.isHealthy() } returns true
+        every { aiHealthChecker2.isHealthy() } returns false
 
         // Act & Assert
         assertTrue(healthService.areAIConfigured())
@@ -115,6 +141,8 @@ class HealthServiceTest {
         // Arrange: Ingen av AI-tjenestene er konfigurert
         every { aiHealthChecker1.isConfigured() } returns false
         every { aiHealthChecker2.isConfigured() } returns false
+        every { aiHealthChecker1.isHealthy() } returns false
+        every { aiHealthChecker2.isHealthy() } returns false
 
         // Act & Assert
         assertFalse(healthService.areAIConfigured())

@@ -51,7 +51,9 @@ class ConsultantWithCvService(
 
     /**
      * Finds top consultants based on skill matching for AI analysis.
-     * Takes top 3 skills by frequency in project experiences.
+     * Extracts skill keywords from verbose requirement descriptions to match against consultant skills.
+     * 
+     * For example: "Minst 12 mnd erfaring med Java/Kotlin" -> extracts ["Java", "Kotlin"]
      */
     @Timed
     @Transactional(readOnly = true)
@@ -63,29 +65,88 @@ class ConsultantWithCvService(
         
         val allConsultants = buildConsultantDtos(consultantFlats, onlyActiveCv = true)
         
+        // Extract skill keywords from verbose requirement descriptions
+        val extractedSkills = extractSkillKeywords(skills)
+        
+        // If no skills could be extracted, return top consultants by CV quality
+        if (extractedSkills.isEmpty()) {
+            return allConsultants.take(limit)
+        }
+        
         // Score consultants by skill overlap
         val scoredConsultants = allConsultants.map { consultant ->
-            val skillSet = consultant.skills.map { it.uppercase() }.toSet()
-            val requiredSkillSet = skills.map { it.uppercase() }.toSet()
+            val consultantSkillSet = consultant.skills.map { it.uppercase() }.toSet()
+            val requiredSkillSet = extractedSkills.map { it.uppercase() }.toSet()
             
-            // Calculate overlap score
-            val overlapCount = skillSet.intersect(requiredSkillSet).size
-            val overlapRatio = if (requiredSkillSet.isNotEmpty()) overlapCount.toDouble() / requiredSkillSet.size else 0.0
+            // Use partial matching: consultant skill contains or is contained in required skill
+            var matchCount = 0
+            for (consultantSkill in consultantSkillSet) {
+                for (requiredSkill in requiredSkillSet) {
+                    if (consultantSkill.contains(requiredSkill) || requiredSkill.contains(consultantSkill)) {
+                        matchCount++
+                        break // Count each consultant skill once
+                    }
+                }
+            }
             
-            // Bonus for having more relevant skills than required
-            val relevantSkillsCount = skillSet.intersect(requiredSkillSet).size
-            val bonus = if (relevantSkillsCount > 0) relevantSkillsCount * 0.1 else 0.0
+            // Calculate score based on match count and CV quality
+            val matchRatio = if (requiredSkillSet.isNotEmpty()) matchCount.toDouble() / requiredSkillSet.size else 0.0
+            val cvQualityBonus = if (consultant.cvs.isNotEmpty()) 0.1 else 0.0
             
-            val totalScore = overlapRatio + bonus
+            val totalScore = matchRatio + cvQualityBonus
             
             Pair(consultant, totalScore)
         }
         
         return scoredConsultants
-            .filter { it.second > 0.0 } // Only include consultants with some skill overlap
             .sortedByDescending { it.second }
             .take(limit)
             .map { it.first }
+    }
+    
+    /**
+     * Extracts skill keywords from verbose requirement descriptions.
+     * 
+     * Common patterns:
+     * - "erfaring med X" -> X
+     * - "X/Y/Z" -> [X, Y, Z]
+     * - "X og Y" -> [X, Y]
+     * - Technical terms (React, TypeScript, Java, Kotlin, SQL, etc.)
+     */
+    private fun extractSkillKeywords(requirements: List<String>): List<String> {
+        val keywords = mutableSetOf<String>()
+        
+        // Common technology keywords to look for
+        val techKeywords = setOf(
+            "Java", "Kotlin", "React", "TypeScript", "JavaScript", "CSS", "HTML",
+            "SQL", "PostgreSQL", "MySQL", "MongoDB",
+            "Docker", "Kubernetes", "REST", "JSON", "XML",
+            "Spring", "Spring Boot", "Microservices", "Material UI", "Material-UI",
+            "Git", "CI/CD", "DevOps", "Agile", "Scrum",
+            "Domain Driven Design", "DDD", "Test Driven Development", "TDD",
+            "Node.js", "Express", "Angular", "Vue", "Python", "C#", ".NET",
+            "AWS", "Azure", "GCP", "Cloud"
+        )
+        
+        requirements.forEach { requirement ->
+            val upperReq = requirement.uppercase()
+            
+            // Check for each tech keyword
+            techKeywords.forEach { tech ->
+                if (upperReq.contains(tech.uppercase())) {
+                    keywords.add(tech)
+                }
+            }
+            
+            // Extract slash-separated skills: "Java/Kotlin" -> ["Java", "Kotlin"]
+            val slashPattern = """([A-Z][a-z]+(?:[A-Z][a-z]+)*)/([A-Z][a-z]+(?:[A-Z][a-z]+)*)""".toRegex()
+            slashPattern.findAll(requirement).forEach { match ->
+                keywords.add(match.groupValues[1])
+                keywords.add(match.groupValues[2])
+            }
+        }
+        
+        return keywords.toList()
     }
 
     private fun buildConsultantDtos(
