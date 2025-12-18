@@ -78,6 +78,14 @@ class CandidateMatchingService(
                 )
             }
 
+            AIProvider.ANTHROPIC -> {
+                logger.debug { "Using Anthropic for AI analysis" }
+                aiAnalysisService.analyzeContent(
+                    content = prompt,
+                    AIProvider.ANTHROPIC
+                )
+            }
+
         }
     }
 

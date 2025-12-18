@@ -38,3 +38,7 @@ openai:
 gemini:
   apiKey: ${GEMINI_API_KEY}
   model: gemini-2.5-pro
+anthropic:
+  apiKey: test-api-key
+  model: claude-3-5-sonnet-20241022
+  baseUrl: http://localhost:${wiremock.server.port:8089}

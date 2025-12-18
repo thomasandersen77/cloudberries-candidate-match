@@ -104,4 +104,88 @@ class CandidateMatchingServiceTest {
             result
         )
     }
+
+    @Test
+    fun `should return candidate match response for Anthropic provider`() {
+        val cv = "This is a CV."
+        val request = "This is a request."
+        val consultantName = "John Doe"
+        val expectedResponse = CandidateMatchResponse(
+            totalScore = "9.0",
+            summary = "This is a summary.",
+            requirements = mutableListOf(
+                Requirement(
+                    name = "Requirement 1",
+                    isMustHave = false,
+                    score = "10",
+                    comment = "This is a comment."
+                )
+            )
+        )
+        val responseJson = mapper.writeValueAsString(expectedResponse)
+
+        every {
+            aiAnalysisService.analyzeContent(
+                content = any(String::class),
+                AIProvider.ANTHROPIC
+            )
+        } returns AIResponse(
+            responseJson,
+            "claude-3-5-sonnet-20241022"
+        )
+
+        val result = candidateMatchingService.matchCandidate(
+            aiProvider = AIProvider.ANTHROPIC,
+            cv = cv,
+            request = request,
+            consultantName = consultantName
+        )
+
+        assertEquals(
+            expectedResponse,
+            result
+        )
+    }
+
+    @Test
+    fun `should return candidate match response for Ollama provider`() {
+        val cv = "This is a CV."
+        val request = "This is a request."
+        val consultantName = "John Doe"
+        val expectedResponse = CandidateMatchResponse(
+            totalScore = "7.5",
+            summary = "This is a summary.",
+            requirements = mutableListOf(
+                Requirement(
+                    name = "Requirement 1",
+                    isMustHave = false,
+                    score = "10",
+                    comment = "This is a comment."
+                )
+            )
+        )
+        val responseJson = mapper.writeValueAsString(expectedResponse)
+
+        every {
+            aiAnalysisService.analyzeContent(
+                content = any(String::class),
+                AIProvider.OLLAMA
+            )
+        } returns AIResponse(
+            responseJson,
+            "ollama"
+        )
+
+        val result = candidateMatchingService.matchCandidate(
+            aiProvider = AIProvider.OLLAMA,
+            cv = cv,
+            request = request,
+            consultantName = consultantName
+        )
+
+        assertEquals(
+            expectedResponse,
+            result
+        )
+    }
 }
