@@ -66,6 +66,13 @@ class ScoreCandidateService(
                     AIProvider.OLLAMA
                 )
             }
+
+            AIProvider.ANTHROPIC -> {
+                aiAnalysisService.analyzeContent(
+                    content = cvReviewTemplate,
+                    AIProvider.ANTHROPIC
+                )
+            }
         }
         val cvReviewResponseDto = mapper.readValue(
             response.content,
