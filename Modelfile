@@ -1,0 +1,37 @@
+# Modelfile for llama3.2:3b
+# This file configures the llama3.2:3b model with custom parameters and system prompt
+
+# Base model
+FROM llama3.2:3b
+
+# System prompt - customize this for your use case
+SYSTEM """
+You are a helpful AI assistant. You provide clear, concise, and accurate responses.
+"""
+
+# Parameters - adjust these based on your needs
+
+# Temperature controls randomness (0.0 = deterministic, 1.0 = creative)
+PARAMETER temperature 0.7
+
+# Top-p sampling (nucleus sampling) - 0.9 means consider tokens that make up 90% probability mass
+PARAMETER top_p 0.9
+
+# Top-k sampling - only sample from top k tokens
+PARAMETER top_k 40
+
+# Number of tokens to predict (-1 = infinite, -2 = fill context)
+PARAMETER num_predict 2048
+
+# Stop sequences - model will stop generating when it encounters these
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"
+
+# Repeat penalty - penalize repetition (1.0 = no penalty, >1.0 = less repetition)
+PARAMETER repeat_penalty 1.1
+
+# Context window size
+PARAMETER num_ctx 4096
+
+# Optional: Add a custom template for how messages are formatted
+# TEMPLATE """{{ if .System }}{{ .System }}{{ end }}{{ .Prompt }}"""
