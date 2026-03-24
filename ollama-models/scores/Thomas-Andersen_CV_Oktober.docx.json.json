@@ -1,0 +1,15 @@
+{
+  "scorePercentage": 95,
+  "summary": "Thomas Andersen er en svært erfaren og kompetent systemutvikler og arkitekt med over 20 års erfaring, spesielt sterk innen KI-løsninger og .NET-basert utvikling. Han kombinerer dyp teknisk kompetanse med forretningsforståelse og lederskap, og har en dokumentert evne til å levere innovative og skalerbare løsninger.",
+  "strengths": [
+    "Bred og dyp teknisk kompetanse, inkludert moderne KI-teknologier (LLM-er, OpenAI, Gemini) og etablerte rammeverk (Kotlin, Spring Boot, React, PostgreSQL)",
+    "Dokumentert lederskap og faglig pådriverrolle i prosjekter som Candidate Match",
+    "Solid erfaring fra både offentlig og privat sektor, med fokus på digitalisering og modernisering",
+    "Evne til å kombinere teknisk ekspertise med forretningsforståelse og omsette KI-teknologi til konkrete gevinster"
+  ],
+  "improvements": [
+    "Selv om prosjektene er godt beskrevet, kunne kvantifisering av resultater (f.eks. tidsbesparelser, kostnadsreduksjoner) styrket CV-en ytterligere.",
+    "Det kunne vært mer eksplisitt fokus på erfaring med agile metoder utover CI/CD.",
+    "Selv om det er nevnt, kunne rollen som arkitekt vært mer detaljert beskrevet med konkrete eksempler på arkitekturvalg og designprinsipper."
+  ]
+}

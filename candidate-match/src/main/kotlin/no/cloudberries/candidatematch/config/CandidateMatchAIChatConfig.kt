@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "ai")
-data class AIChatConfig(
+data class CandidateMatchAIChatConfig(
     var provider: String = "GEMINI",
     var models: ModelsConfig = ModelsConfig(),
     var timeouts: TimeoutsConfig = TimeoutsConfig(),

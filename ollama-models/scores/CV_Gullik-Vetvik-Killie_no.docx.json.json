@@ -1,0 +1,14 @@
+{
+  "scorePercentage": 85,
+  "summary": "Gullik Vetvik Killie er en erfaren utvikler, arkitekt og leder med en sterk bakgrunn innen beregningsmessig fysikk og et bredt spekter av teknologier. Han har demonstrert evne til å kombinere teknisk ekspertise med strategisk tenkning og levering av løsninger for ulike sektorer.",
+  "strengths": [
+    "Bred teknologiforståelse og erfaring (Python, Fortran, C++, C#, Matlab, SQL, Azure, GCP, Kubernetes)",
+    "Solid bakgrunn innen matematikk og statistikk, som gir et sterkt fundament for maskinlæring og modellering",
+    "Erfaring fra ulike sektorer (transport, energi, værdata) og roller (utvikler, arkitekt, leder)"
+  ],
+  "improvements": [
+    "CV-en mangler konkrete eksempler på prosjekter og resultater, spesielt knyttet til maskinlæring og dataplattformer.",
+    "Beskrivelsen av lederskapserfaringen kunne vært mer detaljert og spesifikk.",
+    "Teknologilisten er lang; prioritering og gruppering av teknologier ville forbedre oversiktligheten."
+  ]
+}

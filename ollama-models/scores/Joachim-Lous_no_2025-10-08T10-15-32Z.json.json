@@ -1,0 +1,15 @@
+{
+  "scorePercentage": 88,
+  "summary": "Joachim Lous er en svært erfaren og kunnskapsrik seniorkonsulent med solid bakgrunn fra det offentlige, spesielt Skatteetaten. Han har dyp kompetanse innen Java/Kotlin, mikrotjenestearkitektur, DevOps og skyteknologier (Azure, AWS). Han demonstrerer lederskap gjennom ulike roller og en evne til å overføre kompetanse til team og kunder.",
+  "strengths": [
+    "Omfattende erfaring med storskala, forretningskritiske offentlige systemer (Skatteetaten)",
+    "Sterk teknisk lederskap som Scrum Master og Løsningsarkitekt",
+    "Bred teknologiforståelse og erfaring med et stort antall rammeverk og teknologier",
+    "Evne til å kombinere teknisk ekspertise med forretningsforståelse og kundekontakt"
+  ],
+  "improvements": [
+    "CV-en mangler kvantifisering av resultater i prosjektene (f.eks. ytelsesforbedringer, kostnadsbesparelser)",
+    "Teknologilisten er svært lang og kan virke overveldende; prioritering av de mest relevante teknologiene ville forbedre lesbarheten",
+    "Det kunne vært mer detaljert informasjon om spesifikke arkitekturbeslutninger og deres begrunnelse"
+  ]
+}
