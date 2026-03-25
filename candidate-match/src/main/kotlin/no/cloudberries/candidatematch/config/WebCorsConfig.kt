@@ -9,11 +9,7 @@ class WebCorsConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry
             .addMapping("/**")
-            .allowedOriginPatterns(
-                "https://*.azurestaticapps.net",
-                "http://localhost:*",
-                "http://127.0.0.1:*"
-            )
+            .allowedOriginPatterns("*")
             .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(false)
