@@ -14,10 +14,6 @@ COPY candidate-match/pom.xml candidate-match/pom.xml
 COPY ai-platform-contracts/pom.xml ai-platform-contracts/pom.xml
 COPY ai-integration/pom.xml ai-integration/pom.xml
 COPY teknologi-barometer-service/pom.xml teknologi-barometer-service/pom.xml
-
-# Pre-fetch dependencies for the candidate-match module
-RUN mvn -B -DskipTests -DskipITs=true -pl candidate-match -am dependency:go-offline
-
 # Copy source for the modules needed by candidate-match build
 COPY ai-platform-contracts/src ai-platform-contracts/src
 COPY ai-integration/src ai-integration/src
