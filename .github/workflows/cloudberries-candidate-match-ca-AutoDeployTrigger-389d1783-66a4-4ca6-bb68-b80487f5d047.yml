@@ -53,12 +53,13 @@ jobs:
           ingress: external
           targetPort: 8080
 
-      - name: Ensure anonymous access to Container App (allow anonymous)
+      - name: Ensure anonymous access to Container App (fully disable auth)
         run: |
           az extension add -n containerapp --yes || az extension update -n containerapp
-          # Allow anonymous access by setting unauthenticated-client-action
+          # Fully disable platform authentication
           az containerapp auth update \
             --name cloudberries-candidate-match-ca \
             --resource-group cloudberries-internal-dev \
+            --enabled false \
             --unauthenticated-client-action AllowAnonymous
 
