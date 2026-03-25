@@ -1,439 +1,577 @@
 # WARP.md
 
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
+This file explains how to work effectively in this repository after the modular-monolith refactor.
 
-This file guides WARP and developers through the **cloudberries-candidate-match** multi-module repository, covering architecture, setup, commands, APIs, embeddings/RAG, and troubleshooting for fast, reliable execution.
+Use this document as the primary repo guide for WARP and other LLMs. If older markdown files disagree with this file, trust the current source tree and runtime wiring first.
 
-## Important Repository Rules
+## Read this first
 
-⚠️ **Critical setup requirements based on your user rules:**
-
-- When writing backend code in `/candidate-match`, **always start DB first if not active**:
+- Use SDKMAN and Java `21.0.7-tem` for this repo.
+- Start PostgreSQL before backend work:
   ```bash
   docker-compose -f candidate-match/docker-compose-local.yaml up -d
   ```
-- **Always use SDKMAN** to install Java and Maven:
-  ```bash
-  sdk install java 21.0.7-tem
-  sdk use java 21.0.7-tem
-  sdk install maven
-  ```
-- **For local development**, use **only username/password** DB auth - no certificate authentication
-- The backend exposes an **OpenAPI contract**; frontend in `../cloudberries-candidate-match-web` uses generated types
-- **After changing** `candidate-match/openapi.yaml`, copy to frontend and regenerate types:
-  ```bash
-  cp candidate-match/openapi.yaml ../cloudberries-candidate-match-web/openapi.yaml
-  ```
+- Local database auth is username/password only. Do not use certificate auth for local development.
+- `candidate-match` is the main executable backend.
+- `ai-rag-service` is currently a dependency module that contributes beans to the main app. It is not a separately launched service in the checked-in refactor state.
+- Keep provider-specific LLM and embedding code in `ai-rag-service`.
+- Keep business logic, domain rules, persistence, and REST use cases in `candidate-match`.
+- Keep cross-module AI interfaces in `ai-platform-contracts`.
+- If `candidate-match/openapi.yaml` changes, sync it to `../cloudberries-candidate-match-web/openapi.yaml` and regenerate frontend types.
 
-## Repository Layout and Multi-Module Structure
+## Repository mental model
 
-**Parent Project (Root)**: Orchestrates modules via Maven, centralizes version management and shared plugin configuration.
-
-**Modules**:
-- **`candidate-match`** (port 8080): Primary backend service exposing candidate matching, project request domain, and core business APIs
-- **`ai-rag-service`** (port 8081): Retrieval-augmented generation, embeddings, semantic search, and vector operations using Spring AI
-- **`teknologi-barometer-service`** (port 8082): Analytics and insights service with Gmail integration and technology barometer functionality
-
-**Multi-Module Maven Commands**:
-```bash
-# Build all modules
-mvn -T 1C clean package
-
-# Run specific module with dependencies
-mvn -pl candidate-match -am spring-boot:run -Dspring-boot.run.profiles=local
-
-# Test specific module
-mvn -pl ai-rag-service -am test
+```text
+cloudberries-candidate-match/
+├── pom.xml                         # parent pom / module orchestrator
+├── ai-platform-contracts/          # shared AI ports, DTOs, provider enums
+├── ai-rag-service/                 # provider adapters, Spring AI RAG, LLM clients
+├── candidate-match/                # main Spring Boot app, business logic, DB, REST API
+└── teknologi-barometer-service/    # separate bounded context / separate app
 ```
 
-## Architecture Overview and Key Concepts
+The intended dependency direction is:
 
-### Service Architecture
-- **Candidate Match**: Core business logic, consultant/project matching, exposes REST APIs and OpenAPI documentation
-- **AI RAG Service**: 
-  - Ingestion and chunking of CV/job posting text
-  - Embedding generation via OpenAI/Gemini, stores vectors in PostgreSQL via pgvector
-  - Semantic similarity search using cosine distance
-- **Teknologi Barometer**: Gmail integration, technology analytics, connects to candidate-match for consultant matching
+```text
+candidate-match
+  ├── depends on ai-platform-contracts
+  └── depends on ai-rag-service
 
-### Data Layer
-- **PostgreSQL** with **pgvector extension** stores:
-  - Relational entities (consultants, skills, projects, CVs)
-  - Vector embeddings for semantic search
-  - Separate databases per service where configured
-- **Database migrations**: Uses **Liquibase** (confirmed from application configs)
+ai-rag-service
+  └── depends on ai-platform-contracts
+```
 
-### Key Concepts
-- **pgvector**: PostgreSQL extension for storing vectors and index-accelerated similarity search
-- **Embeddings**: Fixed-length numeric vectors representing text content for semantic search
-- **RAG Pipeline**: Retrieve semantically similar chunks, then pass context to LLM for generation
-- **Hybrid Search**: Combines structural filters with semantic ranking for optimal results
+The important architectural idea is:
+- `candidate-match` decides what the business flow is.
+- `ai-platform-contracts` defines how the core asks for AI work.
+- `ai-rag-service` decides which provider performs that AI work.
 
-### Semantic vs Structural Search
+## What actually boots
 
-**Structural Search**:
-- Traditional SQL filters on structured fields (skills, experience, location)
-- Deterministic, explainable, fast for exact constraints
-- Misses semantic similarity beyond exact matches
+The main backend starts from `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/Main.kt`.
 
-**Semantic Search**:
-- Converts text into embeddings, uses pgvector similarity
-- Finds conceptually similar content even with different terminology
-- Requires embedding model, vector storage, careful context design
+That class effectively loads beans from:
+- `no.cloudberries.candidatematch`
+- `no.cloudberries.ai`
 
-**This Project's Approach**:
-1. Apply structural filters first (narrow by hard constraints)
-2. Use semantic search on remaining candidates (rank by conceptual fit)
-3. RAG pipeline synthesizes insights using retrieved context
+It also still contains a stale `no.cloudberries.teknologibarometer` scan entry, but the checked-in barometer module uses `no.cloudberries.barometer`, so treat barometer as a separate app unless you intentionally wire it into the main runtime.
 
-## Prerequisites and Toolchain
+That means:
+- one Spring Boot process starts on port `8080`
+- `candidate-match` beans are loaded
+- `ai-rag-service` beans are also loaded into the same process
+- `/api/rag/**` endpoints can exist even though their controller lives in `ai-rag-service`
 
-**Required Tools**:
+Do not assume `ai-rag-service` is a separately running app on port `8081`. Older docs say that, but the current checked-in state does not include a standalone boot application or checked-in `application.yml` for `ai-rag-service`.
+
+## Module responsibilities
+
+### `candidate-match`
+
+This is the core business module and main web application.
+
+It owns:
+- REST controllers
+- application services and business orchestration
+- domain entities and rules
+- JPA entities and repositories
+- Liquibase migrations
+- Flowcase integration
+- project request workflows
+- consultant search workflows
+- CV scoring workflows
+- match result persistence
+
+It may still contain AI-oriented application services, but those should remain provider-agnostic and talk only through ports.
+
+Important files and areas:
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/Main.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/projectrequest/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/consultants/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/matches/`
+- `candidate-match/src/main/resources/application.yaml`
+- `candidate-match/src/main/resources/application-local.yaml`
+- `candidate-match/src/main/resources/db/changelog/`
+
+Examples of core services that depend on ports rather than provider clients:
+- `service/projectrequest/ProjectRequestAnalysisService.kt`
+- `service/ai/AIQueryInterpretationService.kt`
+- `service/ai/AIContentAnalysisService.kt`
+- `service/ai/RAGContextService.kt`
+- `service/consultants/ConsultantSearchService.kt`
+- `service/matching/CandidateMatchingService.kt`
+
+### `ai-platform-contracts`
+
+This is the anti-corruption boundary between the core module and the AI integration module.
+
+It contains shared ports and types such as:
+- `AiContentGenerationPort`
+- `QueryInterpretationPort`
+- `ProjectRequestAnalysisPort`
+- `EmbeddingPort`
+- `CandidateMatchingPort`
+- `AIProvider`
+- `AIResponse`
+- `CandidateMatchResponse`
+- query interpretation DTOs and other shared AI-facing types
+
+When the core needs a new AI capability, add or evolve the contract here first.
+
+### `ai-rag-service`
+
+This module should own communication with LLMs and embedding providers.
+
+It currently contains:
+- adapter implementations for shared AI ports
+- provider-specific HTTP clients for Gemini, OpenAI, Anthropic, and Ollama
+- Spring AI based generic RAG components
+- prompt templates related to AI interpretation / analysis / matching
+
+Important files and areas:
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/infrastructure/ai/`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/infrastructure/integration/`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/rag/`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/config/`
+
+Key implementations:
+- `AiContentGenerationAdapter.kt`
+- `QueryInterpretationAdapter.kt`
+- `ProjectRequestAnalysisAdapter.kt`
+- `infrastructure/integration/gemini/GeminiHttpClient.kt`
+- `infrastructure/integration/openai/OpenAIHttpClient.kt`
+- `infrastructure/integration/anthropic/AnthropicHttpClient.kt`
+- `infrastructure/integration/ollama/OllamaHttpClient.kt`
+- `rag/api/RagController.kt`
+- `rag/service/RagService.kt`
+- `rag/service/DbIngestionService.kt`
+
+### `teknologi-barometer-service`
+
+Treat this as a separate bounded context and separate app.
+
+It is not the main candidate-match runtime. Keep it conceptually separate from the monolith work unless the task explicitly involves barometer functionality.
+
+## The intended AI architecture
+
+Use this three-layer mental model:
+
+1. `candidate-match` decides the business use case
+   - analyze a project request
+   - interpret a chat query
+   - score a CV
+   - find consultants
+   - persist match results
+
+2. `ai-platform-contracts` defines the stable API between core and AI infrastructure
+   - generate content
+   - interpret search intent
+   - analyze request text
+   - generate embeddings
+   - compare CV vs request
+
+3. `ai-rag-service` implements those contracts against real providers
+   - Gemini
+   - OpenAI
+   - Anthropic
+   - Ollama
+   - Spring AI `ChatClient` and `VectorStore`
+
+When refactoring or adding code:
+- do not import provider clients directly into `candidate-match`
+- do not make `ai-rag-service` depend on `candidate-match`
+- keep domain models in `candidate-match`
+- prefer raw text or shared AI DTOs across the module boundary
+
+## Current refactor status and important caveats
+
+The refactor is real, but the codebase is still mid-transition. Keep these caveats in mind.
+
+### 1. AI orchestration still exists in `candidate-match`
+
+Some AI-facing application services still live in `candidate-match`, for example:
+- `service/ai/AIQueryInterpretationService.kt`
+- `service/ai/AIContentAnalysisService.kt`
+- `service/ai/RAGService.kt`
+- `service/ai/RAGContextService.kt`
+- `service/ai/AISearchOrchestrator.kt`
+
+That is acceptable as long as they remain provider-agnostic and talk through ports.
+
+Do not add raw Gemini/OpenAI/Ollama HTTP logic to these classes.
+
+### 2. There are two vector / RAG paths today
+
+There are effectively two AI retrieval stacks in the repo right now.
+
+#### Candidate-match custom semantic / chunk flow
+Uses:
+- `EmbeddingPort`
+- `CvEmbeddingService`
+- `ConsultantSearchService`
+- `CvEmbeddingRepository`
+- `CvChunkEmbeddingRepository`
+- `RAGContextService`
+
+Tables involved:
+- `cv_embedding`
+- `cv_chunk_embedding`
+
+#### Spring AI generic RAG flow from `ai-rag-service`
+Uses:
+- `rag/api/RagController.kt`
+- `rag/service/RagService.kt`
+- `rag/service/DbIngestionService.kt`
+- `rag/service/StartupIngestRunner.kt`
+- Spring AI `VectorStore`
+
+Table involved:
+- `vector_store`
+
+Do not mix these up when debugging semantic search, ingestion, or consultant chat behavior.
+
+### 3. Local profile is Ollama-oriented, but not fully local-only yet
+
+`candidate-match/src/main/resources/application-local.yaml` clearly points toward local Ollama development, but some generation-related settings still default to Gemini.
+
+Notable local settings:
+- `spring.ai.ollama.chat.options.model: qwen2.5:14b`
+- `spring.ai.ollama.embedding.options.model: bge-m3`
+- `embedding.provider: OLLAMA`
+- `embedding.model: bge-m3`
+- `ollama.model: llama3.2:3b`
+- `search.ollama.model: llama3.2:1b`
+- `ai.provider: GEMINI`
+- `projectrequest.analysis.provider: GEMINI`
+- `matching.provider: GEMINI`
+
+Interpretation:
+- the local-development intention is Postgres + pgvector + Ollama
+- some business flows are still configured to use Gemini unless you explicitly align them
+- when making the monolith more local-first, update the provider selection through ports and configuration, not by bypassing the architecture
+
+### 4. Embedding wiring is still worth double-checking
+
+The checked-in source currently contains `GoogleGeminiEmbeddingProvider` as the visible `EmbeddingPort` implementation in `ai-rag-service`.
+
+At the same time, `application-local.yaml` declares:
+- `embedding.provider: OLLAMA`
+- `embedding.model: bge-m3`
+- `embedding.dimension: 1024`
+
+Treat this as refactor-in-progress. If semantic search or embedding generation behaves strangely under the local profile, inspect the actual active bean and code path before assuming Postgres or Ollama is broken.
+
+### 5. Old Gemini Files API docs are not the source of truth
+
+There are still markdown files describing older Gemini Files API matching flows.
+
+Current source includes legacy comments and placeholder exceptions in `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/matches/service/ProjectMatchingServiceImpl.kt`.
+
+If you need to work on matching:
+- verify the current code path first
+- do not assume old markdown docs are still accurate
+- do not reintroduce removed Gemini-specific coupling into the core module
+
+## Local development workflow
+
+### Prerequisites
+
+Use SDKMAN and the repo-local toolchain.
+
+Fastest path:
 ```bash
-# SDKMAN (required)
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk env
+```
 
-# Java 21 Temurin
-sdk install java 21.0.7-tem
+Or explicitly:
+```bash
 sdk use java 21.0.7-tem
+```
 
-# Maven via SDKMAN
+Install Maven with SDKMAN if needed:
+```bash
 sdk install maven
-
-# Docker and Docker Compose (macOS)
-brew install --cask docker
-# Docker Compose is included with Docker Desktop
 ```
 
-**Verification**:
+The repo-local `.sdkmanrc` currently declares:
+- `java=21.0.7-tem`
+- `maven=3.9.9`
+
+### Start PostgreSQL with pgvector
+
 ```bash
-java -version
-mvn -v
-docker -v
-docker-compose -v
+docker-compose -f candidate-match/docker-compose-local.yaml up -d
 ```
 
-**Optional**: Node.js for frontend integration with `../cloudberries-candidate-match-web`
-
-## Environment Variables
-
-**Copy and configure environment variables**:
+Useful checks:
 ```bash
-# Use the existing .env as template (contains placeholder values)
-cp .env .env.local
-# Edit .env.local with your actual API keys
-```
-
-**Key Variables** (from .env and application configs):
-
-**External APIs**:
-- `FLOWCASE_API_KEY`: Flowcase API integration
-- `FLOWCASE_BASE_URL`: https://cloudberries.flowcase.com/api
-- `OPENAI_API_KEY`: OpenAI for embeddings/chat (ai-rag-service, teknologi-barometer)
-- `GEMINI_API_KEY`: Google Gemini for embeddings/chat (candidate-match)
-
-**Database** (candidate-match local profile):
-- `POSTGRES_USER=candidatematch`
-- `POSTGRES_PASSWORD=candidatematch123`
-- Database: `candidatematch` on `localhost:5433`
-
-**AI RAG Service Database** (requires env vars):
-- `CM_DB_URL`: Connection to shared candidate-match database
-- `CM_DB_USERNAME`: Database username
-- `CM_DB_PASSWORD`: Database password
-
-**Optional** (teknologi-barometer):
-- `GMAIL_*`: Gmail API integration variables
-- `CANDIDATE_MATCH_URL=http://localhost:8080`
-
-## Local Database Setup with Docker Compose
-
-**Start PostgreSQL with pgvector**:
-```bash
-# From repository root
-cd candidate-match
-docker-compose -f docker-compose-local.yaml up -d
-
-# Verify status
-docker-compose -f docker-compose-local.yaml ps
-docker-compose -f docker-compose-local.yaml logs -f postgres-local
-```
-
-**Database Configuration**:
-- **Image**: `pgvector/pgvector:pg15` (pgvector pre-installed)
-- **Container**: `cloudberries-postgres-local`
-- **Port**: `5433:5432` (avoids conflicts)
-- **Database**: `candidatematch`
-- **Users**: `postgres/postgres123` (container), `candidatematch/candidatematch123` (app)
-
-**Verify pgvector**:
-```bash
+docker-compose -f candidate-match/docker-compose-local.yaml ps
+docker-compose -f candidate-match/docker-compose-local.yaml logs -f postgres-local
 psql "host=localhost port=5433 dbname=candidatematch user=candidatematch password=candidatematch123"
-
-# In psql:
-CREATE EXTENSION IF NOT EXISTS vector;
-SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
 ```
 
-**Database Migrations**:
-- Liquibase runs automatically on Spring Boot startup
-- Manual migration: Liquibase changesets in `src/main/resources/db/changelog/`
-- pgvector context activated in local profile
+### Run the main backend
 
-## Running the Services (Local Development)
-
-**1. Start Database**:
-```bash
-cd candidate-match
-docker-compose -f docker-compose-local.yaml up -d
-```
-
-**2. Build All Modules**:
-```bash
-mvn -T 1C -DskipTests clean package
-```
-
-**3. Run Services**:
-
-**Candidate Match** (primary service, port 8080):
 ```bash
 mvn -pl candidate-match -am spring-boot:run -Dspring-boot.run.profiles=local
-
-# With debug:
-mvn -pl candidate-match -am spring-boot:run -Dspring-boot.run.profiles=local \
-  -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ```
 
-**AI RAG Service** (port 8081):
+### Build everything
+
 ```bash
-# Requires CM_DB_* environment variables set
-export CM_DB_URL="jdbc:postgresql://localhost:5433/candidatematch"
-export CM_DB_USERNAME="candidatematch"
-export CM_DB_PASSWORD="candidatematch123"
-
-mvn -pl ai-rag-service -am spring-boot:run
-```
-
-**Teknologi Barometer Service** (port 8082):
-```bash
-# Uses separate database on port 5434 by default
-mvn -pl teknologi-barometer-service -am spring-boot:run
-```
-
-**4. Access Points**:
-- **Swagger UI**: `http://localhost:8080/swagger-ui/index.html` (candidate-match)
-- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
-- **Health**: `http://localhost:8080/actuator/health`
-
-## API Reference (Comprehensive List)
-
-### Candidate Match Service (Port 8080)
-
-**Core Endpoints**:
-- `GET /api/consultants` - List consultants with pagination
-- `POST /api/consultants/search` - Structural search with filters
-- `POST /api/consultants/search/semantic` - Semantic search using embeddings
-- `GET /api/consultants/search/embedding-info` - Embedding configuration info
-- `GET /api/consultants/with-cv` - Consultants with normalized CV data
-
-**Project Requests**:
-- `GET /api/project-requests` - List stored project requests
-- `POST /api/project-requests/upload` - Upload and analyze PDF
-- `GET /api/project-requests/{id}` - Get project request by ID
-
-**Matching**:
-- `POST /api/matches` - Find matches from project description text
-- `POST /api/matches/upload` - Upload CV (PDF) and find matches
-
-**Skills**:
-- `GET /api/skills` - List skills with consultant counts
-
-**CV Operations**:
-- `GET /api/cv/{userId}` - Get CV data (JSON) for user
-- `GET /api/cv-score/{candidateId}` - Get CV score for candidate
-- `POST /api/cv-score/{candidateId}/run` - Run CV scoring
-- `POST /api/cv-score/run/all` - Score all candidates
-- `GET /api/cv-score/all` - List all candidates overview
-
-**Embeddings**:
-- `POST /api/embeddings/run/jason` - Demo: generate Jason's embeddings
-- `POST /api/embeddings/run?userId=X&cvId=Y` - Generate specific embeddings
-- `POST /api/embeddings/run/missing?batchSize=100` - Batch process missing
-
-**Sync & Health**:
-- `POST /api/consultants/sync/run` - Sync from Flowcase
-- `GET /api/health` - Health check (aggregated)
-- `POST /api/chatbot/analyze` - AI content analysis
-
-### AI RAG Service (Port 8081)
-
-**Configuration from application.yml**:
-- Vector store table: `vector_store`
-- Chunking: 400 max tokens, 50 overlap tokens
-- Ingestion SQL configurable for CV text extraction
-
-### Teknologi Barometer Service (Port 8082)
-
-**Configuration Features**:
-- Gmail integration for technology trend analysis
-- Candidate matching via candidate-match-url
-- Scheduled ingestion and aggregation
-- Prometheus metrics exposure
-
-## Embedding Generation Workflows
-
-**Ingestion and Chunking** (ai-rag-service):
-- Splits CV/job posting text using configured chunk size (400 tokens) and overlap (50 tokens)
-- Normalizes to plain text, strips HTML/markup
-- Configurable SQL query for data extraction
-
-**Embedding Generation**:
-- Uses OpenAI `text-embedding-3-small` or Gemini `text-embedding-004`
-- Stores vectors in PostgreSQL using pgvector extension
-- COSINE_DISTANCE for similarity calculations
-
-**Available Workflows**:
-```bash
-# Manual embedding generation (candidate-match)
-curl -X POST http://localhost:8080/api/embeddings/run/jason
-curl -X POST "http://localhost:8080/api/embeddings/run?userId=thomas&cvId=andersen"
-curl -X POST "http://localhost:8080/api/embeddings/run/missing?batchSize=100"
-
-# Semantic search
-curl -X POST http://localhost:8080/api/consultants/search/semantic \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Senior Kotlin developer", "topK": 5}'
-```
-
-**Requirements for Embeddings**:
-- `embedding.enabled=true` in local profile (candidate-match)
-- `GEMINI_API_KEY` or `OPENAI_API_KEY` set
-- pgvector extension installed in database
-
-## Health Checks, Metrics, and Monitoring
-
-**Health Endpoints**:
-```bash
-# Candidate Match
-curl -s http://localhost:8080/actuator/health | jq
-curl -s http://localhost:8080/actuator/health/readiness | jq
-
-# Teknologi Barometer (more endpoints exposed)
-curl -s http://localhost:8082/actuator/health | jq
-curl -s http://localhost:8082/actuator/metrics | jq
-curl -s http://localhost:8082/actuator/prometheus
-```
-
-**Health Check Components**:
-- Database connectivity
-- Flowcase API availability
-- GenAI service availability (Gemini/OpenAI)
-- pgvector extension status
-
-## Testing Structure and Commands
-
-**Test Categories**:
-- **Unit Tests** (Surefire): `*Test.kt`, fast execution, no external dependencies
-- **Integration Tests** (Failsafe): `*IT.kt` or `*IntegrationTest.kt`, uses Testcontainers
-
-**Test Commands**:
-```bash
-# Unit tests only (fast)
-mvn -q -DskipITs=true clean test
-
-# Integration tests only (requires Docker)
-mvn -q -DskipTests=true -DskipITs=false clean verify
-
-# All tests
-mvn -q clean verify
-
-# pgvector integration tests (special flag)
-mvn -q -DskipITs=false -DrunPgVectorIT=true clean verify
-
-# Module-specific tests
-mvn -pl candidate-match -am test
-```
-
-## Common Commands and Workflows
-
-**Daily Development**:
-```bash
-# Start local environment
-cd candidate-match && docker-compose -f docker-compose-local.yaml up -d
-
-# Build and run main service
 mvn -T 1C clean package
-mvn -pl candidate-match -am spring-boot:run -Dspring-boot.run.profiles=local
+```
 
-# Quick tests
+### Fast unit-test loop
+
+```bash
 mvn -q -DskipITs=true clean test
-
-# Check API endpoints
-open http://localhost:8080/swagger-ui/index.html
-
-# Generate embeddings
-curl -X POST http://localhost:8080/api/embeddings/run/jason
 ```
 
-**Database Operations**:
-```bash
-# Connect to local database
-psql "host=localhost port=5433 dbname=candidatematch user=candidatematch password=candidatematch123"
+### Integration tests
 
-# Check migrations
-docker-compose -f candidate-match/docker-compose-local.yaml logs postgres-local
+```bash
+mvn -q -DskipTests=true -DskipITs=false clean verify
 ```
 
-## Frontend Integration and OpenAPI Sync
+### Useful local URLs
 
-**OpenAPI Contract Synchronization**:
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- OpenAPI YAML: `http://localhost:8080/v3/api-docs.yaml`
+- Health: `http://localhost:8080/actuator/health`
+- Generic RAG API: `http://localhost:8080/api/rag/**`
+
+## Local Postgres details
+
+Local database source of truth:
+- file: `candidate-match/docker-compose-local.yaml`
+- container: `cloudberries-postgres-local`
+- image: `pgvector/pgvector:pg15`
+- exposed port: `5433`
+- database: `candidatematch`
+- username: `candidatematch`
+- password: `candidatematch123`
+
+Liquibase source of truth:
+- `candidate-match/src/main/resources/db/changelog/db.changelog-master.xml`
+
+Local Liquibase contexts:
+- `default`
+- `pgvector`
+
+AI-related changelog milestones include:
+- embeddings
+- AI RAG tables
+- conversation tables
+- match result tables
+- 1024-dimension embedding adjustment
+- Spring AI vector store support
+
+## Effective configuration locations
+
+The main runtime configuration for the monolith lives in `candidate-match/src/main/resources/`.
+
+Important files:
+- `application.yaml`
+- `application-local.yaml`
+- `application-prod.yaml`
+
+Important configuration groups:
+- `spring.datasource.*`
+- `spring.ai.ollama.*`
+- `spring.ai.vectorstore.pgvector.*`
+- `flowcase.*`
+- `gemini.*`
+- `openai.*`
+- `anthropic.*`
+- `ollama.*`
+- `embedding.*`
+- `ai.*`
+- `rag.ingest.*`
+- `search.ollama.*`
+
+`ai-rag-service` currently relies on the host application for configuration. Do not waste time looking for a checked-in standalone `ai-rag-service/src/main/resources/application.yml` in the current refactor state.
+
+## Ollama for local development
+
+The repo already contains local Ollama helpers.
+
+Relevant files:
+- `scripts/ollama-chat`
+- `scripts/ollama-embed`
+- `scripts/ollama_local_app.py`
+- `ollama/Modelfile`
+- `ollama/Modelfile.gemma3-12b`
+- `ollama/Modelfile.embeddinggemma-300m`
+
+### Recommended local model split
+
+Use separate local models for different responsibilities:
+- reasoning / semantic understanding of CVs and customer requests: `qwen2.5:14b`
+- embeddings: `bge-m3`
+- optional smoke-test model: `llama3.2:3b`
+- optional stronger alternative: `gemma3:12b`
+
+### Quick Ollama smoke test
+
 ```bash
-# When candidate-match/openapi.yaml changes:
+python3 scripts/ollama_local_app.py --self-test
+```
+
+### Local chat REPL
+
+```bash
+scripts/ollama-chat
+```
+
+### Local embedding test
+
+```bash
+scripts/ollama-embed "Senior Kotlin developer with Spring Boot and PostgreSQL"
+```
+
+### Important nuance
+
+There are multiple Ollama-related config groups because different code paths use different abstractions:
+- Spring AI generic RAG uses `spring.ai.ollama.*`
+- the direct Ollama HTTP client uses `ollama.*`
+- some search-related helper settings use `search.ollama.*`
+
+When a feature does not use the model you expect, identify the code path first.
+
+## Search, embeddings, and consultant chat
+
+### Semantic search
+
+Primary business-facing files:
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/consultants/ConsultantSearchService.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/embedding/CvEmbeddingService.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/infrastructure/repositories/embedding/CvEmbeddingRepository.kt`
+
+Semantics:
+- embeddings are generated through `EmbeddingPort`
+- semantic search is backed by pgvector in PostgreSQL
+- the service validates provider/model compatibility before executing semantic search
+
+### Consultant-specific RAG chat
+
+Primary files:
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/RAGService.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/RAGContextService.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/AISearchOrchestrator.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/ConversationService.kt`
+
+Semantics:
+- chunks can be generated and stored in `cv_chunk_embedding`
+- follow-up chat context is persisted in conversation tables
+- the orchestrator chooses between structured, semantic, hybrid, and RAG flows
+
+## Generic Spring AI RAG endpoints
+
+These come from `ai-rag-service`, but they run inside the main candidate-match process because of component scanning.
+
+Source files:
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/rag/api/RagController.kt`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/rag/service/RagService.kt`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/rag/service/DbIngestionService.kt`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/rag/service/StartupIngestRunner.kt`
+
+Endpoints:
+- `POST /api/rag/chat`
+- `POST /api/rag/ingest`
+- `POST /api/rag/ingest/db`
+
+Important defaults from `application.yaml`:
+- `rag.ingest.on-start: false`
+- DB ingestion SQL is configurable under `rag.ingest.sql`
+- chunking defaults to `400` max tokens and `50` overlap tokens
+
+## Project request analysis flow
+
+Current intended split:
+- `candidate-match` owns upload, PDF text extraction, persistence, and domain flow
+- `ai-platform-contracts` defines the analysis contract
+- `ai-rag-service` implements the provider-backed analysis
+
+Key files:
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/projectrequest/ProjectRequestAnalysisService.kt`
+- `ai-platform-contracts/src/main/kotlin/no/cloudberries/ai/port/ProjectRequestAnalysisPort.kt`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/infrastructure/ai/ProjectRequestAnalysisAdapter.kt`
+
+If you refactor this flow further, move provider details toward `ai-rag-service`, not the other way around.
+
+## Query interpretation and AI search orchestration
+
+Key files:
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/AIQueryInterpretationService.kt`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/AISearchOrchestrator.kt`
+- `ai-platform-contracts/src/main/kotlin/no/cloudberries/ai/port/QueryInterpretationPort.kt`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/infrastructure/ai/QueryInterpretationAdapter.kt`
+
+Mental model:
+- candidate-match interprets the business/search consequence of a user query
+- ai-rag-service supplies the LLM-backed interpretation through the port
+- candidate-match then executes structured, semantic, hybrid, or RAG behavior
+
+## OpenAPI and frontend sync
+
+Frontend repo:
+- `../cloudberries-candidate-match-web`
+
+When the backend contract changes:
+```bash
 cp candidate-match/openapi.yaml ../cloudberries-candidate-match-web/openapi.yaml
+npm --prefix ../cloudberries-candidate-match-web run gen:api
+```
 
-# Generate from running service:
+Or export from the running service:
+```bash
 curl -s http://localhost:8080/v3/api-docs.yaml > ../cloudberries-candidate-match-web/openapi.yaml
-
-# Regenerate frontend types (in frontend repo):
-npm run gen:api
+npm --prefix ../cloudberries-candidate-match-web run gen:api
 ```
 
-## Troubleshooting
+Do not assume the root-level `openapi.yaml` is the only canonical contract. Verify whether the change belongs in `candidate-match/openapi.yaml` or should be exported from the running backend.
 
-**Database Issues**:
-```bash
-# Container not starting
-docker-compose -f candidate-match/docker-compose-local.yaml logs postgres-local
-lsof -i :5433  # Check port conflicts
+## Known local-development gotchas
 
-# Connection failures
-psql "host=localhost port=5433 dbname=candidatematch user=candidatematch password=candidatematch123"
+- `sync.consultants.on-startup: true` in `application-local.yaml` means the app may call Flowcase on startup.
+- local RAG and semantic behavior can differ depending on whether the path uses Spring AI or the custom embedding port flow.
+- if semantic search fails with provider/model mismatch, inspect `ConsultantSearchService` and the active `EmbeddingPort` bean.
+- if `/api/rag/**` is missing, inspect `Main.kt` component scanning and the `ai-rag-service` module dependency.
+- if someone refers to a standalone `ai-rag-service` process, verify that they are not working from stale documentation.
+- keep real credentials out of tracked files; use local environment-specific configuration for actual secrets.
 
-# pgvector not found
-psql -c "CREATE EXTENSION IF NOT EXISTS vector;" # Ensure extension is installed
-```
+## High-value file map
 
-**API/Service Issues**:
-```bash
-# Missing API keys
-echo $GEMINI_API_KEY  # Verify environment variables are set
+Start here when exploring the repo:
+- `pom.xml`
+- `candidate-match/pom.xml`
+- `ai-rag-service/pom.xml`
+- `ai-platform-contracts/pom.xml`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/Main.kt`
+- `candidate-match/src/main/resources/application.yaml`
+- `candidate-match/src/main/resources/application-local.yaml`
+- `candidate-match/src/main/resources/db/changelog/db.changelog-master.xml`
+- `ai-platform-contracts/src/main/kotlin/no/cloudberries/ai/port/`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/infrastructure/ai/`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/infrastructure/integration/`
+- `ai-rag-service/src/main/kotlin/no/cloudberries/ai/rag/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/ai/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/consultants/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/projectrequest/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/service/embedding/`
+- `candidate-match/src/main/kotlin/no/cloudberries/candidatematch/matches/`
 
-# Health check failures
-curl http://localhost:8080/actuator/health
+## Default assumptions if the repo feels inconsistent
 
-# OpenAPI not updating
-cp candidate-match/openapi.yaml ../cloudberries-candidate-match-web/openapi.yaml
-```
+Assume all of the following unless the current code proves otherwise:
+- the target architecture is a modular monolith
+- `candidate-match` is the main executable and business core
+- `ai-rag-service` is the AI integration module and should own provider communication
+- `ai-platform-contracts` is the stable boundary between them
+- local development is intended to use Postgres + pgvector + Ollama
+- some markdown docs still describe pre-refactor or partially completed states
+- the current source tree and actual bean wiring are more trustworthy than old documentation
 
-**Common Local Development Issues**:
-- **Port conflicts**: Postgres uses 5433, adjust if needed
-- **Embeddings not working**: Verify API keys and `embedding.enabled=true`
-- **Health check errors in tests**: Expected in isolated test contexts
-- **Rosetta required**: On Apple Silicon for some test containers
-- **Certificate auth**: Use username/password only for local development
-
-**Legacy Notes from Original WARP.md**:
-- Embedded Postgres in tests may require Rosetta 2 on Apple Silicon
-- Health check errors in test logs are expected in isolation
-- Maven plugins use `useModulePath=false` to avoid classpath issues

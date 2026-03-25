@@ -1,8 +1,9 @@
 package no.cloudberries.candidatematch.service
 
 import io.mockk.*
-import no.cloudberries.candidatematch.config.AISettings
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.domain.CandidateMatchResponse
+import no.cloudberries.ai.config.AISettings
 import no.cloudberries.candidatematch.domain.candidate.Skill
 import no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity
 import no.cloudberries.candidatematch.infrastructure.entities.RequestStatus
@@ -23,12 +24,12 @@ class ProjectRequestServiceTest {
     private val aiService = mockk<AIService>()
     private val consultantService = mockk<ConsultantWithCvService>()
     private val validationService = mockk<InputValidationService>(relaxed = true)
-    private val aiSettings = AISettings(
-        enabled = true,
-        timeout = Duration.ofSeconds(30),
-        provider = AIProvider.OPENAI,
+    private val aiSettings = AISettings().apply {
+        enabled = true
+        timeout = Duration.ofSeconds(30)
+        provider = AIProvider.OPENAI
         fallbackEnabled = true
-    )
+    }
 
     private lateinit var projectRequestService: ProjectRequestService
 

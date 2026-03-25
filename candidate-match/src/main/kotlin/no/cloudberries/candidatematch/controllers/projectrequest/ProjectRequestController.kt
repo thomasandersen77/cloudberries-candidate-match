@@ -73,9 +73,11 @@ class ProjectRequestController(
 
     @Timed
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: Long): ProjectRequestResponseDto? {
-        logger.info { "GET /api/project-requests/$id" }
-        return analysisService.getById(id)?.toDto()
+    fun getById(@PathVariable id: Long): ResponseEntity<ProjectRequestDto> {
+        logger.info { "GET /project-requests/$id" }
+        val projectRequest = projectRequestService.findById(id)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(projectRequest.toDto())
     }
 
     @Timed
@@ -84,8 +86,8 @@ class ProjectRequestController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String
-    ): ResponseEntity<PagedProjectRequestResponseDto> {
-        logger.info { "GET /api/project-requests (page=$page, size=$size, sort=$sort)" }
+    ): ResponseEntity<PagedProjectRequestDto> {
+        logger.info { "GET /project-requests (page=$page, size=$size, sort=$sort)" }
 
         val sortParams = sort.split(",")
         val sortField = sortParams.getOrNull(0) ?: "id"
@@ -102,11 +104,8 @@ class ProjectRequestController(
         )
         val projectRequestPage = projectRequestService.findAll(pageable)
 
-        // Convert to legacy format for compatibility
-        val analysisResults = analysisService.listAll().map { it.toDto() }
-
-        val response = PagedProjectRequestResponseDto(
-            content = analysisResults,
+        val response = PagedProjectRequestDto(
+            content = projectRequestPage.content.map { it.toDto() },
             totalElements = projectRequestPage.totalElements,
             totalPages = projectRequestPage.totalPages,
             currentPage = page,

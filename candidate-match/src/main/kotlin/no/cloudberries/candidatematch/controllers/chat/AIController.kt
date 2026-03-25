@@ -3,15 +3,18 @@ package no.cloudberries.candidatematch.controllers.chat
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.domain.ai.AIResponse
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.domain.AIResponse
+import no.cloudberries.ai.port.AiContentGenerationPort
 import no.cloudberries.candidatematch.dto.ai.ChatSearchRequest
 import no.cloudberries.candidatematch.dto.ai.ChatSearchResponse
-import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import no.cloudberries.candidatematch.service.ai.AISearchOrchestrator
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+
+import java.util.concurrent.CompletableFuture
+import org.springframework.scheduling.annotation.Async
 
 @RestController
 @RequestMapping("/chatbot")
@@ -20,7 +23,7 @@ import org.springframework.web.bind.annotation.*
     description = "AI-powered consultant search and analysis"
 )
 class AIController(
-    private val aiAnalysisService: AIAnalysisService,
+    private val contentGenerationPort: AiContentGenerationPort,
     private val searchOrchestrator: AISearchOrchestrator
 ) {
     private val logger = KotlinLogging.logger { }
@@ -33,13 +36,15 @@ class AIController(
     )
     fun analyzeContent(
         @RequestBody request: AIAnalysisRequest,
-    ): AIResponse {
+    ): CompletableFuture<AIResponse> {
         logger.info { "POST /api/chatbot/analyze content.len=${request.content.length}" }
 
-        return aiAnalysisService.analyzeContent(
-            request.content,
-            AIProvider.GEMINI
-        )
+        return CompletableFuture.supplyAsync {
+            contentGenerationPort.generateContent(
+                request.content,
+                null
+            )
+        }
     }
 
     @PostMapping("/search", consumes = ["application/json"], produces = ["application/json"])

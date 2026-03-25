@@ -1,7 +1,7 @@
 package no.cloudberries.candidatematch.service.ai
 
-import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.domain.CandidateMatchResponse
 
 interface AIService {
 

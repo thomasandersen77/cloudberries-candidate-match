@@ -7,8 +7,9 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport
 import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = ["no.cloudberries.candidatematch", "no.cloudberries.ai"])
 @EnableScheduling
+@org.springframework.scheduling.annotation.EnableAsync
 @ConfigurationPropertiesScan
 class Main
 

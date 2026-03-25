@@ -26,61 +26,63 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
     contexts: "default,pgvector"
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 100
+        thread-name-prefix: ai-async-
+    scheduling:
+      pool:
+        size: 5
   mvc:
+    async:
+      request-timeout: 300000 # 5 minutes
     servlet:
       path: /api
-# application-prod.yml
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: qwen2.5:14b
+      embedding:
+        options:
+          model: bge-m3
+    vectorstore:
+      pgvector:
+        initialize-schema: false
+        table-name: vector_store
 
-# Make external services optional
-flowcase:
-  apiKey: ${FLOWCASE_API_KEY}
-  baseUrl: ${FLOWCASE_BASE_URL}
+# Ollama configuration for OllamaHttpClient
+ollama:
+  baseUrl: http://localhost:11434
+  # Must match a name from `ollama list`. v4 only works after: ollama create gemma3:12b-cv-expert-v4 -f Modelfile-gemma3-cv-expert-v4
+  model: gemma3:12b-cv-expert-v4
+  # model: gemma3:12b-cv-expert-v3   # use this if v4 is not created yet (404 = model missing, not "Ollama down")
+  embeddingModel: bge-m3                    # embedding model
+  embeddingFallbackModel: nomic-embed-text  # fallback embedding if bge-m3 is unavailable
+  connectTimeoutSeconds: 10                 # connection timeout
+  readTimeoutSeconds: 300                   # read timeout (5 minutes - Gemma3 12B can be slow on complex CVs)
+  writeTimeoutSeconds: 30                   # write timeout
 
-openai:
-  apiKey: ${OPENAI_API_KEY}
-  model: gpt-5
-  assistantId: ${OPENAI_ASSISTANT_ID}
-
-gemini:
-  apiKey: ${GEMINI_API_KEY}
-  
-  # Model for project analysis (PDF upload, Må/Bør-krav extraction)
-  # gemini-3-pro-preview gives best quality but has capacity limits
-  # For PDF analysis, this model is used
-  model: gemini-3-pro-preview
-  
-  # Model for candidate ranking (batch operations via Files API)
-  # PRIMARY: gemini-2.5-pro - stable, 2M context, high rate limits
-  # This is used as the first choice for batch ranking
-  matchingModel: gemini-2.5-pro
-  
-  # FALLBACK: gemini-2.5-flash - fast, used if matchingModel returns 503
-  flashModel: gemini-2.5-flash
-  
-  fileStoreName: candidate-cv-store
-  useFilesApi: true  # MUST be true for Files API batch matching
-
-anthropic:
-  apiKey: ${ANTHROPIC_API_KEY}
-  model: ${ANTHROPIC_MODEL:claude-3-5-sonnet-20241022}
-  baseUrl: ${ANTHROPIC_BASE_URL:https://api.anthropic.com}
-
+# Embedding configuration for semantic search
 embedding:
   enabled: true
-  provider: GEMINI
-  model: text-embedding-004
-  dimension: 768
+  provider: OLLAMA
+  model: bge-m3
+  dimension: 1024
 
+# AI Settings for provider selection and configuration
 ai:
-  ollama:
-    base-url: http://localhost:11434
-    model: llama3.2:1b
-  provider: GEMINI
+  provider: OLLAMA
+  timeout: 180s
   models:
     interpretation: gemini-2.5-flash
     generation_default: gemini-2.5-flash
     generation_quality: gemini-2.5-pro
-    embeddings: text-embedding-004
+    embeddings: bge-m3
   timeouts:
     interpretation: 1500  # 1.5s for fast query classification
     generation: 3000     # 3s for answer generation
@@ -116,14 +118,14 @@ search:
 projectrequest:
   analysis:
     ai-enabled: true
-    provider: GEMINI
+    provider: OLLAMA
 
 sync:
   consultants:
     on-startup: true
 
 matching:
-  provider: GEMINI
+  provider: OLLAMA
   topN: 10
   enabled: true
   # Model is now configured in gemini.matchingModel above

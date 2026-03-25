@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "search.lexicon")
-data class SearchLexiconProperties(
+class SearchLexiconProperties(
     var publicSectorTokens: List<String> = listOf(
         "kommune", "etat", "nav", "skatt", "stat", "offentlig", "departement", "direktorat",
         "helsedirektoratet", "kartverket", "politiet", "helse", "utdanningsdirektoratet"

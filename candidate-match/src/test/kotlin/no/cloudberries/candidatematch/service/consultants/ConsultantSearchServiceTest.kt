@@ -3,11 +3,11 @@ package no.cloudberries.candidatematch.service.consultants
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.cloudberries.ai.port.EmbeddingPort
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantCvDto
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
 import no.cloudberries.candidatematch.domain.consultant.RelationalSearchCriteria
 import no.cloudberries.candidatematch.domain.consultant.SemanticSearchCriteria
-import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantFlatView
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantSearchRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.SemanticSearchResult
@@ -20,12 +20,12 @@ import org.springframework.data.domain.PageRequest
 class ConsultantSearchServiceTest {
 
     private val consultantSearchRepository = mockk<ConsultantSearchRepository>()
-    private val embeddingProvider = mockk<EmbeddingProvider>()
+    private val embeddingPort = mockk<EmbeddingPort>()
     private val cvDataAggregationService = mockk<CvDataAggregationService>()
     
     private val consultantSearchService = ConsultantSearchService(
         consultantSearchRepository,
-        embeddingProvider,
+        embeddingPort,
         cvDataAggregationService
     )
 
@@ -102,10 +102,10 @@ class ConsultantSearchServiceTest {
         val pageable = PageRequest.of(0, 10)
         val searchEmbedding = doubleArrayOf(0.1, 0.2, 0.3)
         
-        every { embeddingProvider.isEnabled() } returns true
-        every { embeddingProvider.providerName } returns "GOOGLE_GEMINI"
-        every { embeddingProvider.modelName } returns "text-embedding-004"
-        every { embeddingProvider.embed("Senior Kotlin developer") } returns searchEmbedding
+        every { embeddingPort.isEnabled() } returns true
+        every { embeddingPort.providerName } returns "GOOGLE_GEMINI"
+        every { embeddingPort.modelName } returns "text-embedding-004"
+        every { embeddingPort.embed("Senior Kotlin developer") } returns searchEmbedding
         
         val semanticResults = listOf(
             SemanticSearchResult(
@@ -156,7 +156,7 @@ class ConsultantSearchServiceTest {
         assertEquals("John Doe", result.content[0].name)
         assertEquals("user1", result.content[0].userId)
         
-        verify { embeddingProvider.embed("Senior Kotlin developer") }
+        verify { embeddingPort.embed("Senior Kotlin developer") }
         verify { 
             consultantSearchRepository.findBySemanticSimilarity(
                 searchEmbedding, 
@@ -174,7 +174,7 @@ class ConsultantSearchServiceTest {
         val criteria = SemanticSearchCriteria(text = "Senior Kotlin developer")
         val pageable = PageRequest.of(0, 10)
         
-        every { embeddingProvider.isEnabled() } returns false
+        every { embeddingPort.isEnabled() } returns false
 
         assertThrows<IllegalStateException> {
             consultantSearchService.searchSemantic(criteria, pageable)
@@ -190,9 +190,9 @@ class ConsultantSearchServiceTest {
         )
         val pageable = PageRequest.of(0, 10)
         
-        every { embeddingProvider.isEnabled() } returns true
-        every { embeddingProvider.providerName } returns "GOOGLE_GEMINI"
-        every { embeddingProvider.modelName } returns "text-embedding-004"
+        every { embeddingPort.isEnabled() } returns true
+        every { embeddingPort.providerName } returns "GOOGLE_GEMINI"
+        every { embeddingPort.modelName } returns "text-embedding-004"
 
         assertThrows<IllegalArgumentException> {
             consultantSearchService.searchSemantic(criteria, pageable)
@@ -214,10 +214,10 @@ class ConsultantSearchServiceTest {
 
     @Test
     fun `getEmbeddingProviderInfo should return provider information`() {
-        every { embeddingProvider.isEnabled() } returns true
-        every { embeddingProvider.providerName } returns "GOOGLE_GEMINI"
-        every { embeddingProvider.modelName } returns "text-embedding-004"
-        every { embeddingProvider.dimension } returns 768
+        every { embeddingPort.isEnabled() } returns true
+        every { embeddingPort.providerName } returns "GOOGLE_GEMINI"
+        every { embeddingPort.modelName } returns "text-embedding-004"
+        every { embeddingPort.dimension } returns 768
 
         val info = consultantSearchService.getEmbeddingProviderInfo()
 

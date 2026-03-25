@@ -10,25 +10,46 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>candidate-matcher</artifactId>
+    <artifactId>candidate-match</artifactId>
     <name>Cloudberries Candidate Matcher</name>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>2.2.0</kotlin.version>
         <javacv.version>1.5.10</javacv.version>
         <!-- Skip ITs by default; enable with -DskipITs=false -->
         <skipITs>true</skipITs>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.3.3</version>
+                <version>3.3.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -46,10 +67,36 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
         <dependencies>
+
+        <dependency>
+            <groupId>no.cloudberries</groupId>
+            <artifactId>ai-platform-contracts</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>no.cloudberries</groupId>
+            <artifactId>ai-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>no.cloudberries</groupId>
+            <artifactId>teknologi-barometer-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -89,25 +136,9 @@
             <version>3.0.5</version>
         </dependency>
         <dependency>
-            <groupId>com.google.genai</groupId>
-            <artifactId>google-genai</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>32.1.3-jre</version>
-        </dependency>
-        <dependency>
-            <groupId>com.openai</groupId>
-            <artifactId>openai-java</artifactId>
-            <version>0.31.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aallam.openai</groupId>
-            <artifactId>openai-client-jvm</artifactId>
-            <version>4.0.1</version>
-            <scope>runtime</scope>
         </dependency>
 
 
@@ -177,12 +208,6 @@
             <version>2.0.30</version>
         </dependency>
 
-        <!-- LangChain4j (Java/Kotlin AI-verktøy) -->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
-            <version>0.24.0</version>
-        </dependency>
 
         <dependency>
             <groupId>me.paulschwarz</groupId>
@@ -330,7 +355,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.3.3</version>
+                <configuration>
+                    <mainClass>no.cloudberries.candidatematch.CandidateMatcherApplicationKt</mainClass>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -338,9 +365,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>no.cloudberries.candidatematch.MainKt</mainClass>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

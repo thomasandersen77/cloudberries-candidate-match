@@ -27,8 +27,9 @@ class CvScoreController(
     fun getAllCandidates(): List<CandidateDTO> = cvScoreAppService.listCandidates()
 
     @PostMapping("/{candidateId}/run")
-    fun runScoreForCandidate(@PathVariable("candidateId") candidateId: String): CvScoreDto =
-        cvScoreAppService.scoreCandidate(candidateId)
+    fun runScoreForCandidate(@PathVariable("candidateId") candidateId: String): CvScoreDto {
+        return cvScoreAppService.scoreCandidate(candidateId)
+    }
 
     @PostMapping("/run/all")
     fun runScoreForAll(): CvScoringRunResponse {

@@ -1,13 +1,10 @@
 package no.cloudberries.candidatematch.service.ai
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.config.AIChatConfig
-import no.cloudberries.candidatematch.domain.ai.AIContentGenerator
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.port.AiContentGenerationPort
+import no.cloudberries.candidatematch.config.CandidateMatchAIChatConfig
 import no.cloudberries.candidatematch.dto.ai.RAGSource
-import no.cloudberries.candidatematch.infrastructure.integration.ai.AIContentGeneratorFactory
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
@@ -16,9 +13,9 @@ import java.util.*
 @Service
 class RAGService(
     private val consultantRepository: ConsultantRepository,
-    private val aiContentGeneratorFactory: AIContentGeneratorFactory,
-    private val config: AIChatConfig,
-    private val objectMapper: ObjectMapper,
+    private val contentGenerationPort: AiContentGenerationPort,
+    private val config: CandidateMatchAIChatConfig,
+    private val objectMapper: com.fasterxml.jackson.databind.ObjectMapper,
     private val conversationService: ConversationService,
     private val ragContextService: RAGContextService
 ) {
@@ -71,8 +68,7 @@ class RAGService(
         
         // Generate AI response
         val provider = AIProvider.valueOf(config.provider)
-        val aiGenerator = aiContentGeneratorFactory.getGenerator(provider)
-        val aiResponse = aiGenerator.generateContent(prompt)
+        val aiResponse = contentGenerationPort.generateContent(prompt, provider)
         
         // Store this exchange in conversation history
         conversationService.addToConversation(actualConversationId, question, aiResponse.content)
@@ -109,7 +105,7 @@ val sources = if (chunks.isNotEmpty()) {
         )
     }
 
-    private fun formatCvJsonForAI(resumeData: JsonNode, consultantName: String): String {
+    private fun formatCvJsonForAI(resumeData: com.fasterxml.jackson.databind.JsonNode, consultantName: String): String {
         return try {
             val cv = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(resumeData)
             """

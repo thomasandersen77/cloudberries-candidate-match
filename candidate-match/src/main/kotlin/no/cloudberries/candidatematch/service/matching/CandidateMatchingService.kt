@@ -1,29 +1,22 @@
 package no.cloudberries.candidatematch.service.matching
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.domain.ai.AIResponse
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.domain.CandidateMatchResponse
+import no.cloudberries.ai.port.CandidateMatchingPort
 import no.cloudberries.candidatematch.domain.candidate.ConsultantMatchedEvent
 import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
-import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import no.cloudberries.candidatematch.service.ai.AIService
-import no.cloudberries.candidatematch.templates.MatchParams
-import no.cloudberries.candidatematch.templates.MatchPromptTemplate
-import no.cloudberries.candidatematch.templates.renderMatchTemplate
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
 class CandidateMatchingService(
-    private val aiAnalysisService: AIAnalysisService,
+    private val candidateMatchingPort: CandidateMatchingPort,
     private val domainEventPublisher: DomainEventPublisher
 ) : AIService {
     private val logger = KotlinLogging.logger {}
-    private val mapper = jacksonObjectMapper()
 
     @Timed
     override fun matchCandidate(
@@ -32,71 +25,21 @@ class CandidateMatchingService(
         request: String,
         consultantName: String
     ): CandidateMatchResponse {
-        val prompt = renderMatchTemplate(
-            MatchPromptTemplate.template,
-            MatchParams(
-                cv = cv,
-                request = request,
-                consultantName = consultantName
-            )
+        logger.debug { "Matching candidate $consultantName using ${aiProvider.name}" }
+        val matchResponse = candidateMatchingPort.matchCandidate(
+            cv = cv,
+            request = request,
+            consultantName = consultantName,
+            provider = aiProvider
         )
 
-        logger.debug { LOG_PROMPT_GENERATED }
-        val response = getAiResponse(
-            aiProvider,
-            prompt
-        )
-        return processAiResponse(
-            response,
-            consultantName
-        )
-    }
-
-    private fun getAiResponse(aiProvider: AIProvider, prompt: String): AIResponse {
-        return when (aiProvider) {
-            AIProvider.GEMINI -> {
-                logger.debug { LOG_USING_GEMINI }
-                aiAnalysisService.analyzeContent(
-                    content = prompt,
-                    AIProvider.GEMINI
-                )
-            }
-
-            AIProvider.OPENAI -> {
-                logger.debug { LOG_USING_OPENAI }
-                aiAnalysisService.analyzeContent(
-                    content = prompt,
-                    AIProvider.OPENAI
-                )
-            }
-
-            AIProvider.OLLAMA -> {
-                logger.debug { LOG_USING_OPENAI }
-                aiAnalysisService.analyzeContent(
-                    content = prompt,
-                    AIProvider.OLLAMA
-                )
-            }
-
-            AIProvider.ANTHROPIC -> {
-                logger.debug { "Using Anthropic for AI analysis" }
-                aiAnalysisService.analyzeContent(
-                    content = prompt,
-                    AIProvider.ANTHROPIC
-                )
-            }
-
-        }
-    }
-
-    fun processAiResponse(response: AIResponse, consultantName: String): CandidateMatchResponse {
-        val matchResponse = mapper.readValue<CandidateMatchResponse>(content = response.content)
         logger.info { "$LOG_MATCH_SUCCESS $consultantName with score: ${matchResponse.totalScore}" }
 
         publishMatchEvent(
             consultantName,
             matchResponse
         )
+
         return matchResponse
     }
 

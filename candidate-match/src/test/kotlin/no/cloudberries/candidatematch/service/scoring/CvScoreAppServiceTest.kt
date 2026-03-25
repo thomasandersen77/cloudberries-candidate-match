@@ -76,4 +76,31 @@ every { scoreCandidateService.performCvScoring(any(), any(), any()) } returns no
         val res = service.scoreAll()
         assertEquals(1, res.processedCount)
     }
+
+    @Test
+    fun `score candidate async triggers async task`() {
+        val resume = JsonNodeFactory.instance.objectNode().put("email", "a@b.com").put("bornYear", 1990)
+        val consultant = ConsultantEntity(
+            id = 1L,
+            userId = "u1",
+            name = "Alice",
+            cvId = "cv1",
+            resumeData = resume
+        )
+        every { consultantRepository.findByUserId("u1") } returns consultant
+        every { cvScoreRepository.findByCandidateUserId("u1") } returns null
+        every { scoreCandidateService.performCvScoring(any(), any(), any()) } returns no.cloudberries.candidatematch.domain.scoring.CVEvaluation(
+            name = "Alice",
+            summary = "Great",
+            strengths = emptyList(),
+            improvements = emptyList(),
+            scoreBreakdown = null,
+            scorePercentage = 90
+        )
+        every { cvScoreRepository.save(any()) } answers { firstArg<CvScoreEntity>().copy(id = 11L) }
+
+        service.scoreCandidateAsync("u1")
+        
+        verify(timeout = 1000) { scoreCandidateService.performCvScoring(any(), any(), any()) }
+    }
 }

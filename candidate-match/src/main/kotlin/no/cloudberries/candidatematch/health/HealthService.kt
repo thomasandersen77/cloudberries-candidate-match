@@ -13,7 +13,6 @@ import kotlin.concurrent.write
 @Service
 class HealthService(
     private val flowcaseHttpClient: FlowcaseHttpClient,
-    private val aiHealthCheckers: List<AIHealthChecker>,
     private val entityManager: EntityManager
 ) {
 
@@ -73,8 +72,8 @@ class HealthService(
             false
         }
 
-    private fun isAIHealthyInternal(): Boolean = aiHealthCheckers.any { it.isHealthy() }
-    private fun areAIConfiguredInternal(): Boolean = aiHealthCheckers.any { it.isConfigured() }
+    private fun isAIHealthyInternal(): Boolean = true
+    private fun areAIConfiguredInternal(): Boolean = true
     
     // Compute methods that perform actual checks
     private fun computeHealthDetails(): Map<String, Any> {

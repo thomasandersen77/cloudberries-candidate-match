@@ -3,6 +3,7 @@ package no.cloudberries.candidatematch.controllers.consultants
 import LiquibaseTestConfig
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.infrastructure.entities.ConsultantEntity
 import no.cloudberries.candidatematch.infrastructure.entities.consultant.*
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
@@ -25,6 +27,21 @@ import org.springframework.transaction.annotation.Transactional
 @ActiveProfiles("test")
 @Transactional
 class ConsultantCvQueryControllerIntegrationTest {
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
 
     @Autowired lateinit var mockMvc: MockMvc
     @Autowired lateinit var objectMapper: ObjectMapper

@@ -1,0 +1,12 @@
+spring:
+  task:
+    scheduling:
+      enabled: false
+flowcase:
+  baseUrl: ${FLOWCASE_BASE_URL:}
+  apiKey: ${FLOWCASE_API_KEY:}
+openai:
+  apiKey: ${OPENAI_API_KEY:dummy}
+  assistantId: ${OPENAI_ASSISTANT_ID:dummy}
+gemini:
+  apiKey: ${GEMINI_API_KEY:dummy}

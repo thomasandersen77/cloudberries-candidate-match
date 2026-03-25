@@ -1,0 +1,4 @@
+# Modelfile for embeddinggemma:300m
+# Use this model for embedding generation (semantic search / vector retrieval).
+
+FROM embeddinggemma:300m

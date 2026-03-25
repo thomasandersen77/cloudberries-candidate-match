@@ -1,0 +1,364 @@
+
+# From: Alejandro-Saksida_no_2025-10-08T10-16-13Z.pdf (Auto-scored: 72/100)
+
+MESSAGE user """Evaluate this CV:
+
+
+Alejandro Saksida
+Seniorkonsulent
+1984
+LOKASJON
+Oslo
+TELEFON
+46536616
+EPOST
+alejandro.saksida@cloudberries.no
+Alejandro Saksida er en allsidig fullstack-utvikler og systemarkitekt med mer enn 25 års erfaring i 
+å bygge ende-til-ende-løsninger som kombinerer robuste, skalerbare backends med 
+engasjerende og brukbare brukergrensesnitt. Han mestrer .NET / C# og eventdrevne, 
+meldingsbaserte arkitekturer på skyplattformer som AWS og Azure, samtidig som han behersker 
+moderne frontend-rammeverk som Vue 2/3, Angular og Three.js, samt Tailwind CSS og TypeScript 
+for responsive, interaktive web-applikasjoner. Gjennom prosjekter som Elop Insight og ConnectIn 
+har han designet både REST- og WebSocket-API-er, implementert WebGL-basert 3D-visualisering,
+og etablert CI/CD-pipeliner med Docker og GitHub Actions. I roller som CTO, team-lead og 
+seniorarkitekt har han levert verdi fra dag én ved å ta ansvar for arkitekturvalg, kodekvalitet og 
+coachingen av tverrfaglige team. Med sin dype tekniske innsikt og dokumenterte evne til raskt å 
+sette seg inn i nye teknologier – fra GPU-akselerert grafikk til serverless-funksjoner – er Alejandro 
+en ideell kandidat til å drive utviklingen av moderne, event-baserte plattformer der sømløs 
+integrasjon mellom frontend og backend står i sentrum.
+CV Alejandro Saksida Cloudberries 1
+CV Alejandro Saksida Cloudberries 2
+Kompetanse
+CV Alejandro Saksida Cloudberries 3
+Programmeringsspråk
+JavaScript
+Python
+APL
+Swift
+ActionScript 2
+ActionScript 3
+PHP
+Pascal
+PIC16F84
+Java SE
+Java ME
+Assembly
+AT89s8252
+Small Talk
+ASP
+SQL
+Oracle
+MySQL
+Typescript
+Batch
+Regex
+Lingo
+Bash
+Powershell
+UNIX shell-script
+JSON
+XML
+ESP32
+HTML5 / CSS3
+CSS
+Ruby
+Perl
+Lisp
+DCP++
+NVIDIA RTX
+C++
+GLSL
+C#
+Matlab
+Objective-C
+Rust
+OpenGL
+TypeScript
+PowerShellTeknologier og rammeverk
+OpenCV
+Grails
+Access 2010
+Ruby on Rails
+Symfony
+Swing
+GDI
+Biostar Fingeravtrykk SDK
+Git
+JQuery
+Haxe
+Canon EDSDK
+Adobe Director
+Vue3
+Adobe AIR
+Sparrow
+Android
+Starling
+MQTT
+SQLite
+NFC
+Computer vision
+.NET
+.NET C...
+"""
+
+MESSAGE assistant """{
+  "scorePercentage": 72,
+  "summary": "Alejandro Saksida er en svært erfaren fullstack-utvikler og systemarkitekt med over 25 års erfaring, som besitter en imponerende bredde i teknologier og en dokumentert evne til å levere ende-til-ende løsninger. Han kombinerer dyp .NET/C# kompetanse med moderne frontend-rammeverk og skyplattformer, og har vist lederskap i ulike roller. CV-en fremstår som svært ambisiøs og teknisk omfattende, men mangler konkretisering og fokus.",
+  "strengths": ["Eksepsjonell bredde i teknologier (både frontend og backend) demonstrerer en høy grad av tilpasningsevne.","Sterk erfaring med moderne arkitekturmønstre (event-drevet, meldingsbasert) og skyteknologier.","Dokumentert lederskapserfaring (CTO, team lead, seniorarkitekt) indikerer evne til å lede og motivere team.","Evne til å kombinere teknisk ekspertise med forretningsforståelse og innovasjon (WebGL, serverless)."],
+  "improvements": ["CV-en er for bred og mangler fokus. Prioritering av de mest relevante teknologiene og prosjektene er nødvendig.","Prosjektene 'Elop Insight' og 'ConnectIn' bør utdypes med konkrete resultater og forretningsmessig verdi.","Mangler kvantifisering av resultater og prestasjoner (f.eks. ytelsesforbedringer, kostnadsbesparelser).","Listen over teknologier er overveldende og kan virke urealistisk. Reduksjon og gruppering vil forbedre lesbarheten.","Beskrivelsen av lederrollen bør konkretiseres med eksempler på lederskap og coaching."]
+}"""
+
+
+# From: Joachim-Lous_no_2025-10-08T10-15-32Z.pdf (Auto-scored: 80/100)
+
+MESSAGE user """Evaluate this CV:
+
+
+Joachim Lous
+Seniorkonsulent
+1972
+LOKASJON
+Oslo
+TELEFON
+99577488
+EPOST
+joachim.lous@cloudberries.no
+Joachim er en meget erfaren og kunnskapsrik utvikler og tech lead. Han har de siste årene 
+erfaring fra større virksomhetssystemer i det offentlige med Java og Kotlin. Han har jobbet mye 
+mot on-prem på mikrotjenestearkitektur med smidige utviklingmetoder, blant annet hos 
+Skatteetaten i flere år. Han har også jobbet med DevOps, CI/CD og sky(Azure), samt er sertifisert 
+på AWS. 
+Joachim er meget engasjert i å finne og bygge gode løsninger, med smarte valg på teknologi og 
+høy kodekvalitet. Han har jobbet både i store og små team, tatt på seg ledende roller i 
+prosjektene, og jobbet med å overføre kompetanse for team og kunde. Han bidrar i hele spekteret
+fra arkitektur, funksjonelle problemstillinger, til implementering og leveranse. Av roller har han 
+også jobbet som Scrum Master og Løsningsarkitekt. 
+I prosjektet "Avgift på fisk" hos Skatteetaten jobbet han selvstendig med å bygge løsningen, stod 
+for all teknisk fremdrift og svarte opp behov bl.a. for integrasjon med Fiskeridirektoratet. Han 
+leverte en komplett leveranse til rett tid for prosjektet.
+Joachim har god evne til å sette seg inn i kundens forretningsbehov. Han er opptatt av 
+tilsvarende klarhet og enkelhet i de tekniske løsningene, for å skape robuste og vedlikeholdbare 
+systemer. Han brenner for smidige metoder, for å fokusere innsatsen der den gir størst verdi, 
+levere verdi tidlig og redusere risiko. Han er vant til å arbeide med store og virksomhetskritiske 
+systemer, har en god forståelse for samspillet mellom applikasjonslagene, og erfaring med design
+av det.
+Joachim har god fremstillingsevne muntlig, skriftlig og grafisk, og fremstår som nysgjerrig, åpen, 
+hjelpsom, og løsningsorientert.
+CV Joachim Lous Cloudberries 1
+I prosjektene har Joachim jobbet med mange ulike teknologier/rammeverk/teknologier utover 
+REST-tjenester i Java/Kotlin. Han er blant trygg i eksempelvis Spring Boot, Docker, Kafka, ...
+"""
+
+MESSAGE assistant """{
+  "scorePercentage": 80,
+  "summary": "Joachim Lous er en erfaren utvikler og tech lead med solid bakgrunn fra det offentlige, spesielt Skatteetaten. Han besitter dyp kompetanse innen Java/Kotlin, mikrotjenestearkitektur, smidig utvikling, DevOps, og skyteknologier (Azure, AWS). Han fremstår som en løsningsorientert person med gode kommunikasjonsevner og evne til å overføre kompetanse.",
+  "strengths": ["Omfattende erfaring med storskala, forretningskritiske offentlige systemer (Skatteetaten)","Teknisk lederskap: Erfaring som Tech Lead, Scrum Master og Løsningsarkitekt","Solid kompetanse innen Java/Kotlin, mikrotjenestearkitektur, DevOps og skyteknologier (Azure, AWS)","Evne til å kombinere teknisk ekspertise med forretningsforståelse og kundekontakt"],
+  "improvements": ["CV-en mangler spesifikke detaljer om arkitekturvalg og begrunnelser.","Mangler kvantifisering av prosjektresultater (f.eks. ytelsesforbedringer, kostnadsbesparelser).","Teknologilisten er ufullstendig og kunne vært mer presis (f.eks. spesifikke versjoner, biblioteker)."]
+}"""
+
+
+# From: Christina-Aamnes_no_2025-10-08T10-14-53Z.pdf (Auto-scored: 64/100)
+
+MESSAGE user """Evaluate this CV:
+
+
+Christina Aamnes
+Seniorpartner
+1988
+LOKASJON
+Oslo
+TELEFON
+951 10 979
+EPOST
+christina.aamnes@cloudberries.no
+Christina er en selvdreven og resultatorientert seniorkonsulent, som brenner for å bygge 
+velfungerende verdikjeder, prosesser og team. Smidighet og gode leveranser står da i fokus. Hun 
+liker spesielt godt å jobbe for å hente ut "det fulle potensialet". Gjerne via prosessoptimalisering 
+og ved å etablere et samarbeid og engasjement rundt et felles mål der alle har en klar rolle og vet
+hvor de skall. Her kommer hennes tverrfaglige utdanning innen organisasjonspsykologi og IKT 
+godt frem, og hun har derfor vist seg å vært en viktig ressurs i digitaliseringsprosjekter både i 
+privat og offentlig sektor.
+Christina har god og bred teknisk forståelse og evner å forstå og kommunisere med både 
+forretning og utviklingssiden, og er derfor et godt bindeledd mellom disse. Hun er strukturert, 
+initiativrik og trives med en proaktiv arbeidsform. Hun arbeider godt både som en del av et team 
+og med selvstendige oppgaver, og finner motivasjon i å levere et godt sluttprodukt.
+Prosjekterfaring
+VARIGHET PROSJEKT
+10.2022 - Sparebank 1 Utvikling: Sparing og betaling
+Sparing og betaling er essensielle finansielle tjenester som hjelper kunder med å 
+administrere sin økonomi. Sparing gir kunder muligheten til å bygge opp 
+økonomisk sikkerhet og planlegge for fremtiden, mens betalingstjenester 
+muliggjør enkle og sikre transaksjoner i hverdagen.
+ROLLE: Prosjektleder
+CV Christina Aamnes Cloudberries 1
+Christina har ved siden av rollen som produktleder hatt roller i flere prosjekter. 
+Blant annet har hun vært prosjektleder for DFV og Modernisering av 
+transaksjonsdomenet i alliansen.
+DFV - Dataprodukter for fondsforvaltning. 
+Prosjektets mål var å gjøre det enkelt og trygt for bankens kunder å kjøpe aksjer 
+via nettbank, og gir kundene god oversikt over egen portefølje og avkastning. 
+Porteføljeverdien ligger i dag på 119 MRD og det utføres daglig 30 000 kjøps- og 
+salgstransaksjoner....
+"""
+
+MESSAGE assistant """{
+  "scorePercentage": 64,
+  "summary": "Christina Aamnes er en resultatorientert seniorkonsulent med en unik kombinasjon av organisasjonspsykologi og IKT-kompetanse. Hun utmerker seg i å bygge velfungerende verdikjeder og team, med fokus på smidighet og prosessoptimalisering. Hun fungerer som et effektivt bindeledd mellom forretning og utvikling, og har erfaring fra både privat og offentlig sektor.",
+  "strengths": ["Tverrfaglig bakgrunn (organisasjonspsykologi og IKT) gir et unikt perspektiv på digitalisering.","Evne til å bygge bro mellom forretning og utvikling, fungerer som et effektivt bindeledd.","Fokus på prosessoptimalisering og å hente ut «det fulle potensialet» i prosjekter.","Erfaring som prosjektleder og produktleder i større prosjekter (Sparebank 1 Utvikling, DFV)."],
+  "improvements": ["CV-en mangler spesifikke teknologier og rammeverk hun har brukt. Dette svekker inntrykket av teknisk forståelse.","Prosjektbeskrivelsene er generelle og mangler konkrete resultater og kvantifiserbare prestasjoner.","Det er behov for å tydeliggjøre hennes rolle og bidrag i prosjektene utover prosjektledelse."]
+}"""
+
+
+# From: -Zlatina-Delistoyanova_no_2025-10-08T10-16-03Z.pdf (Auto-scored: 76/100)
+
+MESSAGE user """Evaluate this CV:
+
+
+Zlatina Delistoyanova
+Senior Consultant
+1984
+LOKASJON
+Sandnes
+TELEFON
++4792974520
+EPOST
+zlatina.delistoyanova@cloudberries.no
+Zlatina er senioringeniør og jobber hovedsakelig med alt som har med .NET å gjøre. Hun brenner 
+for backend-utvikling, men trives også med fullstack- og databaseutvikling.
+Hun har bakgrunn i design og utvikling av ulike IT-løsninger innen bank og finans, 
+betalingsgatewayer og energisektoren, og jobber med seismiske data og maskinlæring. Hun har 
+bred erfaring innen en rekke rammeverk, teknologier og løsninger med fokus på skyen og 
+Microsofts teknologistack med C#, .NET, SQL Server, webtjenester, mikrotjenester, REST API-er og 
+Azure Cloud med mer.
+Hun har et øye for detaljer med analytiske og problemløsende evner. Hun liker å levere 
+teknologiprosjekter der samarbeid med tekniske kolleger, forretningsbrukere og kunder bidrar til 
+å oversette forretningskrav til verdifulle tekniske løsninger.
+Hun er mottakelig for nye teknologier og ideer, og har en lidenskap for programvareutvikling, som
+kombineres godt med smidige praksiser.
+Hun trives med praktisk arbeid, men kan også ta på seg andre roller som teknisk leder.
+#.NET#Azure
+CV  Zlatina Delistoyanova Cloudberries 1
+Kompetanse
+Programmeringsspråk
+C# .NET
+.NET
+.Net Framework
+ASP.NET Core MVC REST API
+ASP.NET REST API
+ASP.NET
+ASP.NET MVC
+ASP.NET Core
+.NET MAUI
+REST API
+Ocean APIs
+CQRS
+RabbitMQ
+Caching and load balancer with 
+Redis
+Redis
+Elastic Search
+Kong
+Entity Framework
+LINQ
+Angular
+React
+Microservices
+Web Services
+AutoMapper
+Fluent Validation
+Keycloak
+OAuth 2.0
+JSON Web Tokens (JWT)Cloud & DevOps
+Azure Cloud
+Azure Active Directory
+Azure DevOps
+DevOps
+CI/CD pipelines
+GitHub
+Docker
+Docker Compose
+Rancher/K8S
+Kubernetes
+Delfi
+Delfi(OSDU)Java
+Python 3.10
+Nvidia (CUDA and cuDNN to utilize 
+GPU),
+TypeScript
+JavaScript
+Postman Agent
+Powershell
+Git Bash
+Bash
+Monolithic
+SOAP
+SOAP Webservices
+Integrasjoner (SOAP)
+GraphTalk
+Nginx
+Metodikk
+Domain Driven Design (DDD)
+Test Driven Development (TDD)
+Clean A...
+"""
+
+MESSAGE assistant """{
+  "scorePercentage": 76,
+  "summary": "Zlatina Delistoyanova er en erfaren Senior Consultant med en sterk bakgrunn innen .NET-utvikling, fullstack-løsninger og skyteknologier. Hun har en bred teknologiforståelse og erfaring fra ulike sektorer som bank, finans og energisektoren. Hun fremstår som en problemløser med analytiske evner og en lidenskap for programvareutvikling, og viser interesse for å kombinere praktisk arbeid med ledende roller.",
+  "strengths": ["Omfattende .NET-kompetanse og erfaring med moderne rammeverk (ASP.NET Core, REST API, Entity Framework)","Bred erfaring med skyteknologier, spesielt Azure Cloud og Azure DevOps, samt DevOps-praksiser (CI/CD, Docker, Kubernetes)","Solid forståelse av moderne utviklingsmetoder (DDD, TDD) og arkitekturmønstre (Mikrotjenester, REST API)","Erfaring fra ulike bransjer (bank, finans, energisektoren) og teknologier (seismiske data, maskinlæring)"],
+  "improvements": ["CV-en mangler konkrete prosjektbeskrivelser som illustrerer hennes bidrag og resultater.","Det er behov for mer kvantifisering av prestasjoner og resultater i prosjektene.","Lederskapserfaringen (teknisk leder) bør utdypes og konkretiseres med eksempler."]
+}"""
+
+
+# From: Duncan-Ivar-Bates_no_2025-10-08T10-15-48Z.pdf (Auto-scored: 80/100)
+
+MESSAGE user """Evaluate this CV:
+
+
+Duncan Ivar Bates
+Senior Consultant
+1970
+LOKASJON
+1409 Skotbu
+TELEFON
++47 904 12 140
+EPOST
+duncan.i.bates@cloudberries.no
+Duncan har lang erfaring som Software og Datavarehus-utvikler gjennom prosjekter i Telecom, 
+Olje&Gass, Software, og TV bransjen.
+Tidlig i karrieren utviklet han et ETL system rettet mot Telecom industrien, etterfulgt av et 
+prosjekt hvor han tok han fullt ansvar for BI løsningen til et selskap der det å skape innsikt i 
+bedrifts prosesser resulterte i at selskapet kunne ta bedre beslutninger basert på data.
+Duncan har jobbet med de fleste database motorene ute i markedet; Sybase, Oracle, Postgresql, 
+Microsoft SQL Server, og senest Snowflake og er opptatt av å sikre data kvaliteten i løsningene 
+han utvikler og forvalter.
+Senest i karrierene utviklet han med et datavarehus i TV industrien hvor teknologi som AWS, 
+Python, DBT, Prefect, og Snowflake ble benyttet. 
+Duncan har skrevet data integrasjoner mot utallige systemer og teknologier.
+Som person er Duncan nysgjerrig og liker å utvikle nye innovative løsninger. Han er åpen, ærlig og
+kommuniserer godt med medarbeidere fra forskjellige faglige bakgrunner og nivå. I prosjekt tar 
+han hurtig ansvar og eierskap, samt gir en positiv og behjelpelig holdning for oppgaver som 
+skulle dukke opp.
+CV Duncan Ivar Bates Cloudberries 1
+Prosjekterfaring
+VARIGHET PROSJEKT
+02.2024 - Statkraft AS: Adam/WWC
+Water Weather and Climate (WWC) avdelingen utvikler og vedlikeholder tjenester
+for Vann vær og klima  brukt i statkrafts analyser. Tjenestene inkluderer en rekke 
+multi dimensjonelle geolokaliserte tidserie tjenester for observert og prognosert 
+vær og vind data. Tjenestene er brukt i selskapets hydrologiske modeller for 
+forutsi vann påfyllings graden i selkapets vannmagasiner.
+ROLLE: Senior Software Utvikler / Backend
+I denne rollen utvikler Duncan data integrasjoner mot metrologiske data 
+leveranser fra selskaper  Meteorologisk institutt og European Centre for Medium-
+Range Weather Forecasts (ECMWF).
+Data'en...
+"""
+
+MESSAGE assistant """{
+  "scorePercentage": 80,
+  "summary": "Duncan Ivar Bates er en erfaren Software og Datavarehus-utvikler med en lang og variert karriere innen Telecom, Olje&Gass, Software og TV. Han har demonstrert evne til å utvikle ETL-systemer, BI-løsninger og datavarehus, med et sterkt fokus på datakvalitet og innovative løsninger. Hans nylige erfaring med AWS, Python, DBT, Prefect og Snowflake viser en oppdatering på moderne datateknologier.",
+  "strengths": ["Omfattende erfaring innen datavarehus og ETL-utvikling, spennende over flere bransjer.","Solid kompetanse innen et bredt spekter av databaser (Sybase, Oracle, PostgreSQL, SQL Server, Snowflake).","Evne til å ta ansvar og eierskap i prosjekter, med en positiv og behjelpelig holdning.","Oppdaterte ferdigheter innen moderne datateknologier (AWS, Python, DBT, Prefect, Snowflake)."],
+  "improvements": ["CV-en mangler kvantifisering av prosjektresultater (f.eks. forbedringer i datakvalitet, effektivitet eller beslutningstaking).","Beskrivelsen av prosjektene er noe overfladisk; mer detaljer om arkitekturvalg og tekniske utfordringer ville vært verdifullt.","Lederskapserfaringen kunne vært mer eksplisitt beskrevet, utover å 'ta ansvar og eierskap'."]
+}"""
+

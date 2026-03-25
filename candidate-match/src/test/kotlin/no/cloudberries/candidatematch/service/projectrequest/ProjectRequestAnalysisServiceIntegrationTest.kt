@@ -1,24 +1,61 @@
 package no.cloudberries.candidatematch.service.projectrequest
 
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.infrastructure.entities.projectrequest.RequirementPriority
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import java.io.ByteArrayInputStream
+import java.time.LocalDateTime
 
-@SpringBootTest
+@SpringBootTest(properties = [
+    "spring.liquibase.duplicate-file-mode=WARN"
+])
 @ContextConfiguration(classes = [LiquibaseTestConfig::class])
 @ActiveProfiles("test")
 class ProjectRequestAnalysisServiceIntegrationTest @Autowired constructor(
     private val service: ProjectRequestAnalysisService,
 ) {
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @BeforeEach
+    fun setup() {
+        `when`(projectRequestAnalysisPort.analyzeProjectRequest(anyString(), anyString())).thenReturn(
+            AnalyzedProjectRequest(
+                customerName = "Project Request",
+                summary = "Test summary",
+                mustRequirements = listOf("Kotlin developer"),
+                shouldRequirements = listOf("React experience"),
+                uploadedAt = LocalDateTime.now(),
+                deadlineDate = null
+            )
+        )
+    }
+
     @Test
     fun `upload, analyze and list project request with requirements`() {
         val pdfBytes = createPdfWithText(

@@ -3,9 +3,9 @@ package no.cloudberries.candidatematch.service.ai
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.config.AIChatConfig
+import no.cloudberries.ai.port.QueryInterpretationPort
+import no.cloudberries.candidatematch.config.CandidateMatchAIChatConfig
 import no.cloudberries.candidatematch.dto.ai.*
-import no.cloudberries.candidatematch.infrastructure.integration.gemini.GeminiHttpClient
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -13,8 +13,8 @@ import kotlin.math.max
 
 @Service
 class AIQueryInterpretationService(
-    private val geminiClient: GeminiHttpClient,
-    private val config: AIChatConfig,
+    private val queryInterpretationPort: QueryInterpretationPort,
+    private val config: CandidateMatchAIChatConfig,
     private val objectMapper: ObjectMapper
 ) {
     private val logger = KotlinLogging.logger { }
@@ -46,33 +46,45 @@ class AIQueryInterpretationService(
         )
     }
 
-    @Cacheable(value = ["queryInterpretations"], key = "#userText + #forceMode?.name")
+    @Cacheable(value = ["queryInterpretations"], key = "#userText + (#forceMode != null ? #forceMode.name : 'null')")
     @Timed
-    fun interpretQuery(userText: String, forceMode: SearchMode? = null): QueryInterpretation {
+    fun interpretQuery(userText: String, forceMode: no.cloudberries.candidatematch.dto.ai.SearchMode? = null): QueryInterpretation {
         logger.info { "Interpreting query: '$userText' with forceMode: $forceMode" }
-        
+
         if (forceMode != null) {
             logger.info { "Using forced mode: $forceMode" }
             return createForcedInterpretation(userText, forceMode)
         }
-        
-        val prompt = createInterpretationPrompt(userText)
-        
-        try {
-            val aiResponse = geminiClient.generateContent(prompt)
-            val interpretation = parseInterpretationResponse(aiResponse.content)
-            
-            logger.info { 
-                "Interpretation result: route=${interpretation.route}, " +
-                "confidence=${interpretation.confidence.route}" 
-            }
-            
-            return interpretation
-            
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to interpret query, falling back to semantic search" }
-            return createFallbackInterpretation(userText)
-        }
+
+        val interpretation = queryInterpretationPort.interpretQuery(
+            userText,
+            null
+        )
+
+        // Map from AI DTO to internal DTO
+        return QueryInterpretation(
+            route = no.cloudberries.candidatematch.dto.ai.SearchMode.valueOf(interpretation.route.name),
+            structured = interpretation.structured?.let { s ->
+                StructuredCriteria(
+                    skillsAll = s.skillsAll,
+                    skillsAny = s.skillsAny,
+                    roles = s.roles,
+                    minQualityScore = s.minQualityScore,
+                    locations = s.locations,
+                    availability = s.availability,
+                    publicSector = s.publicSector,
+                    customersAny = s.customersAny,
+                    industries = s.industries
+                )
+            },
+            semanticText = interpretation.semanticText,
+            consultantName = interpretation.consultantName,
+            question = interpretation.question,
+            confidence = ConfidenceScores(
+                route = interpretation.confidence.route,
+                extraction = interpretation.confidence.extraction
+            )
+        )
     }
     
     private fun createInterpretationPrompt(userText: String): String {
@@ -156,12 +168,12 @@ Respond with ONLY the JSON object, no other text:
         }
     }
     
-    private fun createForcedInterpretation(userText: String, mode: SearchMode): QueryInterpretation {
+    private fun createForcedInterpretation(userText: String, mode: no.cloudberries.candidatematch.dto.ai.SearchMode): QueryInterpretation {
         return when (mode) {
-            SearchMode.STRUCTURED -> {
+            no.cloudberries.candidatematch.dto.ai.SearchMode.STRUCTURED -> {
                 val skills = extractBasicSkills(userText)
                 QueryInterpretation(
-                    route = SearchMode.STRUCTURED,
+                    route = no.cloudberries.candidatematch.dto.ai.SearchMode.STRUCTURED,
                     structured = StructuredCriteria(skillsAll = skills),
                     semanticText = null,
                     consultantName = null,
@@ -169,18 +181,18 @@ Respond with ONLY the JSON object, no other text:
                     confidence = ConfidenceScores(route = 1.0, extraction = 0.7)
                 )
             }
-            SearchMode.SEMANTIC -> QueryInterpretation(
-                route = SearchMode.SEMANTIC,
+            no.cloudberries.candidatematch.dto.ai.SearchMode.SEMANTIC -> QueryInterpretation(
+                route = no.cloudberries.candidatematch.dto.ai.SearchMode.SEMANTIC,
                 structured = null,
                 semanticText = userText,
                 consultantName = null,
                 question = null,
                 confidence = ConfidenceScores(route = 1.0, extraction = 0.8)
             )
-            SearchMode.HYBRID -> {
+            no.cloudberries.candidatematch.dto.ai.SearchMode.HYBRID -> {
                 val skills = extractBasicSkills(userText)
                 QueryInterpretation(
-                    route = SearchMode.HYBRID,
+                    route = no.cloudberries.candidatematch.dto.ai.SearchMode.HYBRID,
                     structured = StructuredCriteria(skillsAny = skills),
                     semanticText = userText,
                     consultantName = null,
@@ -188,8 +200,8 @@ Respond with ONLY the JSON object, no other text:
                     confidence = ConfidenceScores(route = 1.0, extraction = 0.75)
                 )
             }
-            SearchMode.RAG -> QueryInterpretation(
-                route = SearchMode.RAG,
+            no.cloudberries.candidatematch.dto.ai.SearchMode.RAG -> QueryInterpretation(
+                route = no.cloudberries.candidatematch.dto.ai.SearchMode.RAG,
                 structured = null,
                 semanticText = null,
                 consultantName = extractConsultantName(userText),
@@ -201,7 +213,7 @@ Respond with ONLY the JSON object, no other text:
     
     private fun createFallbackInterpretation(userText: String): QueryInterpretation {
         return QueryInterpretation(
-            route = SearchMode.SEMANTIC,
+            route = no.cloudberries.candidatematch.dto.ai.SearchMode.SEMANTIC,
             structured = null,
             semanticText = userText,
             consultantName = null,
@@ -250,7 +262,7 @@ private data class QueryInterpretationResponse(
 ) {
     fun toDomain(): QueryInterpretation {
         return QueryInterpretation(
-            route = SearchMode.valueOf(route.uppercase()),
+            route = no.cloudberries.candidatematch.dto.ai.SearchMode.valueOf(route.uppercase()),
             structured = structured?.toDomain(),
             semanticText = semanticText,
             consultantName = consultantName,

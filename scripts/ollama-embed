@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP="$SCRIPT_DIR/ollama_local_app.py"
+
+if [[ ! -f "$APP" ]]; then
+  echo "ERROR: $APP not found." >&2
+  exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $0 \"text to embed\"" >&2
+  exit 2
+fi
+
+exec python3 "$APP" \
+  --embed-model "${OLLAMA_EMBED_MODEL:-bge-m3:latest}" \
+  --embed "$*"

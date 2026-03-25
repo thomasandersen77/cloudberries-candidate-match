@@ -1,27 +1,50 @@
 package no.cloudberries.candidatematch.controllers.projectrequest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import LiquibaseTestConfig
+import no.cloudberries.ai.port.AiContentGenerationPort
+import no.cloudberries.ai.port.CandidateMatchingPort
+import no.cloudberries.ai.port.EmbeddingPort
+import no.cloudberries.ai.port.ProjectRequestAnalysisPort
+import no.cloudberries.ai.port.QueryInterpretationPort
 import no.cloudberries.candidatematch.infrastructure.entities.RequestStatus
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource(properties = [
-    "ai.enabled=false", // Disable AI for integration tests
-    "spring.jpa.hibernate.ddl-auto=create-drop"
+@SpringBootTest(properties = [
+    "ai.enabled=false"
 ])
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Import(LiquibaseTestConfig::class)
 @Transactional
 class ProjectRequestIntegrationTest {
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
 
     @Autowired
     private lateinit var mockMvc: MockMvc

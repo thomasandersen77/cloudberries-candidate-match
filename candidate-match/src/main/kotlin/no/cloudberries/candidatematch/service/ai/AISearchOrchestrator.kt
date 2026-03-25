@@ -1,7 +1,7 @@
 package no.cloudberries.candidatematch.service.ai
 
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.config.AIChatConfig
+import no.cloudberries.candidatematch.config.CandidateMatchAIChatConfig
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
 import no.cloudberries.candidatematch.domain.consultant.SemanticSearchCriteria
 import no.cloudberries.candidatematch.dto.ai.*
@@ -19,7 +19,7 @@ import kotlin.system.measureTimeMillis
 class AISearchOrchestrator(
     private val interpretationService: AIQueryInterpretationService,
     private val consultantSearchService: ConsultantSearchService,
-    private val config: AIChatConfig,
+    private val config: CandidateMatchAIChatConfig,
     private val ragService: RAGService,
     private val conversationService: ConversationService,
     private val consultantRepository: ConsultantRepository,
@@ -193,7 +193,7 @@ consultantId = consultant.userId,
         )
         val semanticCriteria = SemanticSearchCriteria(
             text = augmentedText,
-            provider = "GOOGLE_GEMINI", // Use configured provider
+            provider = config.provider, // Use configured provider
             model = config.models.embeddings,
             topK = request.topK,
             minQualityScore = null,

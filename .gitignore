@@ -15,3 +15,5 @@ reviews
 .DS_Store
 .vscode
 *.zip
+Export for AI
+ollama-models/data/flowcase-cv-catalog/

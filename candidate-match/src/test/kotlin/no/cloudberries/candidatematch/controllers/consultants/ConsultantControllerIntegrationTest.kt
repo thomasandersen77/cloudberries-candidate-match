@@ -3,6 +3,7 @@ package no.cloudberries.candidatematch.controllers.consultants
 import LiquibaseTestConfig
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.infrastructure.entities.ConsultantEntity
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.consultant.ConsultantCvRepository
@@ -12,14 +13,32 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.MockMvc
 
-@SpringBootTest(properties = ["sync.consultants.on-startup=false"])
+@SpringBootTest(properties = [
+    "sync.consultants.on-startup=false"
+])
 @AutoConfigureMockMvc
 @Import(LiquibaseTestConfig::class)
 @org.springframework.test.context.ActiveProfiles("test")
 class ConsultantControllerIntegrationTest {
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
 
     @Autowired
     lateinit var mockMvc: MockMvc

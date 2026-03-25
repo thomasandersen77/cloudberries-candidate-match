@@ -3,12 +3,14 @@ package no.cloudberries.candidatematch.service
 import LiquibaseTestConfig
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import kotlinx.coroutines.test.runTest
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.service.consultants.SyncConsultantService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
@@ -18,6 +20,21 @@ import org.springframework.test.context.ActiveProfiles
 @Import(LiquibaseTestConfig::class)
 @AutoConfigureWireMock(port = 0) // Bruker en tilfeldig ledig port
 class FlowcaseSyncServiceIntegrationTest {
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
 
     @Autowired
     private lateinit var syncConsultantService: SyncConsultantService

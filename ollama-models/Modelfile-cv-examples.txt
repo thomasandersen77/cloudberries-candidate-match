@@ -1,0 +1,833 @@
+# Few-shot examples extracted from your documents
+# Copy these into your Modelfile after manually scoring them
+# Total examples: 13
+
+# From: Alejandro-Saksida_no_2025-10-08T10-16-13Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Alejandro Saksida
+Seniorkonsulent
+1984
+LOKASJON
+Oslo
+TELEFON
+46536616
+EPOST
+alejandro.saksida@cloudberries.no
+Alejandro Saksida er en allsidig fullstack-utvikler og systemarkitekt med mer enn 25 års erfaring i 
+å bygge ende-til-ende-løsninger som kombinerer robuste, skalerbare backends med 
+engasjerende og brukbare brukergrensesnitt. Han mestrer .NET / C# og eventdrevne, 
+meldingsbaserte arkitekturer på skyplattformer som AWS og Azure, samtidig som han behersker 
+moderne frontend-rammeverk som Vue 2/3, Angular og Three.js, samt Tailwind CSS og TypeScript 
+for responsive, interaktive web-applikasjoner. Gjennom prosjekter som Elop Insight og ConnectIn 
+har han designet både REST- og WebSocket-API-er, implementert WebGL-basert 3D-visualisering,
+og etablert CI/CD-pipeliner med Docker og GitHub Actions. I roller som CTO, team-lead og 
+seniorarkitekt har han levert verdi fra dag én ved å ta ansvar for arkitekturvalg, kodekvalitet og 
+coachingen av tverrfaglige team. Med sin dype tekniske innsikt og dokumenterte evne til raskt å 
+sette seg inn i nye teknologier – fra GPU-akselerert grafikk til serverless-funksjoner – er Alejandro 
+en ideell kandidat til å drive utviklingen av moderne, event-baserte plattformer der sømløs 
+integrasjon mellom frontend og backend står i sentrum.
+CV Alejandro Saksida Cloudberries 1
+CV Alejandro Saksida Cloudberries 2
+Kompetanse
+CV Alejandro Saksida Cloudberries 3
+Programmeringsspråk
+JavaScript
+Python
+APL
+Swift
+ActionScript 2
+ActionScript 3
+PHP
+Pascal
+PIC16F84
+Java SE
+Java ME
+Assembly
+AT89s8252
+Small Talk
+ASP
+SQL
+Oracle
+MySQL
+Typescript
+Batch
+Regex
+Lingo
+Bash
+Powershell
+UNIX shell-script
+JSON
+XML
+ESP32
+HTML5 / CSS3
+CSS
+Ruby
+Perl
+Lisp
+DCP++
+NVIDIA RTX
+C++
+GLSL
+C#
+Matlab
+Objective-C
+Rust
+OpenGL
+TypeScript
+PowerShellTeknologier og rammeverk
+OpenCV
+Grails
+Access 2010
+Ruby on Rails
+Symfony
+Swing
+GDI
+Biostar Fingeravtrykk SDK
+Git
+JQuery
+Haxe
+Canon EDSDK
+Adobe Director
+Vue3
+Adobe AIR
+Sparrow
+Android
+Starling
+MQTT
+SQLite
+NFC
+Computer vision
+.NET
+.NET C..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Joachim-Lous_no_2025-10-08T10-15-32Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Joachim Lous
+Seniorkonsulent
+1972
+LOKASJON
+Oslo
+TELEFON
+99577488
+EPOST
+joachim.lous@cloudberries.no
+Joachim er en meget erfaren og kunnskapsrik utvikler og tech lead. Han har de siste årene 
+erfaring fra større virksomhetssystemer i det offentlige med Java og Kotlin. Han har jobbet mye 
+mot on-prem på mikrotjenestearkitektur med smidige utviklingmetoder, blant annet hos 
+Skatteetaten i flere år. Han har også jobbet med DevOps, CI/CD og sky(Azure), samt er sertifisert 
+på AWS. 
+Joachim er meget engasjert i å finne og bygge gode løsninger, med smarte valg på teknologi og 
+høy kodekvalitet. Han har jobbet både i store og små team, tatt på seg ledende roller i 
+prosjektene, og jobbet med å overføre kompetanse for team og kunde. Han bidrar i hele spekteret
+fra arkitektur, funksjonelle problemstillinger, til implementering og leveranse. Av roller har han 
+også jobbet som Scrum Master og Løsningsarkitekt. 
+I prosjektet "Avgift på fisk" hos Skatteetaten jobbet han selvstendig med å bygge løsningen, stod 
+for all teknisk fremdrift og svarte opp behov bl.a. for integrasjon med Fiskeridirektoratet. Han 
+leverte en komplett leveranse til rett tid for prosjektet.
+Joachim har god evne til å sette seg inn i kundens forretningsbehov. Han er opptatt av 
+tilsvarende klarhet og enkelhet i de tekniske løsningene, for å skape robuste og vedlikeholdbare 
+systemer. Han brenner for smidige metoder, for å fokusere innsatsen der den gir størst verdi, 
+levere verdi tidlig og redusere risiko. Han er vant til å arbeide med store og virksomhetskritiske 
+systemer, har en god forståelse for samspillet mellom applikasjonslagene, og erfaring med design
+av det.
+Joachim har god fremstillingsevne muntlig, skriftlig og grafisk, og fremstår som nysgjerrig, åpen, 
+hjelpsom, og løsningsorientert.
+CV Joachim Lous Cloudberries 1
+I prosjektene har Joachim jobbet med mange ulike teknologier/rammeverk/teknologier utover 
+REST-tjenester i Java/Kotlin. Han er blant trygg i eksempelvis Spring Boot, Docker, Kafka, ..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Christina-Aamnes_no_2025-10-08T10-14-53Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Christina Aamnes
+Seniorpartner
+1988
+LOKASJON
+Oslo
+TELEFON
+951 10 979
+EPOST
+christina.aamnes@cloudberries.no
+Christina er en selvdreven og resultatorientert seniorkonsulent, som brenner for å bygge 
+velfungerende verdikjeder, prosesser og team. Smidighet og gode leveranser står da i fokus. Hun 
+liker spesielt godt å jobbe for å hente ut "det fulle potensialet". Gjerne via prosessoptimalisering 
+og ved å etablere et samarbeid og engasjement rundt et felles mål der alle har en klar rolle og vet
+hvor de skall. Her kommer hennes tverrfaglige utdanning innen organisasjonspsykologi og IKT 
+godt frem, og hun har derfor vist seg å vært en viktig ressurs i digitaliseringsprosjekter både i 
+privat og offentlig sektor.
+Christina har god og bred teknisk forståelse og evner å forstå og kommunisere med både 
+forretning og utviklingssiden, og er derfor et godt bindeledd mellom disse. Hun er strukturert, 
+initiativrik og trives med en proaktiv arbeidsform. Hun arbeider godt både som en del av et team 
+og med selvstendige oppgaver, og finner motivasjon i å levere et godt sluttprodukt.
+Prosjekterfaring
+VARIGHET PROSJEKT
+10.2022 - Sparebank 1 Utvikling: Sparing og betaling
+Sparing og betaling er essensielle finansielle tjenester som hjelper kunder med å 
+administrere sin økonomi. Sparing gir kunder muligheten til å bygge opp 
+økonomisk sikkerhet og planlegge for fremtiden, mens betalingstjenester 
+muliggjør enkle og sikre transaksjoner i hverdagen.
+ROLLE: Prosjektleder
+CV Christina Aamnes Cloudberries 1
+Christina har ved siden av rollen som produktleder hatt roller i flere prosjekter. 
+Blant annet har hun vært prosjektleder for DFV og Modernisering av 
+transaksjonsdomenet i alliansen.
+DFV - Dataprodukter for fondsforvaltning. 
+Prosjektets mål var å gjøre det enkelt og trygt for bankens kunder å kjøpe aksjer 
+via nettbank, og gir kundene god oversikt over egen portefølje og avkastning. 
+Porteføljeverdien ligger i dag på 119 MRD og det utføres daglig 30 000 kjøps- og 
+salgstransaksjoner...."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: -Zlatina-Delistoyanova_no_2025-10-08T10-16-03Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Zlatina Delistoyanova
+Senior Consultant
+1984
+LOKASJON
+Sandnes
+TELEFON
++4792974520
+EPOST
+zlatina.delistoyanova@cloudberries.no
+Zlatina er senioringeniør og jobber hovedsakelig med alt som har med .NET å gjøre. Hun brenner 
+for backend-utvikling, men trives også med fullstack- og databaseutvikling.
+Hun har bakgrunn i design og utvikling av ulike IT-løsninger innen bank og finans, 
+betalingsgatewayer og energisektoren, og jobber med seismiske data og maskinlæring. Hun har 
+bred erfaring innen en rekke rammeverk, teknologier og løsninger med fokus på skyen og 
+Microsofts teknologistack med C#, .NET, SQL Server, webtjenester, mikrotjenester, REST API-er og 
+Azure Cloud med mer.
+Hun har et øye for detaljer med analytiske og problemløsende evner. Hun liker å levere 
+teknologiprosjekter der samarbeid med tekniske kolleger, forretningsbrukere og kunder bidrar til 
+å oversette forretningskrav til verdifulle tekniske løsninger.
+Hun er mottakelig for nye teknologier og ideer, og har en lidenskap for programvareutvikling, som
+kombineres godt med smidige praksiser.
+Hun trives med praktisk arbeid, men kan også ta på seg andre roller som teknisk leder.
+#.NET#Azure
+CV  Zlatina Delistoyanova Cloudberries 1
+Kompetanse
+Programmeringsspråk
+C# .NET
+.NET
+.Net Framework
+ASP.NET Core MVC REST API
+ASP.NET REST API
+ASP.NET
+ASP.NET MVC
+ASP.NET Core
+.NET MAUI
+REST API
+Ocean APIs
+CQRS
+RabbitMQ
+Caching and load balancer with 
+Redis
+Redis
+Elastic Search
+Kong
+Entity Framework
+LINQ
+Angular
+React
+Microservices
+Web Services
+AutoMapper
+Fluent Validation
+Keycloak
+OAuth 2.0
+JSON Web Tokens (JWT)Cloud & DevOps
+Azure Cloud
+Azure Active Directory
+Azure DevOps
+DevOps
+CI/CD pipelines
+GitHub
+Docker
+Docker Compose
+Rancher/K8S
+Kubernetes
+Delfi
+Delfi(OSDU)Java
+Python 3.10
+Nvidia (CUDA and cuDNN to utilize 
+GPU),
+TypeScript
+JavaScript
+Postman Agent
+Powershell
+Git Bash
+Bash
+Monolithic
+SOAP
+SOAP Webservices
+Integrasjoner (SOAP)
+GraphTalk
+Nginx
+Metodikk
+Domain Driven Design (DDD)
+Test Driven Development (TDD)
+Clean A..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Duncan-Ivar-Bates_no_2025-10-08T10-15-48Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Duncan Ivar Bates
+Senior Consultant
+1970
+LOKASJON
+1409 Skotbu
+TELEFON
++47 904 12 140
+EPOST
+duncan.i.bates@cloudberries.no
+Duncan har lang erfaring som Software og Datavarehus-utvikler gjennom prosjekter i Telecom, 
+Olje&Gass, Software, og TV bransjen.
+Tidlig i karrieren utviklet han et ETL system rettet mot Telecom industrien, etterfulgt av et 
+prosjekt hvor han tok han fullt ansvar for BI løsningen til et selskap der det å skape innsikt i 
+bedrifts prosesser resulterte i at selskapet kunne ta bedre beslutninger basert på data.
+Duncan har jobbet med de fleste database motorene ute i markedet; Sybase, Oracle, Postgresql, 
+Microsoft SQL Server, og senest Snowflake og er opptatt av å sikre data kvaliteten i løsningene 
+han utvikler og forvalter.
+Senest i karrierene utviklet han med et datavarehus i TV industrien hvor teknologi som AWS, 
+Python, DBT, Prefect, og Snowflake ble benyttet. 
+Duncan har skrevet data integrasjoner mot utallige systemer og teknologier.
+Som person er Duncan nysgjerrig og liker å utvikle nye innovative løsninger. Han er åpen, ærlig og
+kommuniserer godt med medarbeidere fra forskjellige faglige bakgrunner og nivå. I prosjekt tar 
+han hurtig ansvar og eierskap, samt gir en positiv og behjelpelig holdning for oppgaver som 
+skulle dukke opp.
+CV Duncan Ivar Bates Cloudberries 1
+Prosjekterfaring
+VARIGHET PROSJEKT
+02.2024 - Statkraft AS: Adam/WWC
+Water Weather and Climate (WWC) avdelingen utvikler og vedlikeholder tjenester
+for Vann vær og klima  brukt i statkrafts analyser. Tjenestene inkluderer en rekke 
+multi dimensjonelle geolokaliserte tidserie tjenester for observert og prognosert 
+vær og vind data. Tjenestene er brukt i selskapets hydrologiske modeller for 
+forutsi vann påfyllings graden i selkapets vannmagasiner.
+ROLLE: Senior Software Utvikler / Backend
+I denne rollen utvikler Duncan data integrasjoner mot metrologiske data 
+leveranser fra selskaper  Meteorologisk institutt og European Centre for Medium-
+Range Weather Forecasts (ECMWF).
+Data'en..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Christian-Ihle_no_2025-10-08T10-14-39Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Christian Ihle
+Seniorkonsulent
+1984
+LOKASJON
+Oslo
+TELEFON
+40071174
+EPOST
+christian.ihle@cloudberries.no
+Christian er en dypt engasjert plattformutvikler med særdeles god kunnskap og erfaring innen 
+alle aspekter ved en moderne plattform, både on-prem og i skyen. Han har 15 års erfaring som 
+utvikler, og har de siste 8+ årene jobbet som plattformutvikler. De siste 4,5 årene har Christian 
+vært innleid som plattformutvikler og arkitekt hos Oslo kommune. I dette oppdraget har han 
+ledet arbeidet med å sette arkitekturen, bygge og forvalte Marvin, som er kommunens nye, 
+moderne og fleksible plattform. På Marvin kjører det komponenter og tjenester som brukes av 
+alle kommunens sektorer, noe som har satt store krav til blant annet stabilitet, sikkerhet og 
+skalerbarhet. Å lede dette arbeidet har krevd et solid funksjonelt og teknisk overblikk, noe som er
+et av Christians kjennetegn. I dette arbeidet har Christian blant annet jobbet med:
+    • Kubernetes og Docker
+    • CI/CD - GitHub og Jenkins
+    • Konfigurasjonsverktøy og automatisering av ulike typer driftsmiljøer - Helm og Ansible
+    • Logging og tracing
+    • Applikasjonsovervåkning /monitorering/overvåkningverktøy - Prometheus og Grafana
+    • Infrastructure-as-Code 
+    • Java og Kotlin
+    • DevOps-metodikk
+    • Plattformarbeid knyttet til skyutvikling
+I prosjektet hos Fremtind har Christian det siste halvåret jobbet med Azure-teknologier som har 
+utnyttet alle skyens muligheter ved blant annet bruk av Functions og høy grad av asynkronitet 
+med hendelser fra køer og dokumentdatabaser. Han har benyttet ARM templates for 
+Infrastructure-as-Code og application insights for tracing.
+CV Christian Ihle Cloudberries 1
+Christian har gjennom årene hatt flere roller i prosjekter, blant annet funksjonell arkitekt, teknisk 
+arkitekt, team lead, tech lead, utvikler, Scrum master, og som bindeledd mellom forretning og 
+utvikling.
+Christian er hyggelig, strukturert, og han arbeider hardt og målrettet i møte med nye utfordring..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Rui-Esteves_no_2025-10-08T10-13-18Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Rui Esteves
+Data Engineer
+LOKASJON
+Stavanger
+EPOST
+rui.esteves@cloudberries.no
+Rui Esteves er en senior dataingeniør og spesialist på kunstig intelligens og skyplattformer med 
+over ti års erfaring fra datadrevne prosjekter i Equinor, AkerBP, Bouvet, Nortura og offentlig sektor.
+Han har jobbet med dataintensive ETL-systemer, maskinlæring og big data-analyse på tvers av 
+domener. Han har en PhD i maskinlæring fra Universitetet i Stavanger, hvor han også underviser 
+deltid i fag innen data engineering og data science.
+OPPSUMMERING:
+- Spisskompetanse på Microsoft Azure-plattformen (Data Factory, Synapse, Databricks, Fabric)
+- Over 8 års erfaring med utvikling og drift av ETL-prosesser i produksjonsmiljøer
+- Lang erfaring med Python og SQL i både akademiske og industrielle settinger siden 2010
+- Erfaring med Power BI i flere prosjekter (indirekte, for analyse og visualisering)
+- Har ledet etablering av Centre of Excellence, drevet strategisk arbeid med datakvalitet og ledet 
+tverrfaglige team
+- Han har ikke brukt FME eksplisitt, men har dokumentert evne til rask teknisk opphenting og 
+Cloudberries sikrer relevant opplæring og sertifisering før oppstart
+- Bred erfaring med å levere verdi i tidsavgrensede prosjekter, og trives med å raskt sette seg inn i
+nye domener og tekniske landskap
+CV Rui Esteves Cloudberries 1
+Prosjekterfaring
+VARIGHET PROSJEKT
+11.2022 - 06.2025Universitetet i Stavanger: Universitetslektor i datavitenskap (deltid)
+Ved siden av sin hovedstilling underviser Rui i fag innenfor data engineering og 
+data science.  Han veileder bachelor- og masterstudenter innen data engineering 
+og AI, og er involvert i prosjekter knyttet til optimaliseringsalgoritmer og 
+sensoranalyse.
+KOMPETANSE
+Spark, Databricks, Python, LLM, sensoranalyse, undervisning, mentoring
+11.2023 - 06.2025Freelance:  Big Data Engineering / AI
+Rui utviklet et pilotmiljø i Azure for å trekke ut data fra SQL og andre kilder via 
+Data Factory, transformere disse i Databricks og Synapse, og lagre ..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: ACFrOgCwRp1swbM9P1gR14FAOSRwKCz_MEXJpULjbDVBdVhMwZuTnAZX0HYmuBBCmicbwOYk0460-qzBFJd0XovSSeOUd-FGGfzAOltfU9apYX_AslI5Tkxaoxjks3F7mbEPc4IiKfhGG54mcYjnNtEMfcNB9uvDbYs5C2VxXA==.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+CV Rafael Sanchez, PhD Cloudberries 1
+Rafael Sanchez, PhD
+Data scientist
+1986
+LOCATION
+Oslo
+PHONE
++47 466 49 383
+EMAIL
+rafael.sanchez@cloudberries.no
+Rafael is an accomplished developer and analyst with a passion for Data Science. He has a 
+PhD (Ph.D) in modeling, simulation and analysis at NTNU, where he studied how to optimize 
+chemical processes and make them more environmentally friendly. 
+He has over 10 years of experience in developing, operating and managing IT solutions on 
+various technologies and platforms such as .Net, Python, Azure and GCP.  He also has 
+experience in facilitating solutions from "on-premises" to the cloud. 
+Recently, Rafael has worked as both a Data Engineer, Data Scientist and Back-end Developer 
+in various projects at Elvia. One of these, for example, was about creating and commissioning 
+image recognition models that help the customer detect anomalies faster.
+Rafael is solution-oriented, easy to work with and is committed to delivering high-quality 
+solutions. Rafael thrives as part of a larger team and with pair programming. Rafael enjoys 
+complex problem solving and easily familiarizes himself with new tools and frameworks. 
+Project experience
+DURATION PROJECT
+09.2024 - 02.2026Sparebank 1 Insurance: PS27
+The PS27 project deals with a replacement of the existing core system F2100 
+with a new system. The core system F2100 is supplied by the Danish company 
+FDC. The project's goal is to start operations in 2027.
+ROLLE: Data Scientist
+In this role, Rafael explored the landscape for the generation of synthetic data, 
+with a particular focus on privacy. He studied various synthetic data generation 
+tools and their underlying model architectures, prioritizing flexibility, resiliency, 
+and scalability due to tight deadlines and uncertain requirements. 
+Differential privacy was identified as an important mathematical framework, as 
+CV Rafael Sanchez, PhD Cloudberries 2it offers quantifiable guarantees related to the risk of re-identification..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Christoph-Lindner_no_2025-10-08T10-14-30Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Christoph Lindner
+Senior Konsulent
+1984
+LOKASJON
+Skotbu
+EPOST
+christoph.lindner@cloudberries.no
+Christoph har lang erfaring som Business Intelligence- og datavarehusutvikler, samt som 
+prosjektleder i ulike sektorer som finans, shipping, olje og gass, energi og kraftbransjen. Med en 
+mastergrad i Supply Chain Management og logistikk har han en sterk forretningsforståelse og 
+fungerer ofte som et viktig bindeledd mellom forretningsbehov og tekniske løsninger. Han 
+brenner spesielt for å skape innsikt i virksomhetsprosesser for å muliggjøre bedre beslutninger 
+basert på data.
+I dag jobber Christoph som en utviklingsnær dataarkitekt med bred erfaring fra både Azure og 
+AWS. Han har særlig kompetanse innen moderne dataplattformer som Snowflake og Databricks, 
+samt løsninger for strømmende og batch-baserte datalaster. I tillegg har han erfaring med 
+verktøy som Power BI, Power Platform og dataorkestrering med Prefect, og har god kjennskap til 
+trender som Data Mesh og Modern Data Stack.
+Christoph kombinerer teknisk dybde med evnen til å kommunisere effektivt med ikke-tekniske 
+interessenter. Han trives med å være hands-on i utvikling samtidig som han tar ansvar for 
+arkitektur og helhetlige løsninger. Han har et sterkt fokus på brukervennlighet, skalerbarhet og 
+bærekraftige systemer, og er opptatt av gode overleveringer og å skape varig verdi for kundene.
+Som person er Christoph nysgjerrig, initiativrik og liker å utvikle innovative løsninger. Han er åpen
+og ærlig i kommunikasjonen og samarbeider godt med kolleger på tvers av fagområder og nivåer. 
+I prosjekter tar han raskt ansvar og eierskap, og er en positiv og støttende bidragsyter som alltid 
+er villig til å ta tak der det trengs.
+Fremhevede roller
+Utvikler Datawarehouse and Prosjektleder/Teknisk Utvikler/Arkitekt
+CV Christoph Lindner Cloudberries 1
+PowerBI ansvarlig
+Tech Lead Senior BI & DW Utvikler & 
+Arkitekt
+Kompetanse
+Kunnskaper
+Dataanalyse
+Datamodellering
+Master Data Management
+Datakvalitet - Data Kontrakter
+..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Hans-Petter-Kristiansen_no_2025-10-08T10-15-16Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Hans Petter Kristiansen
+Seniorkonsulent
+1984
+LOKASJON
+Dal
+TELEFON
+92617519
+EPOST
+hans.petter.kristiansen@cloudberries.no
+Hans Petter er en dedikert og resultatorientert seniorkonsulent med over 14 års erfaring innen 
+utvikling, datavarehus, visualisering og analyse. Gjennom sin karriere har han opparbeidet en 
+bred kompetanse innen ETL-prosesser, datavarehusbygging og implementering av moderne 
+dataplattformarkitekturer. Hans Petter har vært en nøkkelressurs i en rekke prosjekter på tvers av 
+ulike bransjer, inkludert transport, handel, industri og logistikk.
+Hans Petters spesialisering ligger i å utnytte de nyeste teknologiene innen skybaserte løsninger, 
+særlig på Azure- og AWS-plattformene. Han har en dyp forståelse for Lakehouse-arkitektur og har
+hatt det tekniske ansvare i flere prosjekter som involverer komplekse data pipelines ved bruk av 
+verktøy som Databricks og pySpark. Hans tekniske dyktighet suppleres av en sterk analytisk evne,
+noe som gjør ham i stand til å levere høykvalitetsløsninger som både er effektive og skalerbare.
+Kollegaer og kunder beskriver Hans Petter som en positiv, pålitelig og engasjert fagperson med 
+en utpreget evne til å ta ansvar og bygge tillit. Han trives i roller der teknisk rådgivning 
+kombineres med praktisk utvikling, og han er alltid på jakt etter nye måter å optimalisere og 
+effektivisere dataarkitekturer på. Med sin sterke bakgrunn og proaktive holdning er Hans Petter 
+en verdifull ressurs i ethvert prosjekt som krever avansert data engineering og skybasert 
+teknologi.
+Fremhevede roller
+Rådgiver og teknisk spesialist Arkitekt og utvikler
+CV Hans Petter Kristiansen Cloudberries 1
+Kompetanse
+Skytjenester
+AWS Lambda
+Amazon Kinesis
+Amazon EC2
+Apache Spark
+Databricks
+Azure DataFactory
+Azure DevOps
+Azure Databricks
+Azure Blob Storage
+Azure
+Terraform
+AWS DatabricksRapporteringsverktøy
+QlikView 11
+Qlik Sense
+TableauDatabaser
+Amazon Redshift
+Microsoft SQL Server
+Performance Tuning
+MySQL/MariaDB
+Ytelsesoptimalisering
+Programmeringssp..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Ayhan-Ileri_no_2025-10-08T10-16-23Z.pdf
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Ayhan Ileri
+Seniorkonsulent
+1988
+LOKASJON
+Oslo
+TELEFON
+46894771
+EPOST
+ayhan.ileri@cloudberries.no
+Ayhan er en erfaren utvikler og tech lead med 12 års erfaring fra utvikling og forvaltning av 
+forretningskritiske systemer. I prosjektene hos Skatteetaten, NorgesGruppen og Norges 
+Forskningsråd har han særlig erfaring innen saksbehandling, dataflyt og integrasjoner.
+Han har i løpet av karrieren hatt flere roller som utvikler, Tech Lead, løsningsarkitekt, teamleder, 
+systemansvarlig og forvaltningsansvarlig. Dette har gitt han bred erfaring med både teknisk 
+utvikling, løsningsdesign, teamledelse og leveranseansvar.
+Ayhan har 11 års erfaring med Java på backend, brukt i utvikling av mikrotjenester, REST API-er og
+integrasjoner. Han har arbeidet med Spring Boot, Kotlin og moderne mikrotjenestearkitektur, 
+blant annet i utviklingen av automatisert saksbehandling i Skatteetaten. Han har 10 års erfaring 
+med databaser og datamodellering i Oracle SQL, PL/SQL, PostgreSQL og MS SQL Server og BPMN.
+Ayhan er nysgjerrig og løsningsorientert, med sterk evne til å sette seg inn i nye problemstillinger 
+og finne praktiske løsninger i samarbeid med både forretning og tekniske team.
+Han har god forståelse for Master Data Management, både fra et teknisk og forretningsmessig 
+perspektiv. Som utvikler for masterdata-løsningen hos NorgesGruppen jobbet han direkte med 
+sentrale datasett som produkter, leverandører og lokasjoner for enhetlig og effektiv 
+virksomhetsdrift.
+Han jobbet med å sikre datakvalitet, enhetlige definisjoner på tvers av systemer og prosesser, 
+samt etablere tydelige eierskap og governance-strukturer. Han jobbet med både konsolidering av 
+masterdata fra ulike kilder, etablering av gyldighetslogikk og versjonshåndtering, og har erfaring 
+med hvordan man bygger API-er og integrasjoner som gjør at masterdata kan deles på tvers av 
+organisasjonen på en trygg og kontrollert måte.
+CV Ayhan Ileri Cloudberries 1
+Han kjenner godt til utfordringene som kan oppstå når masterdata..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: Thomas-Andersen_CV_Oktober.docx
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Thomas Andersen er en erfaren systemutvikler og arkitekt med over 20 års erfaring fra utvikling av forretningskritiske løsninger for både offentlige og private virksomheter. De siste årene har han hatt et særlig fokus på utvikling av KI-løsninger, der språkmodeller (LLM-er) inngår som en integrert del av applikasjonen. Han har blant annet ledet utviklingen av Candidate Match, en AI-basert plattform for Cloudberries for å finne beste kandidat til konsulentoppdrag, der modeller som OpenAI GPT og Google Gemini ble brukt til å analysere dokumenter og generere datadrevne matchscorer.
+
+Thomas kombinerer solid teknisk håndverk i Kotlin, Spring Boot, React og PostgreSQL med dyp forståelse for prinsipper som Domain-Driven Design, SOLID og Clean Architecture. Han har omfattende erfaring med CI/CD, containere (Docker) og arbeider metodisk for å bygge løsninger som er skalerbare, trygge og enkle å videreutvikle.
+
+Han har bred erfaring fra offentlig sektor gjennom flere år i Husbanken og Statens pensjonskasse, der han bidro til digitalisering og modernisering av samfunnskritiske løsninger. Denne bakgrunnen gir ham god forståelse for sikkerhet, datakvalitet og helhetlig systemdesign i offentlige virksomheter.
+
+Thomas trives i tverrfaglige team og tar ofte rollen som faglig pådriver – med evnen til å se både den tekniske og strategiske siden av et prosjekt, og til å omsette KI-teknologi til konkrete gevinster for brukerne.
+
+Fremhevede roller
+
+
+Fremhevede prosjekter
+
+Cloudberries  – Candidate Match: Et innovasjonsprosjekt (05.2025 - dd)
+Roller: Arkitekt og fullstack hovedutvikler, Fagansvarlig
+
+Thomas ledet utviklingen av en komplett KI-applikasjon med språkmodeller (OpenAI og Gemini) for automatisk matching mellom konsulenter og kundeforespørsler. Løsningen viser praktisk erfaring med LLM-integrasjon, RAG, prompt-evaluering, sikker databehandling og Azure-basert drift. Prosjektet demonstrerer hvordan KI kan anvendes trygt og målrettet for å effektivisere beslutningsprosesser i off..."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+
+# From: CV_Gullik-Vetvik-Killie_no.docx
+
+# Example CV
+MESSAGE user """Evaluate this CV:
+
+Gullik Vetvik Killie har en solid bakgrunn som utvikler, arkitekt og leder.  Han har erfaring med maskinlæring, dataplattformer og simuleringsverktøy i flere skyplattformer (GCP, Azure) og har jobbet både teknisk og strategisk med prosjekter for transport, energi og værdata.
+Han har jobbet i tverrfaglige team og har levert produksjonsklare løsninger i transportsektoren (Kolumbus), med fokus på både sanntidsdata og prediktiv modellering. Han har også erfaring med visualisering og automatisering av DevOps-pipelines. I tillegg har han tung erfaring fra CFD og komplekse numeriske systemer, som gir dybde i ML-forståelsen.
+
+PLukke noe fra dette
+Gullik har en allsidig bakgrunn innen statistikk og matematikk i kombinasjon med utvikling av programvare. Han har stor interesse for faget og liker utfordrende oppgaver som krever komplekse løsninger. Områder som interesserer han spesielt er modellering, statistikk, simulering og databehandling.
+
+Han har en master i beregningsmessig fysikk fra Universitet i Oslo og har bygget seg gode erfaringer fra arbeidslivet både som konsulent og arbeid i mindre bedrifter. Han har  7år erfaring utvikling i Python og solid erfaring med utvikling i Fortran, C, C++, C#, Matlab, QlikView og SQL. I tillegg til IT verktøy som Git, Github Actions, Azure DevOps og Kubernetes. Forskjellige applikasjoner og dataplattformer i både Azure og Google Cloud Platform (GCP) har vært ett av fokusområdene hans.
+
+Gullik er en sosial og engasjert konsulent, dyktig i sitt arbeid, proaktiv og flink til å ta ansvar der det trengs."""
+
+MESSAGE assistant """{
+  "scorePercentage": [SCORE_HERE],
+  "summary": "[SUMMARY_HERE]",
+  "strengths": [
+    "[STRENGTH_1]",
+    "[STRENGTH_2]",
+    "[STRENGTH_3]"
+  ],
+  "improvements": [
+    "[IMPROVEMENT_1]",
+    "[IMPROVEMENT_2]",
+    "[IMPROVEMENT_3]"
+  ]
+}"""
+
+

@@ -5,30 +5,6 @@ spring:
   application:
     name: teknologi-barometer-service
   
-  datasource:
-    url: jdbc:postgresql://localhost:5434/barometer_db
-    username: barometer
-    password: barometer123
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 300000 # 5 minutes
-      connection-timeout: 5000 # 5 seconds
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        jdbc:
-          batch_size: 25
-    open-in-view: false
-
-  liquibase:
-    change-log: classpath:/db/changelog/db.changelog-master.xml
 
   ai:
     openai:

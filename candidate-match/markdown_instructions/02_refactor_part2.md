@@ -1,152 +1,154 @@
+# Oppgave: Flytt all AI-kommunikasjon ut av Candidate Match og inn i AI RAG Service
 
-# Oppgave: Stabiliser AI RAG Service før videre refaktor
+Du jobber i et modulært monolitt-prosjekt med:
 
-Du jobber i et multi-modul Maven-prosjekt med disse modulene:
-
-- `candidate-match` = core modul og eier av business logic, repositories, JPA entities og transaksjoner
-- `ai-platform-contracts` = Anti-Corruption Layer / shared contracts
-- `ai-rag-service` = AI-integrasjoner og RAG-modul
+- `candidate-match` = core business logic
+- `ai-platform-contracts` = Anti-Corruption Layer
+- `ai-rag-service` = AI integrasjon / prompts / provider adapters
 
 ## Mål
 
-Før du gjør videre refaktor, skal du stabilisere `ai-rag-service` slik at den kompilerer rent og følger riktig dependency-retning.
+Flytt **all kommunikasjon mot kunstig intelligens** ut av `candidate-match` og inn i `ai-rag-service`, uten å flytte business logic ut av core.
 
-## Viktige regler
+## Arkitekturkrav
 
-1. **Ingen sirkulær dependency**
-    - `candidate-match` må ikke avhenge på konkrete AI-klasser
-    - `ai-rag-service` må ikke eie core repositories eller core domain logic
-    - `ai-platform-contracts` skal være ACL mellom core og AI-modul
+### Core (`candidate-match`) skal eie
+- business logic
+- matching/scoring-regler
+- repositories
+- JPA entities
+- transaksjoner
+- use-case-orchestrering
+- API-kontrakter som hører til core
 
-2. **Core business logic skal bli i `candidate-match`**
-    - ikke flytt matchingregler, scoringlogikk, repositories eller JPA entities ut av core
+### AI-modulen (`ai-rag-service`) skal eie
+- Gemini-klient
+- OpenAI-klient
+- Ollama-klient
+- Anthropic-klient
+- embedding-adaptere
+- prompt templates
+- prompt rendering / prompt builders
+- provider-valg / AI-factory
+- AI-relatert parsing av provider-respons
+- Spring AI / RAG-kode
 
-3. **All AI-kommunikasjon skal ende i `ai-rag-service`**
-    - provider-klienter
-    - prompt rendering
-    - embedding-adaptere
-    - Spring AI / RAG
-    - providervalg / fallback
-
-4. **`ai-platform-contracts` er source of truth for porter og AI-kontrakter**
-    - bruk portene derfra
-    - unngå parallelle port-definisjoner i andre moduler
-    - unngå dupliserte AI-domain/DTO-klasser
+### ACL (`ai-platform-contracts`) skal eie
+- porter
+- AI DTO-er
+- kontraktstyper
+- ingen Spring beans
+- ingen repos
+- ingen provider-kode
 
 ---
 
-## Det du skal gjøre nå
+## Konkret oppgave
 
-### 1. Analyser `ai-rag-service` for kompilasjonsproblemer
+### 1. Identifiser all AI-spesifikk kode i `candidate-match`
 
-Gå gjennom:
-- `ai-rag-service/pom.xml`
-- `src/main/kotlin/no/cloudberries/ai/infrastructure/ai/*`
-- `src/main/kotlin/no/cloudberries/ai/infrastructure/integration/*`
-- `src/main/kotlin/no/cloudberries/ai/rag/*`
-- `src/main/kotlin/no/cloudberries/ai/templates/*`
+Gå gjennom minst disse områdene:
 
-Identifiser:
-- imports som peker til feil pakker
-- typer som ikke finnes
-- konflikter mellom egne typer og typer fra `ai-platform-contracts`
-- Spring AI API-er som ikke matcher artifact-versjonen
-- beans som mangler konfigurasjon
-- gamle artifact-navn i POM som bør oppdateres
+- `infrastructure/integration/gemini/*`
+- `infrastructure/integration/openai/*`
+- `infrastructure/integration/ollama/*`
+- `infrastructure/integration/anthropic/*`
+- `infrastructure/integration/embedding/*`
+- `infrastructure/integration/ai/AIContentGeneratorFactory.kt`
+- `templates/*`
+- `service/ai/*`
 
-### 2. Normaliser Spring AI-avhengigheter
+Vurder for hver fil:
+- flyttes til `ai-rag-service`
+- blir værende i core
+- splittes i core-port + AI-adapter
 
-Se spesielt etter om disse artifactene er utdaterte eller feil:
+### 2. Flytt provider-spesifikk kode til `ai-rag-service`
 
-- `spring-ai-ollama-spring-boot-starter`
-- `spring-ai-pgvector-store-spring-boot-starter`
+Flytt eller refaktorer:
+- Gemini
+- OpenAI
+- Ollama
+- Anthropic
+- embedding providers
+- prompt templates
 
-Foretrekk samme Spring AI-linje som resten av prosjektet bruker.
+slik at de ender i `ai-rag-service`.
 
-Mål:
-- én konsistent Spring AI-versjon
-- ett konsistent artifact-sett
-- ingen miks av gammel og ny API-variant
+### 3. La `candidate-match` bare bruke porter
 
-### 3. Gjør `ai-rag-service` avhengig kun av:
-- `ai-platform-contracts`
-- Spring / Spring AI
-- egne provider-klienter
-- egne templates
-- egne adaptere
+Core-tjenester i `candidate-match` skal bruke porter fra `ai-platform-contracts`, ikke konkrete AI-klasser.
 
-Den skal **ikke** avhenge av:
-- repositories i `candidate-match`
-- JPA entities fra `candidate-match`
-- core services fra `candidate-match`
+Eksempler:
+- `ProjectRequestAnalysisService`
+- `CandidateMatchingService`
+- query interpretation / semantic search orchestration
+- CV-analyse / AI-basert vurdering
 
-### 4. Sørg for at adapterne implementerer kontrakt-portene
+Disse skal avhenge på porter, ikke på Gemini/Ollama/OpenAI/Anthropic-klasser.
 
-Adapterne i `ai-rag-service` skal implementere porter fra `ai-platform-contracts`, for eksempel:
-- `AiContentGenerationPort`
-- `CandidateMatchingPort`
-- `ProjectRequestAnalysisPort`
-- `QueryInterpretationPort`
-- `EmbeddingPort`
+### 4. Ikke flytt business logic ut av core
 
-Ikke redefiner disse portene lokalt dersom tilsvarende allerede finnes i contracts-modulen.
+Dette skal bli i `candidate-match`:
+- match score-logikk
+- domenevalidering
+- scoring-regler
+- repository-kall
+- transaksjoner
+- controller-flow
+- brukstilfelle-orchestrering
 
-### 5. Rydd imports og typer
+### 5. Flytt hardkodede prompts til `ai-rag-service`
 
-Hvis det finnes overlapp mellom:
-- `no.cloudberries.ai.*`
-- `no.cloudberries.candidatematch.*`
+Flytt alt av:
+- inline prompts i services
+- template-filer
+- prompt rendering-funksjoner
 
-så skal AI-modulen bruke kontraktstypene fra `ai-platform-contracts`, ikke core-typer fra `candidate-match`.
+inn i `ai-rag-service`.
 
-### 6. Lever diff-ready endringer
+Promptene skal ikke lenger ligge i core-modulen.
+
+### 6. Rydd opp i duplicated contracts
+
+Hvis `candidate-match` har egne porter eller AI-typer som dupliserer `ai-platform-contracts`, gjør følgende:
+
+- behold én canonical versjon i `ai-platform-contracts`
+- refaktorer `candidate-match` til å bruke contracts-modulen
+- refaktorer `ai-rag-service` til å implementere contracts-portene
+
+### 7. Behold dependency-retningen ren
+
+Målet er denne dependency-retningen:
+
+- `candidate-match` -> `ai-platform-contracts`
+- `candidate-match` -> `ai-rag-service`
+- `ai-rag-service` -> `ai-platform-contracts`
+
+Ikke innfør:
+- `ai-rag-service` -> `candidate-match`
+- sirkulær dependency
+- duplisering av core entities eller repositories
+
+---
+
+## Leveranseformat
 
 Svar med:
+
 1. What I looked at & why
 2. Findings
-3. Exact compile issues
-4. Recommended fix
-5. Patch-style diffs for:
-    - `ai-rag-service/pom.xml`
-    - relevante Kotlin-filer
-6. Eventuelle testjusteringer
+3. Refactoring plan
+4. Design sketch
+5. Patch-style diffs
+6. Liste over flyttede filer
+7. Liste over porter som nå brukes fra `ai-platform-contracts`
+8. Bygge-/wiring-endringer i POM og Spring-konfigurasjon
 
-## Viktig
+## Viktig kvalitetskrav
 
-Ikke gjør stor funksjonell redesign i denne fasen.
-Denne fasen handler kun om:
-- kompilasjon
-- dependency hygiene
-- ren port/adapter-retning
-- grunnlag for neste refaktor
-
-
-
-
-
-
-
-
-
-
-
----
-
-# Summary
-
-- Stabilized the `ai-rag-service` module to ensure it compiles cleanly and adheres to the "Modular Monolith" architectural constraints.
-- Established `ai-platform-contracts` as the exclusive source of truth for AI-related ports and domain models, eliminating circular dependencies between the AI module and the core `candidate-match` module.
-
-## Changes
-
-- Updated `ai-rag-service/pom.xml` to include essential missing dependencies: `spring-boot-starter-webflux` (for WebClient), `jackson-module-kotlin`, `okhttp3`, and `kotlin-logging-jvm`.
-- Normalized Spring AI versions in `ai-rag-service` to use the `${spring-ai.version}` property from the parent POM.
-- Verified that all adapters in `ai-rag-service` (Ollama, Gemini, Anthropic, OpenAI) correctly implement the ports defined in `ai-platform-contracts`.
-- Performed a codebase-wide audit of the AI module to ensure zero dependency on the `candidate-match` core module, strictly following the specified dependency direction.
-- Resolved all unresolved reference errors and type inference issues that were preventing compilation.
-
-## Verification
-
-- Executed `./mvnw clean compile -pl ai-rag-service` and confirmed a successful build with no compilation errors.
-- Verified the absence of `no.cloudberries.candidatematch.*` imports in the `ai-rag-service` module.
-- Confirmed that all beans in the AI module are properly registered and follow the Port/Adapter pattern.
+- ikke gjør kontroller tykkere
+- ikke lek AI-provider-modeller inn i core domain
+- ikke kopier repositories til AI-modulen
+- ikke flytt transaksjoner til AI-modulen
+- bevar dagens funksjonelle oppførsel så langt det er mulig

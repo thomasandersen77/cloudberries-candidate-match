@@ -1,10 +1,10 @@
 package no.cloudberries.candidatematch.service.consultants
 
 import mu.KotlinLogging
+import no.cloudberries.ai.port.EmbeddingPort
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
 import no.cloudberries.candidatematch.domain.consultant.RelationalSearchCriteria
 import no.cloudberries.candidatematch.domain.consultant.SemanticSearchCriteria
-import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantSearchRepository
 import no.cloudberries.candidatematch.utils.Timed
 import org.springframework.data.domain.Page
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class ConsultantSearchService(
     private val consultantSearchRepository: ConsultantSearchRepository,
-    private val embeddingProvider: EmbeddingProvider,
+    private val embeddingPort: EmbeddingPort,
     private val cvDataAggregationService: CvDataAggregationService
 ) {
     private val logger = KotlinLogging.logger { }
@@ -94,13 +94,13 @@ class ConsultantSearchService(
         allowedPairs: List<Pair<String, String>>,
         topK: Int
     ): List<ReRankedConsultant> {
-        if (!embeddingProvider.isEnabled() || allowedPairs.isEmpty()) return emptyList()
-        val queryEmbedding = embeddingProvider.embed(queryText)
+        if (!embeddingPort.isEnabled() || allowedPairs.isEmpty()) return emptyList()
+        val queryEmbedding = embeddingPort.embed(queryText)
         if (queryEmbedding.isEmpty()) return emptyList()
         val results = consultantSearchRepository.reRankBySemanticSimilarity(
             embedding = queryEmbedding,
-            provider = embeddingProvider.providerName,
-            model = embeddingProvider.modelName,
+            provider = embeddingPort.providerName,
+            model = embeddingPort.modelName,
             allowedPairs = allowedPairs,
             topK = topK
         )
@@ -137,20 +137,20 @@ class ConsultantSearchService(
         }
 
         // Check if embedding provider is enabled
-        if (!embeddingProvider.isEnabled()) {
+        if (!embeddingPort.isEnabled()) {
             logger.warn { "Embedding provider is disabled, cannot perform semantic search" }
             throw IllegalStateException("Semantic search is not available - embedding provider is disabled")
         }
 
         // Validate provider and model match
-        if (criteria.provider != embeddingProvider.providerName || criteria.model != embeddingProvider.modelName) {
-            logger.warn { "Provider/model mismatch: requested ${criteria.provider}/${criteria.model}, available ${embeddingProvider.providerName}/${embeddingProvider.modelName}" }
-            throw IllegalArgumentException("Provider/model mismatch. Available: ${embeddingProvider.providerName}/${embeddingProvider.modelName}")
+        if (criteria.provider != embeddingPort.providerName || criteria.model != embeddingPort.modelName) {
+            logger.warn { "Provider/model mismatch: requested ${criteria.provider}/${criteria.model}, available ${embeddingPort.providerName}/${embeddingPort.modelName}" }
+            throw IllegalArgumentException("Provider/model mismatch. Available: ${embeddingPort.providerName}/${embeddingPort.modelName}")
         }
 
         // Generate embedding for search text
         val searchEmbedding = try {
-            embeddingProvider.embed(criteria.text)
+            embeddingPort.embed(criteria.text)
         } catch (e: Exception) {
             logger.error(e) { "Failed to generate embedding for search text: '${criteria.text}'" }
             throw RuntimeException(
@@ -229,10 +229,10 @@ class ConsultantSearchService(
      */
     fun getEmbeddingProviderInfo(): EmbeddingProviderInfo {
         return EmbeddingProviderInfo(
-            enabled = embeddingProvider.isEnabled(),
-            provider = embeddingProvider.providerName,
-            model = embeddingProvider.modelName,
-            dimension = embeddingProvider.dimension
+            enabled = embeddingPort.isEnabled(),
+            provider = embeddingPort.providerName,
+            model = embeddingPort.modelName,
+            dimension = embeddingPort.dimension
         )
     }
 }

@@ -2,11 +2,10 @@ package no.cloudberries.candidatematch.service.ai
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.config.AIChatConfig
-import no.cloudberries.candidatematch.infrastructure.integration.embedding.EmbeddingConfig
+import no.cloudberries.ai.port.EmbeddingPort
+import no.cloudberries.candidatematch.config.CandidateMatchAIChatConfig
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.embedding.CvChunkEmbeddingRepository
-import no.cloudberries.candidatematch.domain.embedding.EmbeddingProvider
 import no.cloudberries.candidatematch.domain.consultant.Cv
 import no.cloudberries.candidatematch.service.embedding.DomainCvTextFlattener
 import org.springframework.stereotype.Service
@@ -14,10 +13,9 @@ import org.springframework.stereotype.Service
 @Service
 class RAGContextService(
     private val consultantRepository: ConsultantRepository,
-    private val embeddingProvider: EmbeddingProvider,
+    private val embeddingPort: EmbeddingPort,
     private val chunkRepo: CvChunkEmbeddingRepository,
-    private val aiChatConfig: AIChatConfig,
-    private val embeddingConfig: EmbeddingConfig,
+    private val aiChatConfig: CandidateMatchAIChatConfig,
     private val objectMapper: ObjectMapper
 ) {
     private val logger = KotlinLogging.logger { }
@@ -29,31 +27,30 @@ class RAGContextService(
     )
 
     fun ensureChunks(userId: String, cvId: String) {
-        if (!embeddingProvider.isEnabled()) {
+        if (!embeddingPort.isEnabled()) {
             logger.warn { "Embedding provider disabled, cannot create chunks" }
             return
         }
-        if (chunkRepo.existsFor(userId, cvId, embeddingProvider.providerName, embeddingProvider.modelName)) {
+        if (chunkRepo.existsFor(userId, cvId, embeddingPort.providerName, embeddingPort.modelName)) {
             return
         }
         val consultant = consultantRepository.findByUserId(userId)
             ?: throw IllegalArgumentException("Consultant not found: $userId")
 
-// Flatten resume JSON to plain text using domain CV
         val domainCv = objectMapper.treeToValue(consultant.resumeData, Cv::class.java)
         val fullText = DomainCvTextFlattener.toText(domainCv)
         val chunks = chunkText(fullText, aiChatConfig.rag.chunkSize, aiChatConfig.rag.chunkOverlap)
 
         chunks.forEachIndexed { idx, chunk ->
             try {
-                val vec = embeddingProvider.embed(chunk)
+                val vec = embeddingPort.embed(chunk)
                 if (vec.isNotEmpty()) {
                     chunkRepo.saveChunk(
                         userId = userId,
                         cvId = cvId,
                         chunkIndex = idx,
-                        provider = embeddingProvider.providerName,
-                        model = embeddingProvider.modelName,
+                        provider = embeddingPort.providerName,
+                        model = embeddingPort.modelName,
                         text = chunk,
                         embedding = vec
                     )
@@ -66,13 +63,13 @@ class RAGContextService(
     }
 
     fun retrieveTopK(userId: String, cvId: String, query: String, topK: Int): List<RetrievedChunk> {
-        if (!embeddingProvider.isEnabled()) return emptyList()
-        val queryVec = embeddingProvider.embed(query)
+        if (!embeddingPort.isEnabled()) return emptyList()
+        val queryVec = embeddingPort.embed(query)
         if (queryVec.isEmpty()) return emptyList()
         val hits = chunkRepo.similaritySearch(
             queryEmbedding = queryVec,
-            provider = embeddingProvider.providerName,
-            model = embeddingProvider.modelName,
+            provider = embeddingPort.providerName,
+            model = embeddingPort.modelName,
             userId = userId,
             cvId = cvId,
             topK = topK

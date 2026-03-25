@@ -54,7 +54,7 @@ class FlowcaseHttpClient(
             if (!response.isSuccessful) {
                 throw RuntimeException("Error from Flowcase API (fetchAllCvOverviews): ${response.code} - ${response.message}")
             }
-            val responseBodyString = response.body.string()
+            val responseBodyString = response.body?.string() ?: throw RuntimeException("Empty response body from Flowcase API")
 
             return responseBodyString.let {
                 val typeRef = object : TypeReference<List<FlowcaseUserDTO>>() {}
@@ -79,7 +79,8 @@ class FlowcaseHttpClient(
         client.newCall(request).execute().use { response ->
             when {
                 response.isSuccessful -> {
-                    return response.body.string().let {
+                    val responseBody = response.body?.string() ?: throw RuntimeException("Empty response body from Flowcase API")
+                    return responseBody.let {
                         FlowcaseUserResponse.Found(
                             mapper.readValue(
                                 it,
@@ -114,7 +115,8 @@ class FlowcaseHttpClient(
         client.newCall(request).execute().use { response ->
             when {
                 response.isSuccessful -> {
-                    return response.body.string().let {
+                    val responseBody = response.body?.string() ?: throw RuntimeException("Empty response body from Flowcase API")
+                    return responseBody.let {
                         mapper.readValue(
                             it,
                             FlowcaseCvDto::class.java

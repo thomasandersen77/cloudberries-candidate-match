@@ -1,26 +1,23 @@
 package no.cloudberries.candidatematch.service
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
-import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.domain.Requirement
-import no.cloudberries.candidatematch.domain.ai.AIProvider
-import no.cloudberries.candidatematch.domain.ai.AIResponse
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.domain.CandidateMatchResponse
+import no.cloudberries.ai.domain.Requirement
+import no.cloudberries.ai.port.CandidateMatchingPort
 import no.cloudberries.candidatematch.domain.event.DomainEventPublisher
-import no.cloudberries.candidatematch.service.ai.AIAnalysisService
 import no.cloudberries.candidatematch.service.matching.CandidateMatchingService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class CandidateMatchingServiceTest {
 
-    private val aiAnalysisService = mockk<AIAnalysisService>(relaxed = true)
+    private val candidateMatchingPort = mockk<CandidateMatchingPort>(relaxed = true)
     private val domainEventPublisher = mockk<DomainEventPublisher>(relaxed = true)
     private val candidateMatchingService = CandidateMatchingService(
-        aiAnalysisService,
+        candidateMatchingPort,
         domainEventPublisher
     )
-    private val mapper = jacksonObjectMapper()
 
     @Test
     fun `should return candidate match response for openAI provider`() {
@@ -30,7 +27,7 @@ class CandidateMatchingServiceTest {
         val expectedResponse = CandidateMatchResponse(
             totalScore = "9.5",
             summary = "This is a summary.",
-            requirements = mutableListOf(
+            requirements = listOf(
                 Requirement(
                     name = "Requirement 1",
                     isMustHave = false,
@@ -39,17 +36,16 @@ class CandidateMatchingServiceTest {
                 )
             )
         )
-        val responseJson = mapper.writeValueAsString(expectedResponse)
 
         every {
-            aiAnalysisService.analyzeContent(
-                content = any(String::class),
-                AIProvider.OPENAI
+            candidateMatchingPort.matchCandidate(
+                cv = cv,
+                request = request,
+                consultantName = consultantName,
+                provider = AIProvider.OPENAI
             )
-        } returns AIResponse(
-            responseJson,
-            "openai"
-        )
+        } returns expectedResponse
+
         val result = candidateMatchingService.matchCandidate(
             aiProvider = AIProvider.OPENAI,
             cv = cv,
@@ -71,7 +67,7 @@ class CandidateMatchingServiceTest {
         val expectedResponse = CandidateMatchResponse(
             totalScore = "8.5",
             summary = "This is a summary.",
-            requirements = mutableListOf(
+            requirements = listOf(
                 Requirement(
                     name = "Requirement 1",
                     isMustHave = false,
@@ -80,17 +76,15 @@ class CandidateMatchingServiceTest {
                 )
             )
         )
-        val responseJson = mapper.writeValueAsString(expectedResponse)
 
         every {
-            aiAnalysisService.analyzeContent(
-                content = any(String::class),
-                AIProvider.GEMINI
+            candidateMatchingPort.matchCandidate(
+                cv = cv,
+                request = request,
+                consultantName = consultantName,
+                provider = AIProvider.GEMINI
             )
-        } returns AIResponse(
-            responseJson,
-            "gemini"
-        )
+        } returns expectedResponse
 
         val result = candidateMatchingService.matchCandidate(
             aiProvider = AIProvider.GEMINI,
@@ -113,7 +107,7 @@ class CandidateMatchingServiceTest {
         val expectedResponse = CandidateMatchResponse(
             totalScore = "9.0",
             summary = "This is a summary.",
-            requirements = mutableListOf(
+            requirements = listOf(
                 Requirement(
                     name = "Requirement 1",
                     isMustHave = false,
@@ -122,17 +116,15 @@ class CandidateMatchingServiceTest {
                 )
             )
         )
-        val responseJson = mapper.writeValueAsString(expectedResponse)
 
         every {
-            aiAnalysisService.analyzeContent(
-                content = any(String::class),
-                AIProvider.ANTHROPIC
+            candidateMatchingPort.matchCandidate(
+                cv = cv,
+                request = request,
+                consultantName = consultantName,
+                provider = AIProvider.ANTHROPIC
             )
-        } returns AIResponse(
-            responseJson,
-            "claude-3-5-sonnet-20241022"
-        )
+        } returns expectedResponse
 
         val result = candidateMatchingService.matchCandidate(
             aiProvider = AIProvider.ANTHROPIC,
@@ -155,7 +147,7 @@ class CandidateMatchingServiceTest {
         val expectedResponse = CandidateMatchResponse(
             totalScore = "7.5",
             summary = "This is a summary.",
-            requirements = mutableListOf(
+            requirements = listOf(
                 Requirement(
                     name = "Requirement 1",
                     isMustHave = false,
@@ -164,17 +156,15 @@ class CandidateMatchingServiceTest {
                 )
             )
         )
-        val responseJson = mapper.writeValueAsString(expectedResponse)
 
         every {
-            aiAnalysisService.analyzeContent(
-                content = any(String::class),
-                AIProvider.OLLAMA
+            candidateMatchingPort.matchCandidate(
+                cv = cv,
+                request = request,
+                consultantName = consultantName,
+                provider = AIProvider.OLLAMA
             )
-        } returns AIResponse(
-            responseJson,
-            "ollama"
-        )
+        } returns expectedResponse
 
         val result = candidateMatchingService.matchCandidate(
             aiProvider = AIProvider.OLLAMA,

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20260319-01-create-spring-ai-vector-store" author="junie" context="pgvector">
+        <createTable tableName="vector_store">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="content" type="text"/>
+            <column name="metadata" type="jsonb"/>
+            <column name="embedding" type="vector(1024)"/>
+        </createTable>
+        <createIndex tableName="vector_store" indexName="idx_vector_store_embedding">
+            <column name="embedding"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

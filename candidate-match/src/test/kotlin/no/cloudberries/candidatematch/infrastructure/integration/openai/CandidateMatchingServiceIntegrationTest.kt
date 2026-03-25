@@ -3,8 +3,9 @@ package no.cloudberries.candidatematch.infrastructure.integration.openai
 import LiquibaseTestConfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.ai.domain.AIProvider
+import no.cloudberries.ai.domain.CandidateMatchResponse
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.infrastructure.integration.flowcase.FlowcaseHttpClient
 import no.cloudberries.candidatematch.service.matching.CandidateMatchingService
 import no.cloudberries.candidatematch.utils.PdfUtils
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import java.io.File
@@ -23,6 +25,22 @@ import java.io.FileInputStream
 @ActiveProfiles("manualtest")
 @Import(LiquibaseTestConfig::class)
 class CandidateMatchingServiceIntegrationTest {
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
+
     @Autowired
     lateinit var candidateMatchingService: CandidateMatchingService
     @Autowired

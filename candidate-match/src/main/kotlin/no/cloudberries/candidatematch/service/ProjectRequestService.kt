@@ -1,7 +1,7 @@
 package no.cloudberries.candidatematch.service
 
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.config.AISettings
+import no.cloudberries.ai.config.AISettings
 import no.cloudberries.candidatematch.domain.AISuggestion
 import no.cloudberries.candidatematch.domain.ProjectRequest
 import no.cloudberries.candidatematch.domain.candidate.Skill

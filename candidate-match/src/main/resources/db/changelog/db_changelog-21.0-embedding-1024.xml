@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Migrates cv_embedding from vector(768) to vector(1024) for bge-m3.
+        Existing Gemini embeddings (768 dims) are incompatible with bge-m3 embedding space
+        and are dropped. They will be regenerated via /api/embeddings/run/missing.
+    -->
+    <changeSet id="20260318-01-embedding-1024" author="agent" context="pgvector">
+        <sql>
+            -- Drop the existing ivfflat index (required before column change)
+            DROP INDEX IF EXISTS idx_cv_embedding_ivfflat;
+
+            -- Remove all existing embeddings (Gemini 768-dim vectors, incompatible with bge-m3)
+            TRUNCATE TABLE cv_embedding;
+
+            -- Replace embedding column with vector(1024)
+            ALTER TABLE cv_embedding DROP COLUMN embedding;
+            ALTER TABLE cv_embedding ADD COLUMN embedding vector(1024) NOT NULL;
+
+            -- Recreate ivfflat index with cosine ops (bge-m3 is trained for cosine similarity)
+            CREATE INDEX IF NOT EXISTS idx_cv_embedding_ivfflat
+                ON cv_embedding USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

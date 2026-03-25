@@ -27,7 +27,7 @@ data class ProjectRequest(
     }
 
     fun validateRequestDates() {
-        require(startDate.isBefore(endDate)) { 
+        require(!startDate.isAfter(endDate)) { 
             "Startdato må være tidligere eller lik sluttdato" 
         }
     }

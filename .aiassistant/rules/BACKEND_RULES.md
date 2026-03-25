@@ -2,7 +2,7 @@
 apply: always
 ---
 
-# Cloudberries Candidate Match Backend Rules (Canonical)
+# Cloudberries Candidate Match Backend Rules (Modular Monolith)
 
 ---
 
@@ -11,15 +11,16 @@ apply: always
 These rules must be followed for every change in this project:
 
 1.  **Modular Monolith Architecture**
-    *   `candidate-match`: Core service for CV analysis, project request matching, and consultant management.
-    *   `ai-rag-service`: Dedicated service for RAG (Retrieval-Augmented Generation) and vector operations.
-    *   `teknologi-barometer-service`: Service for analyzing technology trends.
-    *   Packages follow: `controllers`, `service`, `domain`, `infrastructure`, `dto`.
+    *   `candidate-match`: Core service for CV analysis, project request matching, and consultant management. Acts as the primary executable. Port: 8080.
+    *   `ai-rag-service`: Isolated module for RAG (Retrieval-Augmented Generation) and embeddings (Spring AI). Integrated into the main service but maintained as a modular dependency.
+    *   `teknologi-barometer-service`: Isolated module for analyzing technology trends. Port: 8082.
+    *   **Module Ownership**: Each module has its own domain and `pom.xml`.
+    *   **DDD Anti-Corruption Layers (ACL)**: Communication between modules MUST use ports/adapters to prevent domain model leakage.
 
 2.  **Layering (Strict)**
     *   `Controller` → `Service` (Domain/Application)
     *   `Service` → `Port` (Interface) or `Repository`
-    *   `Port` → `Infrastructure Adapter` (External APIs, AI Providers)
+    *   `Port` → `Infrastructure Adapter` (External modules, APIs, AI Providers)
 
 3.  **Ultra-thin Controllers**
     *   Controllers are responsible for: routing, extracting auth context, syntactic validation, and mapping DTOs ↔ Domain objects.
@@ -39,71 +40,92 @@ These rules must be followed for every change in this project:
     *   **MockMvc**: Use for testing API contracts, security (RBAC), and DTO mapping.
 
 6.  **AI & LLM Integration (Specialized Rules)**
-    *   **Provider Abstraction**: Never couple domain logic directly to a specific LLM (Gemini, Anthropic). Use `EmbeddingProvider` or `AIClient` ports.
-    *   **Prompt Management**: Keep prompt templates in dedicated classes/files (e.g., `no.cloudberries.candidatematch.templates`).
-    *   **RAG Flow**: Vector searches should be performed via `ai-rag-service` or dedicated repository methods using `pgvector`.
-    *   **Reliability**: Implement fallbacks and retries for AI calls.
+    *   **Provider Abstraction**: Never couple domain logic directly to a specific LLM. Use `EmbeddingProvider` or `AIClient` ports.
+    *   **Model Strategy**:
+        *   **Gemini 3 Pro Preview**: For PDF/requirement analysis.
+        *   **Gemini 2.5 Pro**: For batch candidate ranking (Files API).
+        *   **Claude 4.5 Sonnet**: Preferred high-end reasoning model.
+        *   **Ollama (Local)**: `llama3.2:3b` for local reasoning, `bge-m3` for local embeddings.
+    *   **Prompt Management**: Keep prompt templates in dedicated classes/files.
+    *   **RAG Flow**: Integrated Retrieval-Augmented Generation logic (Ingestion, Retrieval, API).
+    *   **Reliability**: Implement fallbacks (e.g., fallback to Gemini Flash if Pro 503s) and retries.
 
 7.  **Data Handling & PostgreSQL**
-    *   **pgvector**: All vector embeddings must be stored in PostgreSQL using the `vector` type.
-    *   **Money**: All monetary values must be represented as `Long` in minor units (e.g., øre). Floating-point types are **forbidden** for currency.
+    *   **pgvector**: All vector embeddings must be stored in PostgreSQL (port 5433) using the `vector` type.
+    *   **Money**: All monetary values must be represented as `Long` in minor units (e.g., øre). Floating-point types are **forbidden**.
     *   **Transactions**: All state-changing service methods MUST be annotated with `@Transactional`.
 
 8.  **Security & Identity**
-    *   **Authentication**: Use `@CurrentUser` (or equivalent mechanism) in controller signatures.
-    *   **Authorization**: Enforce RBAC (Role-Based Access Control) in the service layer.
+    *   **Authentication**: Use `@CurrentUser` in controller signatures. No certificate auth for local development (username/password only).
+    *   **Authorization**: Enforce RBAC in the service layer.
     *   **DTO Boundary**: Never return domain entities or infrastructure entities directly in API responses.
 
 9.  **Naming & Language**
-    *   **English**: All code identifiers (classes, variables), database tables/columns, and technical documentation.
-    *   **Norwegian**: Exception messages intended for end-users and functional/business log messages.
+    *   **English**: All code identifiers, database tables/columns, and technical documentation.
+    *   **Norwegian**: Exception messages for end-users and functional/business log messages.
 
 10. **SOLID Principles**
     *   **SRP**: Each class should have one reason to change.
-    *   **DIP**: Depend on abstractions, not concretions (especially for AI and Repositories).
+    *   **DIP**: Depend on abstractions, not concretions.
 
 ---
 
-## 1. System Architecture Details
+## 1. Local Development Setup
 
-### 1.1 `candidate-match` Structure
+### 1.1 Toolchain (Mandatory via SDKMAN)
+- **Java**: 21.0.7-tem
+- **Maven**: Latest
+- **Docker**: For PostgreSQL with pgvector
+
+### 1.2 Database (Docker Compose)
+- **Image**: `pgvector/pgvector:pg15`
+- **Port**: 5433 (Local) mapping to 5432 (Container)
+- **Auth**: Username/Password only (`candidatematch`/`candidatematch123`)
+- **Startup**: `docker-compose -f candidate-match/docker-compose-local.yaml up -d`
+
+---
+
+## 2. System Architecture Details
+
+### 2.1 `candidate-match` Structure (The Magnificent Monolith)
 - **`controllers`**: REST endpoints, thin, mapping only.
-- **`service`**: Orchestrates use-cases, contains domain logic when it doesn't fit on an entity.
-- **`domain`**: The "heart" – entities, value objects, and domain services.
-- **`infrastructure`**: Implementation details (JPA repositories, AI client adapters, external integrations).
+- **`service`**: Orchestrates use-cases, contains domain logic.
+- **`domain`**: Entities, value objects, and domain services.
+- **`rag`**: Integrated RAG logic (Ingestion, Retrieval, API).
+- **`infrastructure`**: JPA repositories, AI client adapters, external integrations (Flowcase, Gemini, Anthropic).
 
-### 1.2 Multi-Service Interaction
-- `candidate-match` is the orchestrator.
-- External calls to `ai-rag-service` should be handled via a dedicated `Port` in `candidate-match`.
+### 2.2 Matching Pipeline
+1. **SQL Grovsortering**: Filter candidates by skill match.
+2. **Combined Scoring**: 50% skill match + 50% CV quality.
+3. **Gemini Files API**: Upload top CVs as Markdown (cached URIs).
+4. **Batch AI Ranking**: Rank candidates in a single generateContent call.
 
 ---
 
-## 2. Testing Strategy
+## 3. Testing Strategy
 
-### 2.1 Unit Tests (Core)
-- Focus: Testing complex business rules, scoring algorithms, and mapping logic.
+### 3.1 Unit Tests (Core)
+- Focus: Business rules, scoring algorithms.
 - Tool: `JUnit 5`, `MockK`, `AssertJ`.
-- Rule: No Spring context allowed in core unit tests.
+- Rule: No Spring context allowed.
 
-### 2.2 Integration Tests
-- Focus: Verifying JPA queries, pgvector operations, and service wiring.
+### 3.2 Integration Tests
+- Focus: JPA queries, pgvector operations.
 - Tool: `@DataJpaTest` or `@SpringBootTest`.
-- Rule: Ensure `pgvector` extension is available in the test database.
+- Rule: Ensure `pgvector` extension is active.
 
 ---
 
-## 3. Requirement-Driven Development (RDD)
-
-1.  **Source of Truth**: Functional requirements are defined in `docs/` and project overview files.
-2.  **Verification**: Before starting a task, verify the requirement in the spec.
-3.  **Validation**: After implementation, ensure the behavior matches the requirement (e.g., matching accuracy, skill extraction).
+## 4. Requirement-Driven Development (RDD)
+1. **Source of Truth**: Requirements in `docs/` and `CANDIDATE_MATCH_OVERVIEW.md`.
+2. **Verification**: Verify requirement in spec before coding.
+3. **Validation**: Validate behavior (e.g., matching accuracy) after implementation.
 
 ---
 
-## 4. Multi-LLM Role Delegation
-
-- **Junie (Implementer)**: Code changes, terminal operations, running tests, fixing bugs.
-- **Claude (Architect)**: High-level design, complex logic planning, spec writing.
-- **ChatGPT/Codex (Consultant)**: Documentation, library knowledge, SQL queries.
+## 5. Multi-LLM Role Delegation
+- **Junie (Implementer)**: Code changes, terminal, tests, bug fixes.
+- **Claude (Architect)**: High-level design, logic planning, spec writing.
+- **ChatGPT/Codex (Consultant)**: Documentation, library knowledge, SQL.
 
 ---

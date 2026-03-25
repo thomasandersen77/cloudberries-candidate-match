@@ -36,6 +36,16 @@ data class PagedProjectRequestResponseDto(
     val hasPrevious: Boolean
 )
 
+data class PagedProjectRequestDto(
+    val content: List<ProjectRequestDto>,
+    val totalElements: Long,
+    val totalPages: Int,
+    val currentPage: Int,
+    val pageSize: Int,
+    val hasNext: Boolean,
+    val hasPrevious: Boolean
+)
+
 data class CreateProjectRequestDto(
     @field:NotBlank(message = "Customer name is required")
     val customerName: String,

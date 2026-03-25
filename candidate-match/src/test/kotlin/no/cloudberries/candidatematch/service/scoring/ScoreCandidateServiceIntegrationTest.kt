@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PRO
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.domain.consultant.ConsultantAdapter
 import no.cloudberries.candidatematch.domain.scoring.CVEvaluation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
@@ -20,6 +22,21 @@ import org.springframework.test.context.ActiveProfiles
 @Import(LiquibaseTestConfig::class)
 @ActiveProfiles("manualtest")
 class ScoreCandidateServiceIntegrationTest {
+
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
 
     @Autowired
     lateinit var scoreCandidateService: ScoreCandidateService

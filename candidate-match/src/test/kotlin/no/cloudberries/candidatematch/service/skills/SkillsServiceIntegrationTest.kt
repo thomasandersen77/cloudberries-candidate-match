@@ -3,6 +3,7 @@ package no.cloudberries.candidatematch.service.skills
 import LiquibaseTestConfig
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging.logger
+import no.cloudberries.ai.port.*
 import no.cloudberries.candidatematch.domain.candidate.SkillService
 import no.cloudberries.candidatematch.domain.consultant.*
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ContextConfiguration
 
 @SpringBootTest
@@ -22,6 +24,21 @@ class SkillsServiceIntegrationTest @Autowired constructor(
     private val skillsService: SkillsService,
     private val skillService: SkillService
 ) {
+    @MockBean
+    private lateinit var aiContentGenerationPort: AiContentGenerationPort
+
+    @MockBean
+    private lateinit var queryInterpretationPort: QueryInterpretationPort
+
+    @MockBean
+    private lateinit var embeddingPort: EmbeddingPort
+
+    @MockBean
+    private lateinit var candidateMatchingPort: CandidateMatchingPort
+
+    @MockBean
+    private lateinit var projectRequestAnalysisPort: ProjectRequestAnalysisPort
+
     private val logger = logger {}
 
     @Test

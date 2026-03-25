@@ -11,6 +11,10 @@ import javax.sql.DataSource
 @TestConfiguration
 @Import(EmbeddedPostgresTestConfig::class)
 class LiquibaseTestConfig {
+    init {
+        System.setProperty("liquibase.duplicateFileMode", "WARN")
+    }
+
     @Bean
     fun liquibase(@Qualifier("zonkyPostgresDatabaseProvider") postgresDataSource: DataSource): SpringLiquibase {
         return SpringLiquibase().apply {

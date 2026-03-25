@@ -44,27 +44,19 @@ class LoggingNotificationServiceTest {
     @Test
     fun `skal formatere varsel med alle forespørselsdetaljer og korrekt match-status`() {
         // GITT (Arrange)
+        val responseDeadline = LocalDateTime.of(2026, 3, 25, 16, 0)
+        val startDate = LocalDateTime.of(2026, 4, 1, 9, 0)
+        val endDate = LocalDateTime.of(2026, 12, 31, 17, 0)
+
         val projectRequestEntity = ProjectRequestEntity(
             id = 101,
             customerName = "Testkunde AS",
             requestDescription = "Viktig oppdrag for en senior Kotlin-utvikler.",
-            responseDeadline = LocalDateTime.of(
-                2025,
-                8,
-                28,
-                16,
-                0
-            ),
+            responseDeadline = responseDeadline,
             responsibleSalespersonEmail = "salg@cloudberries.no",
             status = RequestStatus.OPEN,
-            startDate = LocalDateTime.now(),
-            endDate = LocalDateTime.of(
-                2025,
-                12,
-                31,
-                17,
-                0
-            )
+            startDate = startDate,
+            endDate = endDate
         )
 
         // Create AI suggestions with proper constructor parameters
@@ -119,7 +111,7 @@ class LoggingNotificationServiceTest {
             "Mangler kundenavn"
         )
         Assertions.assertTrue(
-            loggedMessage.contains("2025-08-28T16:00"),
+            loggedMessage.contains("2026-03-25T16:00"),
             "Mangler eller har feil format på frist"
         )
         Assertions.assertTrue(

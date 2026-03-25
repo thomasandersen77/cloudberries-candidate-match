@@ -1,13 +1,13 @@
 package no.cloudberries.candidatematch.service.embedding
 
 import mu.KotlinLogging
-import no.cloudberries.candidatematch.infrastructure.integration.embedding.EmbeddingConfig
+import no.cloudberries.ai.port.EmbeddingPort
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
 class CvEmbeddingScheduler(
-    private val embeddingConfig: EmbeddingConfig,
+    private val embeddingPort: EmbeddingPort,
     private val cvEmbeddingService: CvEmbeddingService,
 ) {
     private val logger = KotlinLogging.logger { }
@@ -15,7 +15,7 @@ class CvEmbeddingScheduler(
     // Hver time
     @Scheduled(cron = "0 0 * * * ?")
     fun scheduleEmbeddingJob() {
-        if (!embeddingConfig.enabled) {
+        if (!embeddingPort.isEnabled()) {
             logger.debug { "Embedding disabled; scheduler skipping run." }
             return
         }

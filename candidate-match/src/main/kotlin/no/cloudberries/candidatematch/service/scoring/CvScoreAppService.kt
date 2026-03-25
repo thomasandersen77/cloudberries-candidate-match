@@ -8,11 +8,12 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.controllers.scoring.CandidateDTO
 import no.cloudberries.candidatematch.controllers.scoring.CvScoreDto
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.ai.domain.AIProvider
 import no.cloudberries.candidatematch.domain.scoring.CVEvaluation
 import no.cloudberries.candidatematch.infrastructure.entities.scoring.CvScoreEntity
 import no.cloudberries.candidatematch.infrastructure.repositories.ConsultantRepository
 import no.cloudberries.candidatematch.infrastructure.repositories.scoring.CvScoreRepository
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
@@ -33,6 +34,15 @@ class CvScoreAppService(
         )
     }
 
+    @Async
+    fun scoreCandidateAsync(candidateId: String, aiProvider: AIProvider? = null) {
+        try {
+            scoreCandidate(candidateId, aiProvider)
+        } catch (e: Exception) {
+            logger.error(e) { "Async scoring failed for $candidateId" }
+        }
+    }
+
     fun listCandidates(): List<CandidateDTO> = consultantRepository.findAll().map {
         CandidateDTO(
             id = it.userId,
@@ -41,7 +51,7 @@ class CvScoreAppService(
         )
     }
 
-    fun scoreCandidate(candidateId: String, aiProvider: AIProvider = AIProvider.GEMINI): CvScoreDto {
+    fun scoreCandidate(candidateId: String, aiProvider: AIProvider? = null): CvScoreDto {
         val consultant = consultantRepository.findByUserId(candidateId)
             ?: throw IllegalArgumentException("Consultant with userId=$candidateId not found")
         logger.info { "Scoring CV for userId=$candidateId" }
@@ -78,7 +88,12 @@ class CvScoreAppService(
 
     data class ScoreAllResult(val processedCount: Int)
 
-    fun scoreAll(aiProvider: AIProvider = AIProvider.GEMINI): ScoreAllResult {
+    @Async
+    fun scoreAllAsync(aiProvider: AIProvider? = null) {
+        scoreAll(aiProvider)
+    }
+
+    fun scoreAll(aiProvider: AIProvider? = null): ScoreAllResult {
         val consultants = consultantRepository.findAll()
         var processed = 0
         consultants.forEach { entity ->

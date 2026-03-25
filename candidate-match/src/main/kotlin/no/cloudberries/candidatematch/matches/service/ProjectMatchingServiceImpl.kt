@@ -5,8 +5,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import mu.KotlinLogging
 import no.cloudberries.candidatematch.controllers.consultants.ConsultantWithCvDto
-import no.cloudberries.candidatematch.domain.CandidateMatchResponse
-import no.cloudberries.candidatematch.domain.ai.AIProvider
+import no.cloudberries.ai.config.AISettings
+import no.cloudberries.ai.domain.CandidateMatchResponse
+import no.cloudberries.ai.domain.AIProvider
 import no.cloudberries.candidatematch.infrastructure.entities.toDomain
 import no.cloudberries.candidatematch.infrastructure.repositories.ProjectRequestRepository
 import no.cloudberries.candidatematch.matches.domain.MatchCandidateResult
@@ -41,8 +42,7 @@ class ProjectMatchingServiceImpl(
     private val consultantWithCvService: ConsultantWithCvService,
     private val candidateMatchingService: CandidateMatchingService,
     private val consultantScoringService: ConsultantScoringService,
-    private val geminiMatchingStrategy: GeminiMatchingStrategy?,
-    private val geminiFilesMatchingService: no.cloudberries.candidatematch.service.matching.GeminiFilesMatchingService
+    private val aiSettings: AISettings
 ) : ProjectMatchingService {
 
     private val logger = KotlinLogging.logger { }
@@ -171,10 +171,7 @@ class ProjectMatchingServiceImpl(
         projectRequestEntity: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity,
         matchResult: ProjectMatchResult
     ): List<MatchCandidateResult> {
-        // Convert entity to domain model
-        val projectRequest = convertToDomainProjectRequest(projectRequestEntity)
-        
-        return geminiMatchingStrategy!!.computeMatches(projectRequest, matchResult)
+        throw UnsupportedOperationException("Legacy GeminiMatchingStrategy has been removed. Use Files API instead.")
     }
     
     /**
@@ -188,38 +185,7 @@ class ProjectMatchingServiceImpl(
         projectRequestEntity: no.cloudberries.candidatematch.infrastructure.entities.ProjectRequestEntity,
         matchResult: ProjectMatchResult
     ): List<MatchCandidateResult> {
-        // Convert entity to domain model
-        val projectRequest = convertToDomainProjectRequest(projectRequestEntity)
-        
-        // Extract required skills for filtering
-        val requiredSkills = projectRequest.requiredSkills.map { it.name }
-        
-        // Call batch matching service
-        val matchedConsultants = geminiFilesMatchingService.matchConsultantsWithFilesApi(
-            projectRequest = projectRequest,
-            requiredSkills = requiredSkills,
-            topN = 10
-        )
-        
-        // Convert MatchConsultantDto to MatchCandidateResult entities
-        return matchedConsultants.mapNotNull { dto ->
-            val consultantId = dto.userId.toLongOrNull()
-            if (consultantId == null) {
-                logger.warn { "Invalid consultant ID in Files API result: ${dto.userId}" }
-                return@mapNotNull null
-            }
-            
-            // Convert 0-100 score to 0.0-1.0 decimal
-            val scoreDecimal = BigDecimal.valueOf(dto.relevanceScore).divide(BigDecimal.valueOf(100))
-                .coerceIn(BigDecimal.ZERO, BigDecimal.ONE)
-            
-            MatchCandidateResult(
-                matchResult = matchResult,
-                consultantId = consultantId,
-                matchScore = scoreDecimal,
-                matchExplanation = dto.justification ?: "Ranked by Gemini Files API"
-            )
-        }
+        throw UnsupportedOperationException("Legacy GeminiFilesMatchingService has been removed.")
     }
     
     /**
@@ -294,7 +260,7 @@ class ProjectMatchingServiceImpl(
         try {
             // Call AI matching service
             val matchResponse: CandidateMatchResponse = candidateMatchingService.matchCandidate(
-                aiProvider = AIProvider.GEMINI, // Use GEMINI as specified in requirements
+                aiProvider = aiSettings.provider,
                 cv = cvText,
                 request = requestText,
                 consultantName = consultant.name
