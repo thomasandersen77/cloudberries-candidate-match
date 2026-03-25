@@ -53,11 +53,12 @@ jobs:
           ingress: external
           targetPort: 8080
 
-      - name: Ensure anonymous access to Container App (disable platform auth)
+      - name: Ensure anonymous access to Container App (fully remove auth)
         run: |
           az extension add -n containerapp --yes || az extension update -n containerapp
-          az containerapp auth update \
+          # Delete auth config entirely to ensure no auth validation
+          az containerapp auth remove \
             --name cloudberries-candidate-match-ca \
             --resource-group cloudberries-internal-dev \
-            --enabled false
+            --yes || echo "Auth config already removed or not present"
 
