@@ -1,7 +1,4 @@
 spring:
-  mvc:
-    servlet:
-      path: /api
   servlet:
     multipart:
       enabled: true
