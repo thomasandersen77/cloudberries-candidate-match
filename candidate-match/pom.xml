@@ -356,7 +356,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>no.cloudberries.candidatematch.CandidateMatcherApplicationKt</mainClass>
+                    <mainClass>no.cloudberries.candidatematch.MainKt</mainClass>
                 </configuration>
                 <executions>
                     <execution>
