@@ -17,3 +17,5 @@ reviews
 *.zip
 Export for AI
 ollama-models/data/flowcase-cv-catalog/
+# CV scoring results - contains personal data
+ollama-models/scores/
