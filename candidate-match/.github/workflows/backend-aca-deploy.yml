@@ -73,6 +73,7 @@ jobs:
           test -n "${{ secrets.AZURE_DB_URL }}" || { echo 'Missing secret AZURE_DB_URL' >&2; exit 1; }
           test -n "${{ secrets.AZURE_DB_USERNAME }}" || { echo 'Missing secret AZURE_DB_USERNAME' >&2; exit 1; }
           test -n "${{ secrets.AZURE_DB_PASSWORD }}" || { echo 'Missing secret AZURE_DB_PASSWORD' >&2; exit 1; }
+          test -n "${{ secrets.OLLAMA_BASE_URL }}" || { echo 'Missing secret OLLAMA_BASE_URL' >&2; exit 1; }
 
       - name: Compute image tag
         id: meta
@@ -94,21 +95,23 @@ jobs:
             --image "${{ steps.meta.outputs.image }}" \
             .
 
-      - name: Configure Container App secrets and env vars (DB, profile)
+      - name: Configure Container App secrets and env vars (DB, Ollama, profile)
         shell: bash
         env:
           DB_URL: ${{ secrets.AZURE_DB_URL }}
           DB_USERNAME: ${{ secrets.AZURE_DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.AZURE_DB_PASSWORD }}
+          OLLAMA_URL: ${{ secrets.OLLAMA_BASE_URL }}
         run: |
           set -euo pipefail
           # Set or update secrets safely (GitHub masks secret values in logs)
           az containerapp secret set \
             -n "$AZURE_CONTAINERAPPS_APP" \
             -g "$AZURE_RESOURCE_GROUP" \
-            --secrets db-url="$DB_URL" db-username="$DB_USERNAME" db-password="$DB_PASSWORD"
+            --secrets db-url="$DB_URL" db-username="$DB_USERNAME" db-password="$DB_PASSWORD" ollama-url="$OLLAMA_URL"
 
           # Wire env vars to secret references and set Spring profile to prod (Docker also sets -Dspring.profiles.active=prod)
+          # NOTE: Now using OLLAMA instead of Gemini to avoid API costs
           az containerapp update \
             -n "$AZURE_CONTAINERAPPS_APP" \
             -g "$AZURE_RESOURCE_GROUP" \
@@ -116,6 +119,7 @@ jobs:
               DB_URL=secretref:db-url \
               DB_USERNAME=secretref:db-username \
               DB_PASSWORD=secretref:db-password \
+              OLLAMA_BASE_URL=secretref:ollama-url \
               SPRING_PROFILES_ACTIVE=prod \
             --only-show-errors
 

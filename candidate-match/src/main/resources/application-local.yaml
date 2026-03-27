@@ -43,13 +43,13 @@ spring:
       path: /api
   ai:
     ollama:
-      base-url: http://localhost:11434
+      base-url: https://kb-ollama-cv-ca-dev.blackisland-4a1bc921.westeurope.azurecontainerapps.io
       chat:
         options:
-          model: qwen2.5:14b
+          model: gemma3:4b
       embedding:
         options:
-          model: bge-m3
+          model: gemma3:4b
     vectorstore:
       pgvector:
         initialize-schema: false
@@ -57,12 +57,11 @@ spring:
 
 # Ollama configuration for OllamaHttpClient
 ollama:
-  baseUrl: http://localhost:11434
-  # Must match a name from `ollama list`. v4 only works after: ollama create gemma3:12b-cv-expert-v4 -f Modelfile-gemma3-cv-expert-v4
-  model: gemma3:12b-cv-expert-v4
-  # model: gemma3:12b-cv-expert-v3   # use this if v4 is not created yet (404 = model missing, not "Ollama down")
-  embeddingModel: bge-m3                    # embedding model
-  embeddingFallbackModel: nomic-embed-text  # fallback embedding if bge-m3 is unavailable
+  baseUrl: https://kb-ollama-cv-ca-dev.blackisland-4a1bc921.westeurope.azurecontainerapps.io
+  # Using available model from Azure Container Apps
+  model: gemma3:4b
+  embeddingModel: gemma3:4b                 # Using same model for embeddings
+  embeddingFallbackModel: gemma3:4b         # fallback embedding
   connectTimeoutSeconds: 10                 # connection timeout
   readTimeoutSeconds: 300                   # read timeout (5 minutes - Gemma3 12B can be slow on complex CVs)
   writeTimeoutSeconds: 30                   # write timeout
@@ -71,7 +70,7 @@ ollama:
 embedding:
   enabled: true
   provider: OLLAMA
-  model: bge-m3
+  model: gemma3:4b
   dimension: 1024
 
 # AI Settings for provider selection and configuration
@@ -82,7 +81,7 @@ ai:
     interpretation: gemini-2.5-flash
     generation_default: gemini-2.5-flash
     generation_quality: gemini-2.5-pro
-    embeddings: bge-m3
+    embeddings: gemma3:4b
   timeouts:
     interpretation: 1500  # 1.5s for fast query classification
     generation: 3000     # 3s for answer generation
@@ -109,8 +108,8 @@ search:
       dnb: ["den norske bank","d.n.b"]
       nav: ["arbeids- og velferdsetaten"]
   ollama:
-    base-url: http://localhost:11434
-    model: llama3.2:1b
+    base-url: https://kb-ollama-cv-ca-dev.blackisland-4a1bc921.westeurope.azurecontainerapps.io
+    model: gemma3:4b
     connect-timeout-seconds: 5
     read-timeout-seconds: 120
     write-timeout-seconds: 10
