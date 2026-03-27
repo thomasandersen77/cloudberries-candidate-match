@@ -16,11 +16,13 @@ spring:
     password: OdU]22WkG6$7
     hikari:
       maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 10000
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      validation-timeout: 5000
+      minimum-idle: 3                       # Reduced for low-traffic production
+      connection-timeout: 10000              # 10 seconds
+      idle-timeout: 300000                   # 5 minutes
+      max-lifetime: 1200000                  # 20 minutes - force connection refresh
+      validation-timeout: 5000               # 5 seconds
+      leak-detection-threshold: 60000        # IMPORTANT: Warn if connection held > 60s
+      connection-test-query: SELECT 1        # Validate connections
       schema: public
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
@@ -49,20 +51,20 @@ anthropic:
 
 embedding:
   enabled: true
-  provider: GEMINI
-  model: text-embedding-004
-  dimension: 768
+  provider: OLLAMA  # Local bge-m3 model for embeddings
+  model: bge-m3
+  dimension: 1024
 
 ai:
   ollama:
-    base-url: http://localhost:11434
-    model: llama3.2:1b
-  provider: GEMINI
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: gemma3:12b-cv-expert-v3
+  provider: OLLAMA
   models:
-    interpretation: gemini-2.5-flash
-    generation_default: gemini-2.5-flash
-    generation_quality: gemini-2.5-pro
-    embeddings: text-embedding-004
+    interpretation: gemma3:12b-cv-expert-v3
+    generation_default: gemma3:12b-cv-expert-v3
+    generation_quality: gemma3:12b-cv-expert-v3
+    embeddings: bge-m3
   timeouts:
     interpretation: 1500  # 1.5s for fast query classification
     generation: 3000     # 3s for answer generation
@@ -89,15 +91,15 @@ search:
       dnb: ["den norske bank","d.n.b"]
       nav: ["arbeids- og velferdsetaten"]
   ollama:
-    base-url: http://localhost:11434
-    model: llama3.2:1b
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: gemma3:12b-cv-expert-v3
     connect-timeout-seconds: 5
     read-timeout-seconds: 120
     write-timeout-seconds: 10
 projectrequest:
   analysis:
     ai-enabled: true
-    provider: GEMINI
+    provider: OLLAMA
 sync:
   consultants:
     on-startup: true

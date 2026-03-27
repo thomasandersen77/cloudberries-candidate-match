@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOGS" value="./logs" />
+    <!-- Log directory: /tmp/logs for Azure Container Apps (ephemeral but SSH-accessible) -->
+    <property name="LOGS" value="/tmp/logs" />
 
     <!-- Base pattern without inline colors; color is applied per-level by dedicated appenders -->
     <property name="BASE_PATTERN" value="%d{ISO8601} %-5level  [%X{requestId:-}] %C{1}.%M:%L: %msg%n%throwable"/>
@@ -65,11 +66,44 @@
         </encoder>
     </appender>
 
+    <!-- FILE APPENDER: Rolling file with size and time-based rotation -->
+    <!-- Optimized for Azure Container Apps: max 100MB per file, keep 3 days (not 7) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/application.log</file>
+        <encoder>
+            <!-- No color codes in file logs -->
+            <pattern>${BASE_PATTERN}</pattern>
+        </encoder>
+        
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Daily rollover -->
+            <fileNamePattern>${LOGS}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            
+            <!-- Max size per file: 50MB (conservative for container environment) -->
+            <maxFileSize>50MB</maxFileSize>
+            
+            <!-- Keep max 3 days of logs (72 hours) -->
+            <!-- This balances storage cost vs. debugging needs -->
+            <maxHistory>3</maxHistory>
+            
+            <!-- Total cap: 200MB across all log files -->
+            <!-- If exceeded, oldest files deleted first -->
+            <totalSizeCap>200MB</totalSizeCap>
+            
+            <!-- Clean up on startup -->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
     <root level="INFO">
+        <!-- Console appenders for colorized output -->
         <appender-ref ref="CONSOLE_ERROR"/>
         <appender-ref ref="CONSOLE_WARN"/>
         <appender-ref ref="CONSOLE_INFO"/>
         <appender-ref ref="CONSOLE_DEBUG"/>
         <appender-ref ref="CONSOLE_TRACE"/>
+        
+        <!-- File appender for SSH access via tail -->
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>
